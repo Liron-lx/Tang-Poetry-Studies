@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>数字人文交互页面</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+    
+    .underline {
+      width: 65px;
+      height: 3px;
+      position: absolute;
+      top: 62px;
+      background: black;
+      border-radius: 20px;
+      transition: left 0.3s ease-in-out;
+    }
+    
+    /* 弦图容器样式 */
+    .sankey-container {
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      border-radius: 8px;
+      display: flex;
+    }
+    
+    .chart-area {
+      width: 900px;
+      height: 729px;
+      position: relative;
+    }
+    
+    .detail-area {
+      width: 480px;
+      height: 729px;
+      padding: 30px;
+      box-sizing: border-box;
+      background: rgba(245, 245, 245, 0.1);
+      backdrop-filter: blur(10px);
+      border-left: 1px solid rgba(200, 200, 200, 0.3);
+      overflow-y: auto;
+    }
+    
+    .node-label {
+      font-family: 'PingFang SC', 'Noto Sans SC', sans-serif;
+      fill: #888888;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .node-label.highlighted {
+      fill: #6B5B73;
+      font-weight: 500;
+    }
+    
+    .node-label.dimmed {
+      opacity: 0.3;
+    }
+    
+    .node-arc.highlighted {
+      opacity: 1;
+    }
+    
+    .node-arc.selected {
+      opacity: 1;
+    }
+    
+    .node-arc.dimmed {
+      opacity: 0.2;
+    }
+    
+    .link.highlighted {
+      opacity: 0.9 !important;
+      stroke-width: 3px !important;
+    }
+    
+    .link.dimmed {
+      opacity: 0.1 !important;
+    }
+    
+    .loading {
+      text-align: center;
+      font-size: 16px;
+      color: #8B7D6B;
+      padding: 50px;
+    }
+    
+    /* 莫兰迪色系定义 */
+    .morandi-blue { fill: #9BB5C7; }
+    .morandi-green { fill: #A8B5A0; }
+    .morandi-pink { fill: #D4C4A8; }
+    .morandi-purple { fill: #B5A7B8; }
+    .morandi-gray { fill: #B8B5B2; }
+    .morandi-beige { fill: #C7B299; }
+    .morandi-sage { fill: #A8A68A; }
+    .morandi-lavender { fill: #B8A9C9; }
+    
+    /* 右侧详细信息展示样式 */
+    .detail-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #6B5B73;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #D4C4A8;
+    }
+    
+    .detail-content {
+      color: #8B7D6B;
+      line-height: 1.6;
+    }
+    
+    .poem-item {
+      margin-bottom: 25px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      border-left: 4px solid #A8B5A0;
+      transition: all 0.3s ease;
+    }
+    
+    .poem-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+    
+    .poem-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: #6B5B73;
+      margin-bottom: 8px;
+    }
+    
+    .poem-content {
+      font-size: 14px;
+      color: #8B7D6B;
+      line-height: 1.8;
+      white-space: pre-line;
+    }
+    
+    .poem-category {
+      display: inline-block;
+      background: #D4C4A8;
+      color: #6B5B73;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    
+    .category-description {
+      background: rgba(168, 181, 160, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #A8B5A0;
+    }
+    
+    .category-description p {
+      margin: 8px 0;
+      color: #6B5B73;
+    }
+    </style>
+    </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div style="width: 1440px; height: 900px; position: relative; background: white; overflow: hidden"> 
+      <!-- 顶部导航栏开始 --> 
+      <div style="z-index: 1000; position: relative;">
+        <img style="width: 24px; height: 24px; left: 30px; top: 30px; position: absolute; z-index: 1001; cursor: pointer;" src="image/home.svg" alt="home" onclick="window.location.href='index.html'"> 
+        <div style="left: 438px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='interactive.html'">侠踪天下</div>
+        <div style="left: 597px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='poetry-emotion.html'">剑影诗心</div> 
+        <div style="left: 763px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='word-association.html'">侠骨柔情</div> 
+        <div style="left: 922px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='keyword-river.html'">侠韵流殇</div> 
+        <img style="width: 24px; height: 24px; left: 1384px; top: 29px; position: absolute" src="image/menu.svg" alt="menu"> 
+        <div style="width: 1400px; height: 0px; left: 16px; top: 64px; position: absolute; outline: 1px #979797 solid; outline-offset: -0.50px"></div> 
+        <div class="underline" style="left: 922px;"></div>
+        <img style="width: 64px; height: 18px; left: 63px; top: 34px; position: absolute" src="image/诗风侠影.svg" alt="诗风侠影"> 
+      </div>
+      <!-- 顶部导航栏结束 -->
+      
+      <!-- 将 <div> 替换为 <img> 标签 -->
+      <div style="padding: 12px; position: absolute; right: 30px; bottom: 20px; border-radius: 46.50px; flex-direction: column; justify-content: flex-start; align-items: flex-end; gap: 10px; display: inline-flex"> 
+        <div style="justify-content: flex-start; align-items: center; gap: 16px; display: inline-flex"> 
+          <div style="color: black; font-size: 20px; font-family: MiSans; font-weight: 400; word-wrap: break-word">返回首页</div> 
+          <div style="padding: 12px; background: #FBEEEE; border-radius: 29px; justify-content: flex-start; align-items: center; gap: 10px; display: flex; cursor: pointer;" onclick="window.location.href='index.html'"> 
+            <img style="width: 16px; height: 16px;" src="image/arrow-right.svg" alt="arrow right"> 
+          </div> 
+        </div> 
+      </div> 
+
+      <!-- 留出空间放可交互的数字人文内容 -->
+      <div style="margin-top: 100px; padding: 20px;">
+        <!-- 组合图片元素 -->
+        <div style="position: absolute; left: 30px; bottom: 30px; width: 120px;">
+          <img style="width: 100%; height: auto;" src="image/Group 3.svg" alt="Group 3">
+        </div>
+
+        <!-- 可交互的数字人文内容 -->
+        <div style="position: absolute; left: 30px; top: 84px; width: 1380px; height: 729px; margin-bottom: 20px;">
+          <div class="sankey-container">
+            <div class="chart-area">
+              <div id="chart">
+                <div class="loading">正在加载数据...</div>
+              </div>
+            </div>
+            <div class="detail-area" id="detail-area">
+              <div class="detail-title">详细信息</div>
+              <div class="detail-content">
+                <p style="color: #A8B5A0;">请点击或悬停在弦图的弧线上查看详细信息</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> 
+    
+    <script>
+        // 莫兰迪色系配色
+        const morandiColors = {
+            categories: ['#A47B75', '#C29F7B', '#F4D78B', '#8B9891', '#90A5BA', '#83A6AA', '#4D6883', '#BABABA'],
+            // 作者颜色使用相同色系但稍微变浅，与类别颜色区分
+            authors: ['#B48B82', '#D2AF8B', '#F6E79B', '#9B9E9E', '#A0B5CA', '#93BAB7', '#5D7893', '#C8C8C8']
+        };
+        
+        // 根据类别名称获取对应颜色的函数
+        function getCategoryColor(categoryName) {
+            switch(categoryName) {
+                case '侠义抒怀类':
+                    return '#4D6883';  // 占比大的侠义抒怀用深蓝色
+                case '隐逸怀古类':
+                    return '#83A6AA';  // 隐逸怀古用青绿色
+                case '豪侠交游类':
+                    return '#90A5BA';  // 豪侠交游用浅蓝色
+                case '市井任侠类':
+                    return '#8B9891';  // 市井任侠用灰绿色
+                default:
+                    // 其他类别使用原有的莫兰迪色系
+                    const index = Math.abs(categoryName.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % morandiColors.categories.length;
+                    return morandiColors.categories[index];
+            }
+        }
+        let currentData = null;
+        let svg = null;
+        let nodes = null;
+        let links = null;
+        let labels = null;
+        
+         // 读取CSV数据并生成图表
+        d3.csv("poetry_with_detailed_clusters_sankey.csv").then(function(csvData) {
+            // 清除加载提示
+            d3.select("#chart").selectAll("*").remove();
+            
+            // 添加缺失的变量声明
+            const categoryNodes = [];
+            const authorNodes = [];
+            const nodeMap = {};
+            
+            // 处理数据
+            const authorCounts = {};
+            const categoryCounts = {};
+            const connections = {};
+            const authorPoems = {};
+            const categoryPoems = {};
+            
+            csvData.forEach(row => {
+                const author = row['作者'];
+                const category = row['聚类类别'];
+                const poemTitle = row['诗歌名'];
+                const poemContent = row['诗歌原文'];
+                
+                // 统计作者出现次数
+                authorCounts[author] = (authorCounts[author] || 0) + 1;
+                
+                // 统计类别出现次数
+                categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+                
+                // 统计作者-类别连接
+                const key = `${author}-${category}`;
+                connections[key] = (connections[key] || 0) + 1;
+                
+                // 存储作者的诗歌
+                if (!authorPoems[author]) authorPoems[author] = [];
+                authorPoems[author].push({ title: poemTitle, content: poemContent, category: category });
+                
+                // 存储类别的诗歌
+                if (!categoryPoems[category]) categoryPoems[category] = [];
+                categoryPoems[category].push({ title: poemTitle, content: poemContent, author: author });
+            });
+            
+            // 按类别包含的诗歌数量排序
+            const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
+            const sortedAuthors = Object.keys(authorCounts).sort((a, b) => authorCounts[b] - authorCounts[a]);
+            
+            // 修复：分别计算类别和作者的角度分配
+            const totalCategoryValue = d3.sum(Object.values(categoryCounts));
+            const totalAuthorValue = d3.sum(Object.values(authorCounts));
+            
+            // 类别节点占据上半圆（-π/2 到 π/2）
+            let currentCategoryAngle = -Math.PI / 2;
+            const categoryAngleSpan = Math.PI;
+            
+            // 创建类别节点并分配角度
+            sortedCategories.forEach((category, index) => {
+                const angleSpan = (categoryCounts[category] / totalCategoryValue) * categoryAngleSpan;
+                const node = {
+                    name: category,
+                    type: "category",
+                    count: categoryCounts[category],
+                    color: getCategoryColor(category),  // 使用新的颜色函数
+                    poems: categoryPoems[category],
+                    startAngle: currentCategoryAngle,
+                    endAngle: currentCategoryAngle + angleSpan,
+                    centerAngle: currentCategoryAngle + angleSpan / 2
+                };
+                categoryNodes.push(node);
+                nodeMap[category] = { type: 'category', index: index, node: node };
+                currentCategoryAngle += angleSpan;
+            });
+            
+            // 作者节点占据下半圆（π/2 到 3π/2）
+            let currentAuthorAngle = Math.PI / 2;
+            const authorAngleSpan = Math.PI;
+            
+            // 创建作者节点并分配角度
+            sortedAuthors.forEach((author, index) => {
+                const angleSpan = (authorCounts[author] / totalAuthorValue) * authorAngleSpan;
+                const node = {
+                    name: author,
+                    type: "author",
+                    count: authorCounts[author],
+                    color: morandiColors.authors[index % morandiColors.authors.length],
+                    poems: authorPoems[author],
+                    startAngle: currentAuthorAngle,
+                    endAngle: currentAuthorAngle + angleSpan,
+                    centerAngle: currentAuthorAngle + angleSpan / 2
+                };
+                authorNodes.push(node);
+                nodeMap[author] = { type: 'author', index: index, node: node };
+                currentAuthorAngle += angleSpan;
+            });
+            
+            // 合并节点数组：先类别，后作者
+            const allNodes = [...categoryNodes, ...authorNodes];
+            
+            // 重新创建连接数组，使用正确的全局索引
+            const linkArray = [];
+            Object.keys(connections).forEach(key => {
+                const [author, category] = key.split('-');
+                const authorInfo = nodeMap[author];
+                const categoryInfo = nodeMap[category];
+                
+                if (authorInfo && categoryInfo) {
+                    // 计算在合并数组中的正确索引
+                    const categoryGlobalIndex = categoryInfo.index;
+                    const authorGlobalIndex = categoryNodes.length + authorInfo.index;
+                    
+                    linkArray.push({
+                        source: authorGlobalIndex,
+                        target: categoryGlobalIndex,
+                        value: connections[key],
+                        sourceType: 'author',
+                        targetType: 'category',
+                        authorName: author,
+                        categoryName: category
+                    });
+                }
+            });
+            
+            currentData = { nodes: allNodes, links: linkArray };
+            
+            // 设置画布尺寸
+            const width = 900;
+            const height = 729;
+            const radius = Math.min(width, height) / 2 - 100; // 从80改为100，让圆变小
+
+            // 创建SVG
+            svg = d3.select("#chart")
+                .append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .append("g")
+                .attr("transform", `translate(${width/2},${height/2})`);
+
+            // 创建弧生成器
+            const arc = d3.arc()
+                .innerRadius(radius - 30)
+                .outerRadius(radius)
+                .startAngle(d => d.startAngle)
+                .endAngle(d => d.endAngle);
+
+            // 绘制节点弧
+            nodes = svg.selectAll(".node")
+                .data(currentData.nodes)
+                .enter()
+                .append("g")
+                .attr("class", "node");
+
+            nodes.append("path")
+                .attr("d", arc)
+                .attr("class", "node-arc")
+                .style("fill", d => d.color)
+                .style("stroke", "none")
+                .style("opacity", 0.8)
+                .on("mouseover", handleNodeHover)
+                .on("mouseout", handleMouseOut)
+                .on("click", handleNodeClick);
+
+            // 连接路径生成器
+            function linkPath(d) {
+                const sourceNode = currentData.nodes[d.source];
+                const targetNode = currentData.nodes[d.target];
+                
+                if (!sourceNode || !targetNode) {
+                    console.warn('Missing node for link:', d);
+                    return '';
+                }
+                
+                // 计算弧的中心角度，并向左旋转90度以匹配标签位置
+                const sourceAngle = ((sourceNode.startAngle + sourceNode.endAngle) / 2) - Math.PI / 2;
+                const targetAngle = ((targetNode.startAngle + targetNode.endAngle) / 2) - Math.PI / 2;
+                
+                // 连接点位于弧的内边缘
+                const connectionRadius = radius - 30;
+                
+                const sx = connectionRadius * Math.cos(sourceAngle);
+                const sy = connectionRadius * Math.sin(sourceAngle);
+                const tx = connectionRadius * Math.cos(targetAngle);
+                const ty = connectionRadius * Math.sin(targetAngle);
+                
+                // 使用二次贝塞尔曲线，控制点在圆心
+                return `M${sx},${sy} Q0,0 ${tx},${ty}`;
+            }
+
+            // 绘制链接
+            links = svg.selectAll(".link")
+                .data(currentData.links)
+                .enter()
+                .append("path")
+                .attr("class", "link")
+                .attr("d", linkPath)
+                .style("fill", "none")
+                .style("stroke", d => {
+                    // 弧线颜色与对应的类别颜色相同
+                    const sourceNode = currentData.nodes[d.source];
+                    const targetNode = currentData.nodes[d.target];
+                    // 使用类别节点的颜色
+                    const categoryNode = sourceNode.type === 'category' ? sourceNode : targetNode;
+                    return categoryNode.color;
+                })
+                .style("stroke-width", d => Math.sqrt(d.value) * 1.5)
+                .style("opacity", 0.7)
+                .on("mouseover", handleLinkHover)
+                .on("mouseout", handleMouseOut);
+
+            // 添加标签
+            labels = svg.append("g")
+            .selectAll("text")
+            .data(currentData.nodes)
+            .enter()
+            .append("text")
+            .attr("dy", ".35em")
+            .attr("transform", d => {
+            // 使用centerAngle而不是重新计算
+            const angle = d.centerAngle || (d.startAngle + d.endAngle) / 2;
+            // 向左旋转90度（减去π/2）来正确对齐到弧的中间
+            const labelAngle = angle - Math.PI / 2;
+            const radius_offset = radius * 1.08;
+            const x = radius_offset * Math.cos(labelAngle);
+            const y = radius_offset * Math.sin(labelAngle);
+            let rotate = (labelAngle * 180 / Math.PI);
+            
+            // 特殊处理"侠义抒怀类"标签，旋转180度更方便阅读
+            if (d.name === '侠义抒怀类') {
+                rotate += 180;
+            } else if (labelAngle > Math.PI / 2 && labelAngle < 3 * Math.PI / 2) {
+                rotate += 180;
+            }
+            
+            return `translate(${x},${y}) rotate(${rotate})`;
+            })
+            .style("text-anchor", d => {
+            // 使用调整后的角度确保一致性
+            const angle = d.centerAngle || (d.startAngle + d.endAngle) / 2;
+            const labelAngle = angle - Math.PI / 2;
+            // 特殊处理"侠义抒怀类"标签的文本锚点
+            if (d.name === '侠义抒怀类') {
+                return "end";
+            }
+            return (labelAngle > Math.PI / 2 && labelAngle < 3 * Math.PI / 2) ? "end" : "start";
+            })
+            .style("font-size", d => d.type === 'category' ? "12px" : "10px") // 从14px/12px改为12px/10px
+            .attr("class", "node-label")
+            .style("font-weight", d => d.type === 'category' ? "500" : "400")
+            .text(d => `${d.name}(${d.count})`)
+            .on("mouseover", function(event, d) { handleNodeHover(event, d); })
+            .on("mouseout", handleMouseOut)
+            .on("click", function(event, d) { handleNodeClick(event, d); });
+                
+        }).catch(function(error) {
+            console.error("数据加载失败:", error);
+            d3.select("#chart").html('<div class="loading">数据加载失败，请检查控制台错误信息</div>');
+        });
+        
+        // 节点悬停/点击处理
+        function handleNodeHover(event, d) {
+            highlightNode(d);
+            showNodeDetails(d);
+        }
+        
+        function handleNodeClick(event, d) {
+            highlightNode(d);
+            showNodeDetails(d);
+        }
+        
+        // 链接悬停处理
+        function handleLinkHover(event, d) {
+            const sourceNode = currentData.nodes[d.source];
+            const targetNode = currentData.nodes[d.target];
+            highlightConnection(sourceNode, targetNode);
+        }
+        
+        // 鼠标离开处理
+        function handleMouseOut() {
+            // 不自动取消高亮，需要点击其他地方才取消
+        }
+        
+        // 高亮节点及其连接
+        function highlightNode(selectedNode) {
+            // 重置所有样式
+            nodes.selectAll(".node-arc")
+                .classed("highlighted", false)
+                .classed("dimmed", false);
+            
+            links
+                .classed("highlighted", false)
+                .classed("dimmed", false);
+            
+            labels
+                .classed("highlighted", false)
+                .classed("dimmed", false);
+            
+            // 找到相关的连接
+            const relatedLinks = currentData.links.filter(link => 
+                currentData.nodes[link.source] === selectedNode || 
+                currentData.nodes[link.target] === selectedNode
+            );
+            
+            // 获取相关节点的索引
+            const relatedNodeIndices = new Set();
+            relatedLinks.forEach(link => {
+                relatedNodeIndices.add(link.source);
+                relatedNodeIndices.add(link.target);
+            });
+            
+            // 特别处理类别节点的交互
+            if (selectedNode.type === 'category') {
+                const selectedNodeIndex = currentData.nodes.indexOf(selectedNode);
+                
+                // 设置弧的样式
+                nodes.selectAll(".node-arc")
+                    .classed("highlighted", (d, i) => {
+                        return i === selectedNodeIndex || 
+                               (relatedNodeIndices.has(i) && currentData.nodes[i].type === 'author');
+                    })
+                    .classed("dimmed", (d, i) => {
+                        return i !== selectedNodeIndex && 
+                               !(relatedNodeIndices.has(i) && currentData.nodes[i].type === 'author');
+                    });
+                
+                // 设置标签样式
+                labels
+                    .classed("highlighted", (d, i) => {
+                        return i === selectedNodeIndex || 
+                               (relatedNodeIndices.has(i) && currentData.nodes[i].type === 'author');
+                    })
+                    .classed("dimmed", (d, i) => {
+                        return i !== selectedNodeIndex && 
+                               !(relatedNodeIndices.has(i) && currentData.nodes[i].type === 'author');
+                    });
+                
+                // 设置连线样式
+                links
+                    .classed("highlighted", d => relatedLinks.includes(d))
+                    .classed("dimmed", d => !relatedLinks.includes(d));
+                    
+            } else {
+                // 作者节点的交互逻辑
+                nodes.selectAll(".node-arc")
+                    .classed("highlighted", (d, i) => relatedNodeIndices.has(i))
+                    .classed("dimmed", (d, i) => !relatedNodeIndices.has(i));
+                    
+                labels
+                    .classed("highlighted", (d, i) => relatedNodeIndices.has(i))
+                    .classed("dimmed", (d, i) => !relatedNodeIndices.has(i));
+                
+                links
+                    .classed("highlighted", d => relatedLinks.includes(d))
+                    .classed("dimmed", d => !relatedLinks.includes(d));
+            }
+        }
+        
+        // 高亮连接
+        function highlightConnection(sourceNode, targetNode) {
+            highlightNode(sourceNode);
+        }
+        
+        // 显示节点详情
+        function showNodeDetails(node) {
+            const detailArea = d3.select("#detail-area");
+            
+            if (node.type === 'category') {
+                // 显示类别详情
+                const categoryDescriptions = {
+                    '豪侠交游类': '描写豪侠人物的交游活动，展现侠客精神和友谊情怀的诗歌。',
+                    '侠义抒怀类': '表达侠义精神和个人情怀，体现诗人对侠客品格的向往和赞美。',
+                    '市井任侠类': '描写市井中的侠客生活，反映民间侠义文化和社会风貌。',
+                    '隐逸怀古类': '表达隐逸思想和怀古情怀，体现诗人对古代贤士的追慕。'
+                };
+                
+                let html = `
+                    <div class="detail-title">${node.name}</div>
+                    <div class="category-description">
+                        <p>${categoryDescriptions[node.name] || '该类别包含相关主题的诗歌作品。'}</p>
+                        <p><strong>包含诗歌数量：</strong>${node.count}首</p>
+                    </div>
+                    <div style="margin-bottom: 15px; font-weight: 500; color: #8B7D6B;">典型诗歌展示：</div>
+                `;
+                
+                // 显示前3首典型诗歌
+                const typicalPoems = node.poems.slice(0, 3);
+                typicalPoems.forEach(poem => {
+                    html += `
+                        <div class="poem-item">
+                            <div class="poem-title">${poem.title} - ${poem.author}</div>
+                            <div class="poem-content">${poem.content}</div>
+                        </div>
+                    `;
+                });
+                
+                if (node.poems.length > 3) {
+                    html += `<p style="color: #A8B5A0; text-align: center;">还有 ${node.poems.length - 3} 首诗歌...</p>`;
+                }
+                
+                detailArea.html(html);
+                
+            } else {
+                // 显示作者详情
+                let html = `
+                    <div class="detail-title">${node.name}</div>
+                    <div class="category-description">
+                        <p><strong>创作诗歌数量：</strong>${node.count}首</p>
+                    </div>
+                    <div style="margin-bottom: 15px; font-weight: 500; color: #8B7D6B;">所有诗歌作品：</div>
+                `;
+                
+                // 显示最多3首诗歌
+                const displayPoems = node.poems.slice(0, 3);
+                displayPoems.forEach(poem => {
+                    html += `
+                        <div class="poem-item">
+                            <div class="poem-title">${poem.title}</div>
+                            <div class="poem-content">${poem.content}</div>
+                            <div class="poem-category">类别：${poem.category}</div>
+                        </div>
+                    `;
+                });
+                
+                if (node.poems.length > 3) {
+                    html += `<p style="color: #A8B5A0; text-align: center;">还有 ${node.poems.length - 3} 首诗歌...</p>`;
+                }
+                
+                detailArea.html(html);
+            }
+        }
+        
+        // 点击空白区域取消高亮
+        d3.select("body").on("click", function(event) {
+            if (!event.target.closest(".node") && !event.target.closest(".node-label") && !event.target.closest(".link")) {
+                // 重置所有高亮
+                if (nodes) {
+                    nodes.selectAll(".node-arc").classed("highlighted dimmed", false);
+                    links.classed("highlighted dimmed", false);
+                    labels.classed("highlighted dimmed", false);
+                }
+                
+                // 重置详情区域
+                d3.select("#detail-area").html(`
+                    <div class="detail-title">详细信息</div>
+                    <div class="detail-content">
+                        <p style="color: #A8B5A0;">请点击或悬停在弦图的弧线上查看详细信息</p>
+                    </div>
+                `);
+            }
+        });
+    </script>
+  </body>
+</html>

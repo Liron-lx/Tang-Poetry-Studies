@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <title>数字人文交互页面</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+    .underline {
+      width: 65px;
+      height: 3px;
+      position: absolute;
+      top: 62px;
+      background: black;
+      border-radius: 20px;
+      transition: left 0.3s ease-in-out;
+    }
+    .word-freq-container {
+      width: 100%;
+      height: 100%;
+      background-color: white;
+      border-radius: 8px;
+    }
+    .word-freq-chart {
+      width: 100%;
+      height: 100%;
+    }
+    </style>
+    </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div style="width: 1440px; height: 900px; position: relative; background: white; overflow: hidden"> 
+      <!-- 顶部导航栏开始 --> 
+      <div style="z-index: 1000; position: relative;">
+        <img style="width: 24px; height: 24px; left: 30px; top: 30px; position: absolute; z-index: 1001; cursor: pointer;" src="image/home.svg" alt="home" onclick="window.location.href='index.html'"> 
+        <div style="left: 438px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='interactive.html'">侠踪天下</div>
+        <div style="left: 597px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='poetry-emotion.html'">剑影诗心</div> 
+        <div style="left: 763px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='word-association.html'">侠骨柔情</div> 
+        <div style="left: 922px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='keyword-river.html'">侠韵流殇</div> 
+        <img style="width: 24px; height: 24px; left: 1384px; top: 29px; position: absolute" src="image/menu.svg" alt="menu"> 
+        <div style="width: 1400px; height: 0px; left: 16px; top: 64px; position: absolute; outline: 1px #979797 solid; outline-offset: -0.50px"></div> 
+        <div class="underline" style="left: 597px;"></div>
+        <img style="width: 64px; height: 18px; left: 63px; top: 34px; position: absolute" src="image/诗风侠影.svg" alt="诗风侠影"> 
+      </div>
+      <!-- 顶部导航栏结束 -->
+      
+      <!-- 将 <div> 替换为 <img> 标签 -->
+      <div style="padding: 12px; position: absolute; right: 30px; bottom: 20px; border-radius: 46.50px; flex-direction: column; justify-content: flex-start; align-items: flex-end; gap: 10px; display: inline-flex; cursor: pointer;" onclick="window.location.href='word-association.html'"> 
+        <div style="justify-content: flex-start; align-items: center; gap: 16px; display: inline-flex"> 
+          <div style="color: black; font-size: 20px; font-family: MiSans; font-weight: 400; word-wrap: break-word">继续</div> 
+          <div style="padding: 12px; background: #FBEEEE; border-radius: 29px; justify-content: flex-start; align-items: center; gap: 10px; display: flex"> 
+            <img style="width: 16px; height: 16px;" src="image/arrow-right.svg" alt="arrow right"> 
+          </div> 
+        </div> 
+      </div> 
+
+      <!-- 留出空间放可交互的数字人文内容 -->
+      <div style="margin-top: 100px; padding: 20px;">
+        <!-- 组合图片元素 -->
+        <div style="position: absolute; left: 30px; bottom: 30px; width: 120px;">
+          <img style="width: 100%; height: auto;" src="image/Group 3.svg" alt="Group 3">
+        </div>
+
+        <!-- 可交互的数字人文内容 -->
+        <div style="position: absolute; left: 30px; top: 84px; width: 1380px; height: 729px; margin-bottom: 20px;">
+          <div class="word-freq-container">
+            <div class="filter-buttons" style="margin-bottom: 10px; text-align: center;">
+                <button id="showAllBtn" class="filter-btn active" style="margin-right: 10px; padding: 5px 15px; background: #FBEEEE; color: black; border: none; border-radius: 4px; cursor: pointer;">显示全部</button>
+                <div id="categoryButtons" style="display: inline-block;"></div>
+            </div>
+            <div id="wordFreqChart" class="word-freq-chart" style="height: 680px;"></div>
+          </div>
+        </div>
+      </div>
+    </div> 
+    
+    <script>
+        // 词频数据（移除情感类词语"欲"）
+        const data = [
+            {"词语": "侠客  ", "词频": "54", "分类": "人物形象类"},
+            {"词语": "少年  ", "词频": "38", "分类": "人物形象类"},
+            {"词语": "游侠  ", "词频": "31", "分类": "人物形象类"},
+            {"词语": "月  ", "词频": "21", "分类": "自然气候类"},
+            {"词语": "黄金  ", "词频": "20", "分类": "器物类"},
+            {"词语": "纪事  ", "词频": "18", "分类": "器物类"},
+            {"词语": "意气  ", "词频": "18", "分类": "事物类"},
+            {"词语": "人  ", "词频": "17", "分类": "人物形象类"},
+            {"词语": "白日  ", "词频": "16", "分类": "自然气候类"},
+            {"词语": "邯郸  ", "词频": "14", "分类": "地理类"},
+            {"词语": "丈夫  ", "词频": "14", "分类": "人物形象类"},
+            {"词语": "白马  ", "词频": "14", "分类": "动物类"},
+            {"词语": "将军  ", "词频": "14", "分类": "人物形象类"},
+            {"词语": "宝剑  ", "词频": "14", "分类": "器物类"},
+            {"词语": "长安  ", "词频": "14", "分类": "地理类"},
+            {"词语": "年  ", "词频": "14", "分类": "时间类"},
+            {"词语": "时  ", "词频": "13", "分类": "时间类"},
+            {"词语": "东海  ", "词频": "12", "分类": "地理类"},
+            {"词语": "桃李  ", "词频": "12", "分类": "草木类"},
+            {"词语": "天子  ", "词频": "12", "分类": "人物形象类"},
+            {"词语": "青丝  ", "词频": "12", "分类": "人物形象类"},
+            {"词语": "洛阳  ", "词频": "12", "分类": "地理类"},
+            {"词语": "日  ", "词频": "12", "分类": "自然气候类"},
+            {"词语": "明月  ", "词频": "10", "分类": "自然气候类"},
+            {"词语": "空床  ", "词频": "10", "分类": "器物类"},
+            {"词语": "八月  ", "词频": "10", "分类": "时间类"},
+            {"词语": "平生  ", "词频": "10", "分类": "人物形象类"},
+            {"词语": "行人  ", "词频": "10", "分类": "人物形象类"},
+            {"词语": "瀚海  ", "词频": "10", "分类": "地理类"},
+            {"词语": "草木  ", "词频": "10", "分类": "草木类"},
+            {"词语": "烽火  ", "词频": "10", "分类": "事物类"},
+            {"词语": "任侠  ", "词频": "10", "分类": "人物形象类"},
+            {"词语": "儿  ", "词频": "10", "分类": "人物形象类"},
+            {"词语": "辞  ", "词频": "10", "分类": "事物类"},
+            {"词语": "道  ", "词频": "10", "分类": "地理类"},
+            {"词语": "事  ", "词频": "10", "分类": "事物类"},
+            {"词语": "今  ", "词频": "9", "分类": "时间类"},
+            {"词语": "春  ", "词频": "9", "分类": "时间类"},
+            {"词语": "客  ", "词频": "9", "分类": "人物形象类"},
+            {"词语": "剑  ", "词频": "8", "分类": "器物类"},
+            {"词语": "子  ", "词频": "8", "分类": "人物形象类"},
+            {"词语": "侠  ", "词频": "8", "分类": "人物形象类"},
+            {"词语": "百年  ", "词频": "8", "分类": "时间类"},
+            {"词语": "落日  ", "词频": "8", "分类": "自然气候类"},
+            {"词语": "举世  ", "词频": "8", "分类": "时间类"},
+            {"词语": "燕赵  ", "词频": "8", "分类": "地理类"},
+            {"词语": "宝刀  ", "词频": "8", "分类": "器物类"},
+            {"词语": "死路  ", "词频": "8", "分类": "地理类"},
+            {"词语": "蛾眉  ", "词频": "8", "分类": "人物形象类"},
+            {"词语": "王侯  ", "词频": "8", "分类": "人物形象类"},
+            {"词语": "当时  ", "词频": "8", "分类": "时间类"},
+            {"词语": "大道  ", "词频": "8", "分类": "地理类"},
+            {"词语": "千金  ", "词频": "8", "分类": "器物类"},
+            {"词语": "红尘  ", "词频": "8", "分类": "事物类"},
+            {"词语": "风尘  ", "词频": "8", "分类": "事物类"},
+            {"词语": "红颜  ", "词频": "8", "分类": "人物形象类"},
+            {"词语": "知己  ", "词频": "8", "分类": "人物形象类"},
+            {"词语": "关西  ", "词频": "8", "分类": "地理类"},
+            {"词语": "流星  ", "词频": "8", "分类": "自然气候类"},
+            {"词语": "风光  ", "词频": "8", "分类": "自然气候类"},
+            {"词语": "浮云  ", "词频": "8", "分类": "自然气候类"},
+            {"词语": "咸阳  ", "词频": "8", "分类": "地理类"},
+            {"词语": "天下  ", "词频": "8", "分类": "地理类"},
+            {"词语": "男儿  ", "词频": "8", "分类": "人物形象类"},
+            {"词语": "五陵  ", "词频": "8", "分类": "地理类"},
+            {"词语": "鹰  ", "词频": "9", "分类": "动物类"},
+            {"词语": "大鹏  ", "词频": "8", "分类": "动物类"},
+            {"词语": "子规  ", "词频": "9", "分类": "动物类"}
+        ];
+
+       // 分类颜色映射（采用侠骨柔情的配色方案）
+        const categoryColors = {
+            "人物形象类": "#4D6883",
+            "自然气候类": "#83A6AA",
+            "器物类": "#90A5BA",
+            "事物类": "#8B9891",
+            "地理类": "#F4D78B",
+            "动物类": "#C29F7B",
+            "时间类": "#A47B75",
+            "草木类": "#BABABA"
+        };
+
+        // 处理数据
+        const processedData = data.map(item => {
+            const frequency = parseInt(item.词频);
+            let symbolSize;
+            let opacity;
+            
+            if (frequency > 10) {
+                symbolSize = frequency * 1.5;
+                opacity = 0.7;
+            } else if (frequency >= 8) {
+                symbolSize = frequency * 2.6;
+                opacity = 0.6;
+            } else {
+                symbolSize = 4;
+                opacity = 1;
+            }
+            
+            return {
+                name: item.词语.trim(),
+                value: frequency,
+                category: item.分类,
+                symbolSize: symbolSize,
+                itemStyle: {
+                    opacity: opacity,
+                    color: categoryColors[item.分类]
+                }
+            };
+        });
+
+        // 分类列表
+        const categories = Object.keys(categoryColors).map(category => {
+            return {
+                name: category,
+                itemStyle: {
+                    color: categoryColors[category]
+                }
+            };
+        });
+
+        // 初始化图表
+        const chart = echarts.init(document.getElementById('wordFreqChart'));
+        
+        // 当前选中的分类（null表示显示全部）
+        let selectedCategory = null;
+        
+        // 过滤数据的函数
+        function filterData(category) {
+            if (category === null) {
+                return processedData; // 显示全部
+            }
+            return processedData.filter(item => item.category === category);
+        }
+        
+        // 创建分类按钮
+        function createCategoryButtons() {
+            const buttonContainer = document.getElementById('categoryButtons');
+            if (!buttonContainer) return;
+            
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.textContent = cat.name;
+                btn.className = 'filter-btn';
+                btn.style.cssText = 'margin-right: 10px; padding: 5px 15px; background: #f0f0f0; color: #333; border: none; border-radius: 4px; cursor: pointer;';
+                btn.onclick = () => selectCategory(cat.name, btn);
+                buttonContainer.appendChild(btn);
+            });
+        }
+        
+        // 选择分类函数
+        function selectCategory(category, button) {
+            // 更新按钮状态
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.style.background = '#f0f0f0';
+                btn.style.color = '#333';
+            });
+            
+            if (button) {
+                button.classList.add('active');
+                button.style.background = '#FBEEEE';
+                button.style.color = 'black';
+            }
+            
+            selectedCategory = category;
+            
+            // 更新图表
+            chart.setOption({
+                series: [{
+                    data: filterData(selectedCategory)
+                }]
+            });
+        }
+        
+        // 配置项（移除图例）
+        const option = {
+            tooltip: {
+                formatter: function(params) {
+                    return `${params.data.name}<br/>词频: ${params.data.value}<br/>分类: ${params.data.category}`;
+                }
+            },
+            series: [{
+                name: '词频',
+                type: 'graph',
+                layout: 'force',
+                data: filterData(selectedCategory),
+                categories: categories,
+                roam: true,
+                label: {
+                    show: true,
+                    position: 'right',
+                    formatter: function(params) {
+                        return params.data.value >= 8 ? params.data.name : '';
+                    },
+                    fontSize: 10
+                },
+                force: {
+                    repulsion: 115,     // 增加排斥力
+                    edgeLength: 40,    // 增加边长
+                    gravity: 0.2,      // 减少重力
+                    layoutAnimation: true
+                },
+                // 添加同类别词语间的连接
+                links: processedData.map((item, index) => {
+                    const sameCategory = processedData.filter(d => d.category === item.category && d.name !== item.name);
+                    return sameCategory.slice(0, 1).map(target => ({
+                        source: item.name,
+                        target: target.name,
+                        lineStyle: {
+                            opacity: 0.05,
+                            width: 0.5
+                        }
+                    }));
+                }).flat(),
+                emphasis: {
+                    focus: 'adjacency',
+                    label: {
+                        show: true
+                    }
+                },
+                scaleLimit: {
+                    min: 0.8,
+                    max: 2
+                },
+                lineStyle: {
+                    color: 'source',
+                    curveness: 0.3
+                }
+            }],
+            backgroundColor: '#fff'
+        };
+        
+        // 应用配置
+        chart.setOption(option);
+        
+        // 创建按钮
+        createCategoryButtons();
+        
+        // 显示全部按钮事件
+        const showAllBtn = document.getElementById('showAllBtn');
+        if (showAllBtn) {
+            showAllBtn.onclick = () => {
+                selectCategory(null, showAllBtn);
+            };
+        }
+        
+        // 响应式调整
+        window.addEventListener('resize', function() {
+            chart.resize();
+        });
+    </script>
+  </body>
+</html>

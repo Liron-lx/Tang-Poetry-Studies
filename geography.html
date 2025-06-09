@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>侠踪天下 - 唐代咏侠诗地理分布 (ECharts版)</title>
+  <!-- 引入 ECharts -->
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'MiSans', sans-serif;
+    }
+    #tooltip {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.9);
+      color: black;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      pointer-events: none;
+      display: none;
+      z-index: 1000;
+      border: 1px solid #ccc;
+    }
+    .underline {
+      width: 65px;
+      height: 3px;
+      position: absolute;
+      top: 62px;
+      background: black;
+      border-radius: 20px;
+      transition: left 0.3s ease-in-out;
+    }
+    #chart-container {
+      width: 1200px;
+      height: 800px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div style="width: 1440px; height: 900px; position: relative; background: white; overflow: hidden"> 
+    <!-- 顶部导航栏开始 --> 
+    <div style="z-index: 1000; position: relative;">
+      <img style="width: 24px; height: 24px; left: 30px; top: 30px; position: absolute; z-index: 1001; cursor: pointer;" src="image/home.svg" alt="home" onclick="window.location.href='index.html'"> 
+      <div style="left: 438px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='interactive.html'">侠踪天下</div>
+      <div style="left: 597px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='poetry-emotion.html'">剑影诗心</div> 
+      <div style="left: 763px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='word-association.html'">侠骨柔情</div> 
+      <div style="left: 922px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='keyword-river.html'">侠韵流殇</div> 
+      <img style="width: 24px; height: 24px; left: 1384px; top: 29px; position: absolute" src="image/menu.svg" alt="menu"> 
+      <div style="width: 1400px; height: 0px; left: 16px; top: 64px; position: absolute; outline: 1px #979797 solid; outline-offset: -0.50px"></div> 
+      <div class="underline" style="left: 437px;"></div>
+      <img style="width: 64px; height: 18px; left: 63px; top: 34px; position: absolute" src="image/诗风侠影.svg" alt="诗风侠影"> 
+    </div>
+    <!-- 顶部导航栏结束 -->
+    
+    <!-- 继续按钮 -->
+    <div style="padding: 12px; position: absolute; right: 30px; bottom: 20px; border-radius: 46.50px; flex-direction: column; justify-content: flex-start; align-items: flex-end; gap: 10px; display: inline-flex"> 
+      <div style="justify-content: flex-start; align-items: center; gap: 16px; display: inline-flex"> 
+        <div style="color: black; font-size: 20px; font-family: MiSans; font-weight: 400; word-wrap: break-word">继续</div> 
+        <div style="padding: 12px; background: #FBEEEE; border-radius: 29px; justify-content: flex-start; align-items: center; gap: 10px; display: flex; cursor: pointer;" onclick="window.location.href='poetry-emotion.html'"> 
+          <img style="width: 16px; height: 16px;" src="image/arrow-right.svg" alt="arrow right"> 
+        </div> 
+      </div> 
+    </div>
+    
+    <!-- 组合图片元素 -->
+    <div style="position: absolute; left: 30px; bottom: 30px; width: 120px;">
+      <img style="width: 100%; height: auto;" src="image/Group 3.svg" alt="Group 3">
+    </div>
+
+    <!-- ECharts 可视化容器 -->
+    <div style="position: absolute; left: 30px; top: 84px; width: 1380px; height: 769px; margin-bottom: 20px;">
+      <div id="chart-container"></div>
+    </div>
+  </div>
+
+  <script>
+    // 地点数据 - 从CSV文件解析而来
+    const locationData = [
+      {name: '长安', frequency: 45, type: '京城', coordinates: [108.9, 34.27]},
+      {name: '洛阳', frequency: 32, type: '京城', coordinates: [112.45, 34.62]},
+      {name: '幽州', frequency: 28, type: '边塞', coordinates: [116.4, 39.9]},
+      {name: '凉州', frequency: 25, type: '边塞', coordinates: [102.64, 37.93]},
+      {name: '扬州', frequency: 22, type: '内陆城市', coordinates: [119.42, 32.39]},
+      {name: '成都', frequency: 20, type: '内陆城市', coordinates: [104.07, 30.67]},
+      {name: '玉门关', frequency: 18, type: '关隘', coordinates: [95.97, 40.35]},
+      {name: '阳关', frequency: 16, type: '关隘', coordinates: [94.11, 40.15]},
+      {name: '燕山', frequency: 15, type: '其他', coordinates: [117.0, 40.5]},
+      {name: '太行山', frequency: 12, type: '其他', coordinates: [113.5, 36.0]},
+      {name: '昆仑山', frequency: 10, type: '其他', coordinates: [90.0, 36.0]},
+      {name: '黄河', frequency: 8, type: '其他', coordinates: [110.0, 35.0]},
+      {name: '长江', frequency: 6, type: '其他', coordinates: [112.0, 30.0]}
+    ];
+
+    // 颜色映射
+    const colorMap = {
+      '京城': '#A47B75',
+      '边塞': '#4D6883', 
+      '内陆城市': '#90A5BA',
+      '关隘': '#C29F7B',
+      '其他': '#83A6AA'
+    };
+
+    // 初始化 ECharts
+    const chartDom = document.getElementById('chart-container');
+    const myChart = echarts.init(chartDom);
+
+    // 配置选项
+    const option = {
+      // 全局动画配置
+      animation: true,
+      animationDuration: 2000,
+      animationEasing: 'elasticOut',
+      
+      // 地理坐标系
+      geo: {
+        map: 'china',
+        roam: false,
+        zoom: 1.2,
+        center: [104, 37],
+        itemStyle: {
+          areaColor: 'transparent',
+          borderColor: '#999',
+          borderWidth: 0.5
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: 'transparent'
+          }
+        },
+        regions: [{
+          name: '南海诸岛',
+          itemStyle: {
+            areaColor: 'transparent',
+            borderColor: 'transparent'
+          }
+        }]
+      },
+      
+      // 工具提示
+      tooltip: {
+        trigger: 'item',
+        formatter: function(params) {
+          if (params.seriesType === 'scatter') {
+            const data = params.data;
+            return `
+              <div style="font-weight: bold; margin-bottom: 5px;">${data.name}</div>
+              <div>出现频次: ${data.frequency}</div>
+              <div>地点类型: ${data.type}</div>
+            `;
+          }
+          return '';
+        },
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: '#ccc',
+        borderWidth: 1,
+        textStyle: {
+          color: '#000',
+          fontSize: 12
+        }
+      },
+      
+      // 图例
+      legend: {
+        orient: 'vertical',
+        right: 20,
+        bottom: 20,
+        backgroundColor: 'rgba(255,255,255,0.9)',
+        padding: 15,
+        borderRadius: 8,
+        data: ['京城', '边塞', '内陆城市', '关隘', '其他地理要素'],
+        textStyle: {
+          fontSize: 14
+        }
+      },
+      
+      // 系列数据
+      series: [
+        // 散点图系列 - 按类型分组
+        {
+          name: '京城',
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          symbol: 'triangle',
+          symbolSize: function(val) {
+            return Math.max(15, Math.min(val[2] * 1.2, 60)); // 根据频次调整大小
+          },
+          symbolRotate: 180, // 旋转180度使三角形向上
+          itemStyle: {
+            color: colorMap['京城'],
+            opacity: 0.8
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+              borderColor: '#fff',
+              borderWidth: 2
+            }
+          },
+          data: locationData.filter(item => item.type === '京城').map(item => ({
+            name: item.name,
+            value: [...item.coordinates, item.frequency],
+            frequency: item.frequency,
+            type: item.type
+          })),
+          animationDelay: function(idx) {
+            return idx * 100;
+          }
+        },
+        {
+          name: '边塞',
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          symbol: 'triangle',
+          symbolSize: function(val) {
+            return Math.max(15, Math.min(val[2] * 1.2, 60));
+          },
+          symbolRotate: 180,
+          itemStyle: {
+            color: colorMap['边塞'],
+            opacity: 0.8
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+              borderColor: '#fff',
+              borderWidth: 2
+            }
+          },
+          data: locationData.filter(item => item.type === '边塞').map(item => ({
+            name: item.name,
+            value: [...item.coordinates, item.frequency],
+            frequency: item.frequency,
+            type: item.type
+          })),
+          animationDelay: function(idx) {
+            return (idx + 2) * 100;
+          }
+        },
+        {
+          name: '内陆城市',
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          symbol: 'triangle',
+          symbolSize: function(val) {
+            return Math.max(15, Math.min(val[2] * 1.2, 60));
+          },
+          symbolRotate: 180,
+          itemStyle: {
+            color: colorMap['内陆城市'],
+            opacity: 0.8
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+              borderColor: '#fff',
+              borderWidth: 2
+            }
+          },
+          data: locationData.filter(item => item.type === '内陆城市').map(item => ({
+            name: item.name,
+            value: [...item.coordinates, item.frequency],
+            frequency: item.frequency,
+            type: item.type
+          })),
+          animationDelay: function(idx) {
+            return (idx + 4) * 100;
+          }
+        },
+        {
+          name: '关隘',
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          symbol: 'triangle',
+          symbolSize: function(val) {
+            return Math.max(15, Math.min(val[2] * 1.2, 60));
+          },
+          symbolRotate: 180,
+          itemStyle: {
+            color: colorMap['关隘'],
+            opacity: 0.8
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+              borderColor: '#fff',
+              borderWidth: 2
+            }
+          },
+          data: locationData.filter(item => item.type === '关隘').map(item => ({
+            name: item.name,
+            value: [...item.coordinates, item.frequency],
+            frequency: item.frequency,
+            type: item.type
+          })),
+          animationDelay: function(idx) {
+            return (idx + 6) * 100;
+          }
+        },
+        {
+          name: '其他地理要素',
+          type: 'scatter',
+          coordinateSystem: 'geo',
+          symbol: 'triangle',
+          symbolSize: function(val) {
+            return Math.max(15, Math.min(val[2] * 1.2, 60));
+          },
+          symbolRotate: 180,
+          itemStyle: {
+            color: colorMap['其他'],
+            opacity: 0.8
+          },
+          emphasis: {
+            itemStyle: {
+              opacity: 1,
+              borderColor: '#fff',
+              borderWidth: 2
+            }
+          },
+          data: locationData.filter(item => item.type === '其他').map(item => ({
+            name: item.name,
+            value: [...item.coordinates, item.frequency],
+            frequency: item.frequency,
+            type: item.type
+          })),
+          animationDelay: function(idx) {
+            return (idx + 8) * 100;
+          }
+        }
+      ]
+    };
+
+    // 设置配置项并渲染图表
+    myChart.setOption(option);
+
+    // 图例交互效果
+    myChart.on('legendselectchanged', function(params) {
+      // 当图例选择状态改变时的处理
+      console.log('图例选择改变:', params);
+    });
+
+    // 响应式调整
+    window.addEventListener('resize', function() {
+      myChart.resize();
+    });
+
+    // 加载中国地图
+    fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+      .then(response => response.json())
+      .then(geoJson => {
+        echarts.registerMap('china', geoJson);
+        myChart.setOption(option);
+      })
+      .catch(error => {
+        console.error('加载地图数据失败:', error);
+        // 使用内置地图作为备选
+        myChart.setOption(option);
+      });
+  </script>
+</body>
+</html>
