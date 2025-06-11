@@ -235,21 +235,19 @@
         };
         
         // 根据类别名称获取对应颜色的函数
+        // 根据新数据中的类别更新颜色映射
         function getCategoryColor(categoryName) {
-            switch(categoryName) {
-                case '侠义抒怀类':
-                    return '#4D6883';  // 占比大的侠义抒怀用深蓝色
-                case '隐逸怀古类':
-                    return '#83A6AA';  // 隐逸怀古用青绿色
-                case '豪侠交游类':
-                    return '#90A5BA';  // 豪侠交游用浅蓝色
-                case '市井任侠类':
-                    return '#8B9891';  // 市井任侠用灰绿色
-                default:
-                    // 其他类别使用原有的莫兰迪色系
-                    const index = Math.abs(categoryName.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % morandiColors.categories.length;
-                    return morandiColors.categories[index];
-            }
+            const colorMap = {
+                '侠义抒怀类': '#4D6883',
+                '隐逸怀古类': '#83A6AA', 
+                '豪侠交游类': '#90A5BA',
+                '市井任侠类': '#8B9891',
+                '边塞报国类': '#A47B75',  // 新增类别
+                // 根据实际数据添加更多类别
+            };
+            
+            return colorMap[categoryName] || 
+                   morandiColors.categories[Math.abs(categoryName.split('').reduce((a, b) => a + b.charCodeAt(0), 0)) % morandiColors.categories.length];
         }
         let currentData = null;
         let svg = null;
@@ -258,7 +256,19 @@
         let labels = null;
         
          // 读取CSV数据并生成图表
+        // 在数据处理部分添加数据量检查
         d3.csv("poetry_with_detailed_clusters_sankey.csv").then(function(csvData) {
+        console.log(`加载了 ${csvData.length} 条诗歌数据`);
+        
+        // 如果数据量很大，可以考虑分页或筛选
+        if (csvData.length > 1000) {
+        // 可以按作者重要性或诗歌质量筛选
+        csvData = csvData.filter(row => {
+        // 添加筛选逻辑
+        return true; // 暂时保留所有数据
+        });
+        }
+        
             // 清除加载提示
             d3.select("#chart").selectAll("*").remove();
             
@@ -579,7 +589,7 @@
                                !(relatedNodeIndices.has(i) && currentData.nodes[i].type === 'author');
                     });
                 
-                // 设置标签样式
+                // 设置标签样式并更新作者标签的数字
                 labels
                     .classed("highlighted", (d, i) => {
                         return i === selectedNodeIndex || 
@@ -588,6 +598,19 @@
                     .classed("dimmed", (d, i) => {
                         return i !== selectedNodeIndex && 
                                !(relatedNodeIndices.has(i) && currentData.nodes[i].type === 'author');
+                    })
+                    .text((d, i) => {
+                        // 如果是作者节点且与当前类别相关，显示该作者在当前类别下的诗歌数量
+                        if (d.type === 'author' && relatedNodeIndices.has(i)) {
+                            const relatedLink = relatedLinks.find(link => 
+                                currentData.nodes[link.source] === d || currentData.nodes[link.target] === d
+                            );
+                            if (relatedLink) {
+                                return `${d.name}(${relatedLink.value})`;
+                            }
+                        }
+                        // 否则显示原始数量
+                        return `${d.name}(${d.count})`;
                     });
                 
                 // 设置连线样式
@@ -596,14 +619,15 @@
                     .classed("dimmed", d => !relatedLinks.includes(d));
                     
             } else {
-                // 作者节点的交互逻辑
+                // 作者节点的交互逻辑保持不变
                 nodes.selectAll(".node-arc")
                     .classed("highlighted", (d, i) => relatedNodeIndices.has(i))
                     .classed("dimmed", (d, i) => !relatedNodeIndices.has(i));
                     
                 labels
                     .classed("highlighted", (d, i) => relatedNodeIndices.has(i))
-                    .classed("dimmed", (d, i) => !relatedNodeIndices.has(i));
+                    .classed("dimmed", (d, i) => !relatedNodeIndices.has(i))
+                    .text(d => `${d.name}(${d.count})`); // 作者节点悬停时恢复原始数量
                 
                 links
                     .classed("highlighted", d => relatedLinks.includes(d))
@@ -626,7 +650,9 @@
                     '豪侠交游类': '描写豪侠人物的交游活动，展现侠客精神和友谊情怀的诗歌。',
                     '侠义抒怀类': '表达侠义精神和个人情怀，体现诗人对侠客品格的向往和赞美。',
                     '市井任侠类': '描写市井中的侠客生活，反映民间侠义文化和社会风貌。',
-                    '隐逸怀古类': '表达隐逸思想和怀古情怀，体现诗人对古代贤士的追慕。'
+                    '隐逸怀古类': '表达隐逸思想和怀古情怀，体现诗人对古代贤士的追慕。',
+                    '边塞报国类': '描写边塞征战和报国情怀，体现军旅生活和爱国精神。'
+                    // 根据新数据添加更多类别描述
                 };
                 
                 let html = `
