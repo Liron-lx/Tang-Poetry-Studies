@@ -82,6 +82,27 @@ MANUAL_FIELDS = (
     "research_note",
 )
 
+AUTHOR_ACTIVITY_FIELDS = (
+    "birth_year",
+    "death_year",
+    "activity_start",
+    "activity_end",
+    "activity_method",
+    "source_type",
+    "source_1",
+    "source_2",
+    "evidence_summary",
+    "confidence",
+    "review_status",
+    "research_note",
+)
+AUTHOR_ACTIVITY_METHODS = {
+    "poet_chronology",
+    "biography_event_inference",
+    "lifespan_only",
+    "unknown",
+}
+
 
 @dataclass(frozen=True)
 class LookupOutcome:
@@ -176,6 +197,62 @@ def load_manual_overrides(path: Path) -> dict[str, dict[str, str]]:
                 raise ValueError(f"人工系年侧车存在重复 record_id：{record_id}")
             overrides[record_id] = row
     return overrides
+
+
+def validate_author_activity_record(profile: dict[str, str]) -> list[str]:
+    """Return semantic errors for one manually curated author profile."""
+    author = profile.get("author", "<unknown>").strip() or "<unknown>"
+    activity_start = profile.get("activity_start", "").strip()
+    activity_end = profile.get("activity_end", "").strip()
+    birth_year = profile.get("birth_year", "").strip()
+    death_year = profile.get("death_year", "").strip()
+    method = profile.get("activity_method", "").strip()
+    errors: list[str] = []
+
+    if method not in AUTHOR_ACTIVITY_METHODS:
+        errors.append(f"{author}: unsupported activity_method {method!r}")
+    for field, value in (("birth_year", birth_year), ("death_year", death_year)):
+        if value:
+            try:
+                int(value)
+            except ValueError:
+                errors.append(f"{author}: {field} must be an integer year")
+    if bool(activity_start) != bool(activity_end):
+        errors.append(f"{author}: activity range must be complete")
+    if activity_start and activity_end:
+        try:
+            if int(activity_start) > int(activity_end):
+                errors.append(f"{author}: activity_start must not exceed activity_end")
+        except ValueError:
+            errors.append(f"{author}: activity range must contain integer years")
+        if method in {"lifespan_only", "unknown"}:
+            errors.append(f"{author}: an activity range requires an activity-based method")
+    elif method == "lifespan_only" and (not birth_year or not death_year):
+        errors.append(f"{author}: lifespan_only requires birth_year and death_year")
+    elif not activity_start and method in {"poet_chronology", "biography_event_inference"}:
+        errors.append(f"{author}: {method} requires an activity range")
+    return errors
+
+
+def load_author_activity_periods(path: Path) -> dict[str, dict[str, str]]:
+    """Load one auditable activity profile per author from a UTF-8 BOM CSV."""
+    if not path.exists():
+        return {}
+    profiles: dict[str, dict[str, str]] = {}
+    with path.open(encoding="utf-8-sig", newline="") as activity_file:
+        for raw_row in csv.DictReader(activity_file):
+            author = (raw_row.get("author") or "").strip()
+            if not author:
+                raise ValueError("作者活动期资料存在空 author")
+            if author in profiles:
+                raise ValueError(f"作者活动期资料存在重复 author：{author}")
+            profile = {"author": author}
+            profile.update({field: (raw_row.get(field) or "").strip() for field in AUTHOR_ACTIVITY_FIELDS})
+            errors = validate_author_activity_record(profile)
+            if errors:
+                raise ValueError("; ".join(errors))
+            profiles[author] = profile
+    return profiles
 
 # The API's poem endpoint returns traditional characters even when its search
 # endpoint is requested in simplified Chinese.  These author-name characters

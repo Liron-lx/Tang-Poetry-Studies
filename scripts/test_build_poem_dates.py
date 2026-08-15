@@ -9,9 +9,11 @@ from build_poem_dates import (
     classify_dating_status,
     classify_lookup_status,
     find_match,
+    load_author_activity_periods,
     load_manual_overrides,
     merge_manual_override,
     request_json,
+    validate_author_activity_record,
     validate_date_record,
     write_results,
 )
@@ -48,6 +50,33 @@ class DateInvariantTest(unittest.TestCase):
             }
         )
         self.assertTrue(any("exact" in error for error in errors))
+
+
+class AuthorActivityProfileTest(unittest.TestCase):
+    def test_profile_rejects_reversed_activity_range(self) -> None:
+        errors = validate_author_activity_record(
+            {
+                "author": "王维",
+                "activity_start": "759",
+                "activity_end": "717",
+                "activity_method": "poet_chronology",
+            }
+        )
+
+        self.assertTrue(any("activity_start" in error for error in errors))
+
+    def test_loader_rejects_duplicate_authors(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "authors.csv"
+            path.write_text(
+                "author,birth_year,death_year,activity_start,activity_end,activity_method,source_type,source_1,source_2,evidence_summary,confidence,review_status,research_note\n"
+                "王维,701,761,717,759,poet_chronology,年谱,source,,,中,needs_review,\n"
+                "王维,701,761,717,759,poet_chronology,年谱,source,,,中,needs_review,\n",
+                encoding="utf-8-sig",
+            )
+
+            with self.assertRaisesRegex(ValueError, "王维"):
+                load_author_activity_periods(path)
 
 
 class ProjectDateValidationTest(unittest.TestCase):
