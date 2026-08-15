@@ -12,7 +12,9 @@ from build_poem_dates import (
     load_manual_overrides,
     merge_manual_override,
     request_json,
+    validate_date_record,
 )
+from validate_project import validate, validate_poem_date_rows
 
 
 class DatingStatusTest(unittest.TestCase):
@@ -21,6 +23,51 @@ class DatingStatusTest(unittest.TestCase):
         self.assertEqual(classify_dating_status("652", "653", "跨年范围"), "range")
         self.assertEqual(classify_dating_status("755", "759", "争议范围"), "disputed")
         self.assertEqual(classify_dating_status("", "", "未知"), "undated")
+
+
+class DateInvariantTest(unittest.TestCase):
+    def test_undated_row_rejects_hidden_years(self) -> None:
+        errors = validate_date_record(
+            {
+                "record_id": "P004",
+                "date_start": "684",
+                "date_end": "684",
+                "dating_status": "undated",
+            }
+        )
+        self.assertTrue(any("undated" in error for error in errors))
+
+    def test_exact_row_requires_equal_years(self) -> None:
+        errors = validate_date_record(
+            {
+                "record_id": "P004",
+                "date_start": "684",
+                "date_end": "685",
+                "dating_status": "exact",
+            }
+        )
+        self.assertTrue(any("exact" in error for error in errors))
+
+
+class ProjectDateValidationTest(unittest.TestCase):
+    def test_project_validator_reads_all_current_data_files(self) -> None:
+        self.assertEqual(validate(), [])
+
+    def test_generated_date_audit_satisfies_project_invariants(self) -> None:
+        path = Path(__file__).parents[1] / "data/poem_dates.csv"
+        with path.open(encoding="utf-8-sig", newline="") as date_file:
+            rows = list(csv.DictReader(date_file))
+
+        self.assertEqual(validate_poem_date_rows(rows), [])
+
+    def test_duplicate_record_id_is_rejected(self) -> None:
+        path = Path(__file__).parents[1] / "data/poem_dates.csv"
+        with path.open(encoding="utf-8-sig", newline="") as date_file:
+            first = next(csv.DictReader(date_file))
+
+        errors = validate_poem_date_rows([first, dict(first)])
+
+        self.assertTrue(any("duplicate record_id" in error for error in errors))
 
 
 class ManualOverrideTest(unittest.TestCase):

@@ -63,6 +63,9 @@ CONFLICT_MARKERS = (
 
 MIN_MATCH_SCORE = 0.45
 
+LOOKUP_STATUSES = {"matched", "no_result", "endpoint_error", "ambiguous_match", "not_attempted"}
+DATING_STATUSES = {"exact", "range", "disputed", "activity_phase", "undated"}
+
 MANUAL_FIELDS = (
     "date_start",
     "date_end",
@@ -115,6 +118,34 @@ def classify_dating_status(start: str, end: str, precision: str) -> str:
     if start == end and precision == "单年系年":
         return "exact"
     return "range"
+
+
+def validate_date_record(row: dict[str, str]) -> list[str]:
+    """Return semantic date errors without mutating a generated record."""
+    record_id = row.get("record_id", "<unknown>")
+    status = row.get("dating_status", "")
+    start = row.get("date_start", "").strip()
+    end = row.get("date_end", "").strip()
+    errors: list[str] = []
+
+    if status not in DATING_STATUSES:
+        return [f"{record_id}: unsupported dating_status {status!r}"]
+    if status == "undated":
+        if start or end:
+            errors.append(f"{record_id}: undated records must not contain years")
+        return errors
+    if not start or not end:
+        return [f"{record_id}: {status} records require date_start and date_end"]
+    try:
+        start_year = int(start)
+        end_year = int(end)
+    except ValueError:
+        return [f"{record_id}: {status} dates must be integer years"]
+    if start_year > end_year:
+        errors.append(f"{record_id}: date_start must not exceed date_end")
+    if status == "exact" and start_year != end_year:
+        errors.append(f"{record_id}: exact dates require identical start and end years")
+    return errors
 
 
 def merge_manual_override(
