@@ -33,6 +33,8 @@ python3 -m http.server 8000
 权威数据位于 `data/`：
 
 - `poetry_with_detailed_clusters_sankey.csv`：100 条诗歌记录及聚类类别
+- `poem_dates.csv`：自动查询日志与人工考证合并后的逐条创作年代审计
+- `poem_dates_manual.csv`：以 `record_id` 为主键的人工系年证据、来源和复核状态
 - `地方名称及经纬度.csv`：地点、频次、坐标和类型
 - `tang_dynasty_detailed_boundary.json`：唐代边界、城市和路线数据
 
@@ -43,3 +45,24 @@ npm run validate
 ```
 
 页面依赖的 D3、ECharts、p5.js 和 Google Fonts 当前通过 CDN 加载；如果需要离线部署，下一阶段可以再将这些依赖本地化。
+
+## 创作年代数据
+
+`data/poem_dates.csv` 是两轮作品系年审计的统一结果，不是把作者生卒年当作作品写作年。当前 100 条记录中有 33 条得到作品级系年；扣除重复收录和语料边界异常后，86 首可纳入唐代主体分析的独立作品中有 30 首得到系年。第二轮优先复核了 25 首作品，其中 5 首得到低置信度候选年份，20 首在记录检索来源和未决原因后仍保持未定年，避免用推测年份填充时间轴。
+
+自动查询的主要数据源为[唐宋文学编年地图开放资源](https://open.cnkgraph.com/Home/OpenResources)，人工侧车则记录诗人年谱、编年笺注、作品目录和事件锚点。表中同时保留：
+
+- `lookup_status`、`lookup_note`：区分匹配成功、无结果、接口错误和候选歧义；接口失败不再等同于作品无法系年
+- `dating_status`、`date_start`、`date_end` 与 `date_precision`：区分单年、范围、争议和未定年
+- `dating_method`、`source_type`、`manual_source_1/2`：记录编年版本、诗人年谱、事件锚点等依据
+- `confidence`、`review_status`、`evidence_quote_or_summary`、`research_note`：记录证据等级、复核进度、不确定性和下一步线索
+- `duplicate_of`、`corpus_scope`：标记重复作品、非唐作品和疑似误入条目
+
+重新查询开放接口并生成审计表：
+
+```bash
+python3 scripts/build_poem_dates.py \
+  --manual-input data/poem_dates_manual.csv
+```
+
+该研究脚本使用 Python 的 `certifi` 证书包。接口开放数据限非商业用途；当前新增候选年份均保持低置信度或待复核状态，正式发布前仍应核对所列年谱、编年笺注或纸本原页。
