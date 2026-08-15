@@ -1,0 +1,4 @@
+record_id,date_start,date_end,date_label,date_precision,confidence,dating_status,dating_method,source_type,manual_source_1,manual_source_2,evidence_quote_or_summary,review_status,research_note
+P003,755,759,"755年；另有乾元秦州说（约759年）",争议范围,低,disputed,chronological_edition,编年全集,"《杜甫全集校注》（人民文学出版社）第636页",https://open.cnkgraph.com/Writing/31503,"编年材料主系于755年；钱谦益、朱鹤龄、卢元昌另系于乾元年间秦州时期，约759年。",manual_single_source,"现阶段保留两个主要系年，不取平均值。"
+P025,652,653,652年冬—653年春,跨年范围,低,range,poet_chronology,诗人年谱,"张志烈《初唐四杰年谱》（巴蜀书社，1993）第55—56页","祝尚书《卢照邻集笺注》增订本（上海古籍出版社，2011）卷二第85页","卢照邻652年在长安参选；材料将本诗系于当年冬或次年春。",manual_cross_checked,"两个整理来源共同支持跨年范围。"
+P062,766,769,"766、767或769年",争议范围,低,disputed,chronological_edition,编年全集,"《杜甫全集校注》（人民文学出版社）第4758页",https://open.cnkgraph.com/Writing/31848,"编年条目列767年；黄鹤系于766年，梁权道系于769年。",manual_single_source,"保留三种系年异说，等待进一步核对各家原始编年依据。"

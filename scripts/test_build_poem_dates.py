@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 
 import csv
+import tempfile
 import unittest
 from pathlib import Path
 
 from build_poem_dates import (
     classify_dating_status,
     classify_lookup_status,
-    date_fields,
     find_match,
+    load_manual_overrides,
+    merge_manual_override,
     request_json,
 )
 
@@ -19,6 +21,46 @@ class DatingStatusTest(unittest.TestCase):
         self.assertEqual(classify_dating_status("652", "653", "跨年范围"), "range")
         self.assertEqual(classify_dating_status("755", "759", "争议范围"), "disputed")
         self.assertEqual(classify_dating_status("", "", "未知"), "undated")
+
+
+class ManualOverrideTest(unittest.TestCase):
+    def test_manual_date_overrides_date_but_preserves_lookup_log(self) -> None:
+        auto = {
+            "record_id": "P004",
+            "lookup_status": "endpoint_error",
+            "lookup_note": "empty JSON response",
+            "date_start": "",
+            "date_end": "",
+            "dating_status": "undated",
+            "verification_status": "未匹配",
+        }
+        manual = {
+            "record_id": "P004",
+            "date_start": "684",
+            "date_end": "684",
+            "date_label": "684年",
+            "date_precision": "单年系年",
+            "dating_status": "exact",
+            "review_status": "manual_single_source",
+        }
+
+        merged = merge_manual_override(auto, manual)
+
+        self.assertEqual(merged["lookup_status"], "endpoint_error")
+        self.assertEqual(merged["lookup_note"], "empty JSON response")
+        self.assertEqual(merged["date_start"], "684")
+        self.assertEqual(merged["verification_status"], "人工复核且有系年")
+
+    def test_manual_loader_rejects_duplicate_record_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "manual.csv"
+            path.write_text(
+                "record_id,date_start\nP004,684\nP004,685\n",
+                encoding="utf-8-sig",
+            )
+
+            with self.assertRaisesRegex(ValueError, "P004"):
+                load_manual_overrides(path)
 
 
 class LookupStatusTest(unittest.TestCase):
@@ -73,24 +115,33 @@ class ApiCertificateTest(unittest.TestCase):
         self.assertEqual(outcome.poem["AuthorDate"], "652年")
         self.assertEqual(outcome.status, "matched")
 
-    def test_date_fields_preserves_documented_disputed_ranges(self) -> None:
+    def test_manual_sidecar_preserves_documented_disputed_ranges(self) -> None:
+        manual_path = Path(__file__).parents[1] / "data/poem_dates_manual.csv"
+        overrides = load_manual_overrides(manual_path)
         cases = [
             (
-                {"Id": 11578, "AuthorYears": [652], "AuthorDate": "652年"},
-                ("652", "653", "652年冬—653年春", "跨年范围", "低"),
+                "P025",
+                ("652", "653", "652年冬—653年春", "range"),
             ),
             (
-                {"Id": 31503, "AuthorYears": [755], "AuthorDate": "755年"},
-                ("755", "759", "755年；另有乾元秦州说（约759年）", "争议范围", "低"),
+                "P003",
+                ("755", "759", "755年；另有乾元秦州说（约759年）", "disputed"),
             ),
             (
-                {"Id": 31848, "AuthorYears": [767], "AuthorDate": "767年"},
-                ("766", "769", "766、767或769年", "争议范围", "低"),
+                "P062",
+                ("766", "769", "766、767或769年", "disputed"),
             ),
         ]
-        for poem, expected in cases:
-            with self.subTest(poem_id=poem["Id"]):
-                self.assertEqual(date_fields(poem, "存在异说"), expected)
+        for record_id, expected in cases:
+            with self.subTest(record_id=record_id):
+                row = overrides[record_id]
+                actual = (
+                    row["date_start"],
+                    row["date_end"],
+                    row["date_label"],
+                    row["dating_status"],
+                )
+                self.assertEqual(actual, expected)
 
 
 if __name__ == "__main__":

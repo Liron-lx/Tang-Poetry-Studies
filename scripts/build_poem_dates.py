@@ -63,6 +63,22 @@ CONFLICT_MARKERS = (
 
 MIN_MATCH_SCORE = 0.45
 
+MANUAL_FIELDS = (
+    "date_start",
+    "date_end",
+    "date_label",
+    "date_precision",
+    "confidence",
+    "dating_status",
+    "dating_method",
+    "source_type",
+    "manual_source_1",
+    "manual_source_2",
+    "evidence_quote_or_summary",
+    "review_status",
+    "research_note",
+)
+
 
 @dataclass(frozen=True)
 class LookupOutcome:
@@ -99,6 +115,36 @@ def classify_dating_status(start: str, end: str, precision: str) -> str:
     if start == end and precision == "单年系年":
         return "exact"
     return "range"
+
+
+def merge_manual_override(
+    auto_row: dict[str, str], manual_row: dict[str, str]
+) -> dict[str, str]:
+    """Merge reviewed dating evidence without rewriting automatic lookup logs."""
+    merged = dict(auto_row)
+    for field in MANUAL_FIELDS:
+        value = manual_row.get(field, "").strip()
+        if value:
+            merged[field] = value
+    if manual_row.get("dating_status", "").strip() not in {"", "undated"}:
+        merged["verification_status"] = "人工复核且有系年"
+    return merged
+
+
+def load_manual_overrides(path: Path) -> dict[str, dict[str, str]]:
+    """Load reviewed records by stable corpus id and reject ambiguous duplicates."""
+    if not path.exists():
+        return {}
+    overrides: dict[str, dict[str, str]] = {}
+    with path.open(encoding="utf-8-sig", newline="") as manual_file:
+        for row in csv.DictReader(manual_file):
+            record_id = (row.get("record_id") or "").strip()
+            if not record_id:
+                continue
+            if record_id in overrides:
+                raise ValueError(f"人工系年侧车存在重复 record_id：{record_id}")
+            overrides[record_id] = row
+    return overrides
 
 # The API's poem endpoint returns traditional characters even when its search
 # endpoint is requested in simplified Chinese.  These author-name characters
@@ -143,13 +189,6 @@ TRADITIONAL_AUTHOR_TRANSLATION = str.maketrans(
         "塗": "涂",
     }
 )
-
-DOCUMENTED_DATE_OVERRIDES = {
-    11578: ("652", "653", "652年冬—653年春", "跨年范围", "低"),
-    31503: ("755", "759", "755年；另有乾元秦州说（约759年）", "争议范围", "低"),
-    31848: ("766", "769", "766、767或769年", "争议范围", "低"),
-}
-
 
 def han_text(value: str) -> str:
     """Return only CJK characters, normalized for approximate comparison."""
@@ -281,9 +320,6 @@ def evidence_for(payload: dict[str, Any], target_id: int) -> tuple[str, str]:
 
 
 def date_fields(poem: dict[str, Any], evidence: str) -> tuple[str, str, str, str, str]:
-    poem_id = int(poem.get("Id") or 0)
-    if poem_id in DOCUMENTED_DATE_OVERRIDES:
-        return DOCUMENTED_DATE_OVERRIDES[poem_id]
     years = sorted({int(year) for year in (poem.get("AuthorYears") or [])})
     label = str(poem.get("AuthorDate") or "").strip()
     if not years:
@@ -398,6 +434,13 @@ def build_rows(source_rows: list[dict[str, str]]) -> list[dict[str, str]]:
             "date_label": "",
             "date_precision": "未知",
             "dating_status": "undated",
+            "dating_method": "unknown",
+            "source_type": "开放知识图谱",
+            "manual_source_1": "",
+            "manual_source_2": "",
+            "evidence_quote_or_summary": "",
+            "review_status": "auto_only",
+            "research_note": "",
             "confidence": "低",
             "verification_status": "未匹配",
             "lookup_status": outcome.status,
@@ -421,6 +464,7 @@ def build_rows(source_rows: list[dict[str, str]]) -> list[dict[str, str]]:
                     "date_label": label,
                     "date_precision": precision,
                     "dating_status": classify_dating_status(start, end, precision),
+                    "dating_method": "chronological_edition" if start else "unknown",
                     "confidence": confidence,
                     "verification_status": "已匹配且有系年" if start else "已匹配但无系年",
                     "source_basis": basis,
@@ -441,11 +485,21 @@ def main() -> None:
         default=Path("data/poetry_with_detailed_clusters_sankey.csv"),
     )
     parser.add_argument("--output", type=Path, default=Path("data/poem_dates.csv"))
+    parser.add_argument(
+        "--manual-input",
+        type=Path,
+        default=Path("data/poem_dates_manual.csv"),
+    )
     args = parser.parse_args()
 
     with args.input.open(encoding="utf-8-sig", newline="") as source_file:
         source_rows = list(csv.DictReader(source_file))
     results = build_rows(source_rows)
+    manual_overrides = load_manual_overrides(args.manual_input)
+    results = [
+        merge_manual_override(row, manual_overrides.get(row["record_id"], {}))
+        for row in results
+    ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", encoding="utf-8-sig", newline="") as output_file:
         writer = csv.DictWriter(output_file, fieldnames=list(results[0]))
