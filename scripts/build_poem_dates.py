@@ -102,6 +102,17 @@ AUTHOR_ACTIVITY_METHODS = {
     "lifespan_only",
     "unknown",
 }
+TIMELINE_FIELDS = (
+    "timeline_year",
+    "timeline_status",
+    "timeline_basis",
+    "timeline_anchor_start",
+    "timeline_anchor_end",
+    "timeline_center_year",
+    "timeline_offset",
+    "timeline_confidence",
+    "timeline_note",
+)
 
 
 @dataclass(frozen=True)
@@ -253,6 +264,120 @@ def load_author_activity_periods(path: Path) -> dict[str, dict[str, str]]:
                 raise ValueError("; ".join(errors))
             profiles[author] = profile
     return profiles
+
+
+def format_timeline_number(value: float) -> str:
+    """Write integer and half-year timeline values without trailing zeroes."""
+    if value.is_integer():
+        return str(int(value))
+    return f"{value:.6f}".rstrip("0").rstrip(".")
+
+
+def apply_timeline_positions(
+    rows: list[dict[str, str]], profiles: dict[str, dict[str, str]]
+) -> list[dict[str, str]]:
+    """Derive display coordinates without overwriting the evidence-level dates."""
+    positioned = [dict(row) for row in rows]
+    by_record_id = {row.get("record_id", ""): row for row in positioned}
+    undated_groups: dict[str, list[dict[str, str]]] = {}
+
+    for row in positioned:
+        for field in TIMELINE_FIELDS:
+            row[field] = ""
+        row["timeline_status"] = "unavailable"
+
+        if row.get("corpus_scope") != "唐" or row.get("duplicate_of"):
+            continue
+        status = row.get("dating_status", "")
+        start = row.get("date_start", "").strip()
+        end = row.get("date_end", "").strip()
+        if status == "exact" and start and end:
+            row.update(
+                {
+                    "timeline_year": start,
+                    "timeline_status": "observed_exact",
+                    "timeline_basis": "date_exact",
+                    "timeline_anchor_start": start,
+                    "timeline_anchor_end": end,
+                    "timeline_center_year": start,
+                    "timeline_offset": "0",
+                    "timeline_confidence": row.get("confidence", ""),
+                    "timeline_note": "采用作品级单年系年。",
+                }
+            )
+        elif status in {"range", "disputed"} and start and end:
+            center = (int(start) + int(end)) / 2
+            row.update(
+                {
+                    "timeline_year": format_timeline_number(center),
+                    "timeline_status": "observed_range_center",
+                    "timeline_basis": "date_range_center",
+                    "timeline_anchor_start": start,
+                    "timeline_anchor_end": end,
+                    "timeline_center_year": format_timeline_number(center),
+                    "timeline_offset": "0",
+                    "timeline_confidence": row.get("confidence", ""),
+                    "timeline_note": "采用作品级系年范围的算术中点。",
+                }
+            )
+        elif status == "undated":
+            undated_groups.setdefault(row.get("author", ""), []).append(row)
+
+    for author, group in undated_groups.items():
+        profile = profiles.get(author, {})
+        activity_start = profile.get("activity_start", "").strip()
+        activity_end = profile.get("activity_end", "").strip()
+        birth_year = profile.get("birth_year", "").strip()
+        death_year = profile.get("death_year", "").strip()
+        if activity_start and activity_end:
+            anchor_start, anchor_end = int(activity_start), int(activity_end)
+            status, basis = "inferred_activity_cluster", "activity_period"
+            note = "未定年作品按作者活动期中点对称展开。"
+        elif birth_year and death_year:
+            anchor_start, anchor_end = int(birth_year), int(death_year)
+            status, basis = "inferred_lifespan_cluster", "lifespan"
+            note = "未定年作品按作者生卒年中点对称展开。"
+        else:
+            continue
+
+        center = (anchor_start + anchor_end) / 2
+        half_spread = min(15, max(6, (anchor_end - anchor_start) / 6))
+        ordered = sorted(group, key=lambda item: item.get("record_id", ""))
+        denominator = max(1, len(ordered) - 1)
+        for index, row in enumerate(ordered):
+            offset = (
+                0.0
+                if len(ordered) == 1
+                else -half_spread + (2 * half_spread * index / denominator)
+            )
+            year = min(anchor_end, max(anchor_start, center + offset))
+            row.update(
+                {
+                    "timeline_year": format_timeline_number(year),
+                    "timeline_status": status,
+                    "timeline_basis": basis,
+                    "timeline_anchor_start": str(anchor_start),
+                    "timeline_anchor_end": str(anchor_end),
+                    "timeline_center_year": format_timeline_number(center),
+                    "timeline_offset": format_timeline_number(offset),
+                    "timeline_confidence": profile.get("confidence", ""),
+                    "timeline_note": note,
+                }
+            )
+
+    for row in positioned:
+        duplicate_of = row.get("duplicate_of", "").strip()
+        if row.get("corpus_scope") != "唐" or not duplicate_of:
+            continue
+        primary = by_record_id.get(duplicate_of)
+        if primary is None:
+            continue
+        for field in TIMELINE_FIELDS:
+            row[field] = primary.get(field, "")
+        row["timeline_status"] = "duplicate_inherited"
+        row["timeline_basis"] = duplicate_of
+        row["timeline_note"] = f"继承主记录 {duplicate_of} 的展示坐标。"
+    return positioned
 
 # The API's poem endpoint returns traditional characters even when its search
 # endpoint is requested in simplified Chinese.  These author-name characters
@@ -611,6 +736,11 @@ def main() -> None:
         type=Path,
         default=Path("data/poem_dates_manual.csv"),
     )
+    parser.add_argument(
+        "--activity-input",
+        type=Path,
+        default=Path("data/author_activity_periods.csv"),
+    )
     args = parser.parse_args()
 
     with args.input.open(encoding="utf-8-sig", newline="") as source_file:
@@ -621,6 +751,8 @@ def main() -> None:
         merge_manual_override(row, manual_overrides.get(row["record_id"], {}))
         for row in results
     ]
+    profiles = load_author_activity_periods(args.activity_input)
+    results = apply_timeline_positions(results, profiles)
     write_results(args.output, results)
     print(f"Wrote {len(results)} rows to {args.output}")
 

@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from build_poem_dates import (
+    apply_timeline_positions,
     classify_dating_status,
     classify_lookup_status,
     find_match,
@@ -95,6 +96,130 @@ class AuthorActivityProfileTest(unittest.TestCase):
             self.assertTrue(profile["source_1"] or profile["research_note"], author)
 
 
+class TimelinePositionTest(unittest.TestCase):
+    def test_observed_dates_use_exact_year_or_range_center(self) -> None:
+        rows = [
+            {
+                "record_id": "P001",
+                "author": "甲",
+                "corpus_scope": "唐",
+                "duplicate_of": "",
+                "dating_status": "exact",
+                "date_start": "720",
+                "date_end": "720",
+            },
+            {
+                "record_id": "P002",
+                "author": "甲",
+                "corpus_scope": "唐",
+                "duplicate_of": "",
+                "dating_status": "range",
+                "date_start": "652",
+                "date_end": "653",
+            },
+        ]
+
+        positioned = {
+            row["record_id"]: row for row in apply_timeline_positions(rows, {})
+        }
+
+        self.assertEqual(positioned["P001"]["timeline_year"], "720")
+        self.assertEqual(positioned["P001"]["timeline_status"], "observed_exact")
+        self.assertEqual(positioned["P002"]["timeline_year"], "652.5")
+        self.assertEqual(positioned["P002"]["timeline_status"], "observed_range_center")
+
+    def test_undated_poems_use_activity_then_lifespan_anchor(self) -> None:
+        profiles = {
+            "甲": {
+                "author": "甲",
+                "activity_start": "700",
+                "activity_end": "760",
+                "birth_year": "",
+                "death_year": "",
+                "confidence": "中",
+            },
+            "乙": {
+                "author": "乙",
+                "activity_start": "",
+                "activity_end": "",
+                "birth_year": "701",
+                "death_year": "761",
+                "confidence": "低",
+            },
+        }
+        rows = [
+            {
+                "record_id": "P003",
+                "author": "甲",
+                "corpus_scope": "唐",
+                "duplicate_of": "",
+                "dating_status": "undated",
+                "date_start": "",
+                "date_end": "",
+            },
+            {
+                "record_id": "P004",
+                "author": "乙",
+                "corpus_scope": "唐",
+                "duplicate_of": "",
+                "dating_status": "undated",
+                "date_start": "",
+                "date_end": "",
+            },
+        ]
+
+        positioned = {
+            row["record_id"]: row
+            for row in apply_timeline_positions(rows, profiles)
+        }
+
+        self.assertEqual(positioned["P003"]["timeline_year"], "730")
+        self.assertEqual(positioned["P003"]["timeline_status"], "inferred_activity_cluster")
+        self.assertEqual(positioned["P004"]["timeline_year"], "731")
+        self.assertEqual(positioned["P004"]["timeline_status"], "inferred_lifespan_cluster")
+
+    def test_undated_cluster_is_symmetric_and_duplicates_inherit(self) -> None:
+        profiles = {
+            "甲": {
+                "author": "甲",
+                "activity_start": "700",
+                "activity_end": "760",
+                "birth_year": "",
+                "death_year": "",
+                "confidence": "中",
+            }
+        }
+        rows = [
+            {
+                "record_id": record_id,
+                "author": "甲",
+                "corpus_scope": "唐",
+                "duplicate_of": duplicate_of,
+                "dating_status": "undated",
+                "date_start": "",
+                "date_end": "",
+            }
+            for record_id, duplicate_of in (
+                ("P003", ""),
+                ("P006", ""),
+                ("P007", ""),
+                ("P008", "P003"),
+            )
+        ]
+
+        positioned = {
+            row["record_id"]: row
+            for row in apply_timeline_positions(rows, profiles)
+        }
+
+        self.assertEqual(
+            [positioned[record_id]["timeline_offset"] for record_id in ("P003", "P006", "P007")],
+            ["-10", "0", "10"],
+        )
+        self.assertEqual(positioned["P008"]["timeline_status"], "duplicate_inherited")
+        self.assertEqual(positioned["P008"]["timeline_year"], positioned["P003"]["timeline_year"])
+
+
 class ProjectDateValidationTest(unittest.TestCase):
     def test_generated_csv_uses_lf_line_endings(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -124,6 +249,19 @@ class ProjectDateValidationTest(unittest.TestCase):
         errors = validate_poem_date_rows([first, dict(first)])
 
         self.assertTrue(any("duplicate record_id" in error for error in errors))
+
+    def test_timeline_validator_rejects_inferred_year_outside_anchor(self) -> None:
+        path = Path(__file__).parents[1] / "data/poem_dates.csv"
+        with path.open(encoding="utf-8-sig", newline="") as date_file:
+            rows = list(csv.DictReader(date_file))
+        target = next(
+            row for row in rows if row["timeline_status"] == "inferred_activity_cluster"
+        )
+        target["timeline_year"] = "9999"
+
+        errors = validate_poem_date_rows(rows)
+
+        self.assertTrue(any("timeline_year" in error for error in errors))
 
 
 class ManualOverrideTest(unittest.TestCase):

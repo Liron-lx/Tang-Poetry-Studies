@@ -49,7 +49,24 @@ EXPECTED_DATE_COLUMNS = [
     "evidence_note",
     "audit_note",
     "search_query",
+    "timeline_year",
+    "timeline_status",
+    "timeline_basis",
+    "timeline_anchor_start",
+    "timeline_anchor_end",
+    "timeline_center_year",
+    "timeline_offset",
+    "timeline_confidence",
+    "timeline_note",
 ]
+TIMELINE_STATUSES = {
+    "observed_exact",
+    "observed_range_center",
+    "inferred_activity_cluster",
+    "inferred_lifespan_cluster",
+    "duplicate_inherited",
+    "unavailable",
+}
 COORDINATE_PATTERN = re.compile(r"^\s*(-?\d+(?:\.\d+)?)°?\s*[NS]?\s*,\s*(-?\d+(?:\.\d+)?)°?\s*[EW]?\s*$", re.I)
 
 
@@ -91,6 +108,20 @@ def validate_poem_date_rows(rows: list[dict[str, str]]) -> list[str]:
         if lookup_status not in LOOKUP_STATUSES:
             fail(errors, f"{record_id or row_number}: invalid lookup_status {lookup_status!r}")
         errors.extend(validate_date_record(row))
+
+        timeline_status = row.get("timeline_status", "")
+        if timeline_status not in TIMELINE_STATUSES:
+            fail(errors, f"{record_id or row_number}: invalid timeline_status {timeline_status!r}")
+        elif timeline_status in {"inferred_activity_cluster", "inferred_lifespan_cluster"}:
+            try:
+                year = float(row.get("timeline_year", ""))
+                anchor_start = float(row.get("timeline_anchor_start", ""))
+                anchor_end = float(row.get("timeline_anchor_end", ""))
+            except ValueError:
+                fail(errors, f"{record_id or row_number}: inferred timeline requires numeric year and anchors")
+            else:
+                if not anchor_start <= year <= anchor_end:
+                    fail(errors, f"{record_id or row_number}: timeline_year must fall within inferred anchors")
 
     known_ids = set(record_ids)
     for row_number, row in enumerate(rows, start=2):
