@@ -13,6 +13,7 @@ from build_poem_dates import (
     merge_manual_override,
     request_json,
     validate_date_record,
+    write_results,
 )
 from validate_project import validate, validate_poem_date_rows
 
@@ -50,6 +51,16 @@ class DateInvariantTest(unittest.TestCase):
 
 
 class ProjectDateValidationTest(unittest.TestCase):
+    def test_generated_csv_uses_lf_line_endings(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            path = Path(temp_dir) / "poem_dates.csv"
+            write_results(path, [{"record_id": "P001", "date_start": "720"}])
+
+            raw = path.read_bytes()
+
+        self.assertIn(b"\n", raw)
+        self.assertNotIn(b"\r\n", raw)
+
     def test_project_validator_reads_all_current_data_files(self) -> None:
         self.assertEqual(validate(), [])
 

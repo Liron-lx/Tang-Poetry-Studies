@@ -508,6 +508,19 @@ def build_rows(source_rows: list[dict[str, str]]) -> list[dict[str, str]]:
     return results
 
 
+def write_results(path: Path, results: list[dict[str, str]]) -> None:
+    """Write a reproducible UTF-8 CSV with repository-standard LF endings."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8-sig", newline="") as output_file:
+        writer = csv.DictWriter(
+            output_file,
+            fieldnames=list(results[0]),
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        writer.writerows(results)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -531,11 +544,7 @@ def main() -> None:
         merge_manual_override(row, manual_overrides.get(row["record_id"], {}))
         for row in results
     ]
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("w", encoding="utf-8-sig", newline="") as output_file:
-        writer = csv.DictWriter(output_file, fieldnames=list(results[0]))
-        writer.writeheader()
-        writer.writerows(results)
+    write_results(args.output, results)
     print(f"Wrote {len(results)} rows to {args.output}")
 
 
