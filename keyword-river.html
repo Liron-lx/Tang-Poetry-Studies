@@ -2,16 +2,14 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
       name="description"
       content="Web site created using create-react-app"
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <title>数字人文交互页面</title>
+    <link rel="stylesheet" href="assets/css/common.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
@@ -172,17 +170,17 @@
       color: #6B5B73;
     }
     </style>
-    </head>
+        <script src="assets/js/navigation.js" defer></script>
+</head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div style="width: 1440px; height: 900px; position: relative; background: white; overflow: hidden"> 
       <!-- 顶部导航栏开始 --> 
       <div style="z-index: 1000; position: relative;">
-        <img style="width: 24px; height: 24px; left: 30px; top: 30px; position: absolute; z-index: 1001; cursor: pointer;" src="image/home.svg" alt="home" onclick="window.location.href='index.html'"> 
-        <div style="left: 438px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='interactive.html'">侠踪天下</div>
-        <div style="left: 597px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='poetry-emotion.html'">剑影诗心</div> 
-        <div style="left: 763px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='word-association.html'">侠骨柔情</div> 
-        <div style="left: 922px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" onclick="window.location.href='keyword-river.html'">侠韵流殇</div> 
+        <img style="width: 24px; height: 24px; left: 30px; top: 30px; position: absolute; z-index: 1001; cursor: pointer;" src="image/home.svg" alt="home" data-route="index.html">
+        <div style="left: 438px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="interactive.html">侠踪天下</div>
+        <div style="left: 597px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="poetry-emotion.html">剑影诗心</div>
+        <div style="left: 763px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="word-association.html">侠骨柔情</div>
+        <div style="left: 922px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="keyword-river.html">侠韵流殇</div>
         <img style="width: 24px; height: 24px; left: 1384px; top: 29px; position: absolute" src="image/menu.svg" alt="menu"> 
         <div style="width: 1400px; height: 0px; left: 16px; top: 64px; position: absolute; outline: 1px #979797 solid; outline-offset: -0.50px"></div> 
         <div class="underline" style="left: 922px;"></div>
@@ -194,7 +192,7 @@
       <div style="padding: 12px; position: absolute; right: 30px; bottom: 20px; border-radius: 46.50px; flex-direction: column; justify-content: flex-start; align-items: flex-end; gap: 10px; display: inline-flex"> 
         <div style="justify-content: flex-start; align-items: center; gap: 16px; display: inline-flex"> 
           <div style="color: black; font-size: 20px; font-family: MiSans; font-weight: 400; word-wrap: break-word">返回首页</div> 
-          <div style="padding: 12px; background: #FBEEEE; border-radius: 29px; justify-content: flex-start; align-items: center; gap: 10px; display: flex; cursor: pointer;" onclick="window.location.href='index.html'"> 
+          <div style="padding: 12px; background: #FBEEEE; border-radius: 29px; justify-content: flex-start; align-items: center; gap: 10px; display: flex; cursor: pointer;" data-route="index.html">
             <img style="width: 16px; height: 16px;" src="image/arrow-right.svg" alt="arrow right"> 
           </div> 
         </div> 
@@ -202,7 +200,7 @@
 
       <!-- 样本量和单位说明 -->
         <div style="position: fixed; left: 30px; bottom: 100px; font-size: 12px; color: #999; z-index: 1000;">
-          样本量：101首唐代咏侠诗 | 单位：诗歌数量
+          样本量：100首唐代咏侠诗 | 单位：诗歌数量
         </div> 
 
       <!-- 留出空间放可交互的数字人文内容 -->
@@ -262,7 +260,7 @@
         
          // 读取CSV数据并生成图表
         // 在数据处理部分添加数据量检查
-        d3.csv("poetry_with_detailed_clusters_sankey.csv").then(function(csvData) {
+        d3.csv("data/poetry_with_detailed_clusters_sankey.csv").then(function(csvData) {
         console.log(`加载了 ${csvData.length} 条诗歌数据`);
         
         // 如果数据量很大，可以考虑分页或筛选

@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>诗人与聚类类别关系弦图</title>
+    <link rel="stylesheet" href="assets/css/common.css">
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
@@ -169,6 +170,7 @@
             color: #6B5B73;
         }
     </style>
+    <script src="assets/js/navigation.js" defer></script>
 </head>
 <body>
     <div class="container">
@@ -200,7 +202,7 @@
         let labels = null;
         
          // 读取CSV数据并生成图表
-        d3.csv("poetry_with_detailed_clusters_sankey.csv").then(function(csvData) {
+        d3.csv("data/poetry_with_detailed_clusters_sankey.csv").then(function(csvData) {
             // 清除加载提示
             d3.select("#chart").selectAll("*").remove();
             

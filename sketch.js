@@ -37,10 +37,10 @@ let animationSpeed = 0.15; // 动画速度
 
 function preload() {
     console.log('开始加载数据...');
-    tangMapData = loadJSON('tang_dynasty_detailed_boundary.json'); // 改为详细边界文件
+    tangMapData = loadJSON('data/tang_dynasty_detailed_boundary.json'); // 改为详细边界文件
     
     // 使用回调函数确保数据加载完成
-    locationTable = loadTable('地方名称及经纬度.csv', 'csv', 'header', 
+    locationTable = loadTable('data/地方名称及经纬度.csv', 'csv', 'header',
         function(table) {
             console.log('CSV数据加载完成，行数:', table.getRowCount());
             processLocationData(table);
