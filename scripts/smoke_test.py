@@ -20,6 +20,7 @@ PAGES = [
     "circular_sankey.html",
     "可行情感1.html",
     "词频可视化.html",
+    "xiayi-scroll.html",
 ]
 RESOURCES = [
     "assets/css/common.css",
