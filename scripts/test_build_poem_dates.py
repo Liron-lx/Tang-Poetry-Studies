@@ -78,6 +78,22 @@ class AuthorActivityProfileTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "王维"):
                 load_author_activity_periods(path)
 
+    def test_profiles_cover_every_independent_tang_author(self) -> None:
+        root = Path(__file__).parents[1]
+        profiles = load_author_activity_periods(root / "data/author_activity_periods.csv")
+        with (root / "data/poem_dates.csv").open(encoding="utf-8-sig", newline="") as date_file:
+            rows = list(csv.DictReader(date_file))
+
+        expected_authors = {
+            row["author"]
+            for row in rows
+            if not row["duplicate_of"] and row["corpus_scope"] == "唐"
+        }
+
+        self.assertEqual(set(profiles), expected_authors)
+        for author, profile in profiles.items():
+            self.assertTrue(profile["source_1"] or profile["research_note"], author)
+
 
 class ProjectDateValidationTest(unittest.TestCase):
     def test_generated_csv_uses_lf_line_endings(self) -> None:
