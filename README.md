@@ -1,5 +1,7 @@
 # 唐代侠义诗可视化
 
+**在线访问：<https://liron-lx.github.io/Tang-Poetry-Studies/>**（GitHub Pages，随 `main` 分支推送自动部署）
+
 这是一个以唐代咏侠诗为对象的静态数字人文可视化项目。全站为六幕章回叙事：**序 · 时 · 地 · 人 · 心 · 存**，视觉依据《唐代侠义诗可视化 · 视觉规范》（宣纸青绿体系），叙事架构见 `docs/narrative-architecture.md`。
 
 ## 本地运行
