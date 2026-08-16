@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>侠踪天下 · 山河叠图</title>
+  <style>
+    :root { --paper:#f4f0e8; --ink:#27342d; --muted:#68756e; --jade:#315b50; --ochre:#b58648; --clay:#8a5d50; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:var(--paper); color:var(--ink); font-family:"Noto Serif SC","Songti SC",serif; }
+    .page { width:min(1080px,100%); margin:auto; padding:44px 42px 62px; }
+    header { border-top:1px solid rgba(39,52,45,.24); padding-top:12px; display:flex; justify-content:space-between; gap:38px; }
+    .eyebrow { font:10px/1.5 ui-sans-serif,system-ui,sans-serif; letter-spacing:.25em; color:#718078; text-transform:uppercase; }
+    h1 { font-size:34px; font-weight:500; letter-spacing:.14em; margin:10px 0 5px; }
+    .dek { margin:0; color:#68756e; font-size:14px; line-height:1.8; letter-spacing:.05em; }
+    header aside { width:275px; color:var(--muted); font-size:13px; line-height:1.9; }
+    .controls { display:flex; flex-wrap:wrap; gap:9px 21px; align-items:center; margin:27px 0 11px; font:11px ui-sans-serif,system-ui,sans-serif; letter-spacing:.07em; }
+    .control { display:inline-flex; align-items:center; gap:7px; color:#59665f; cursor:pointer; }
+    .control input { appearance:none; width:10px; height:10px; border-radius:50%; background:#315b50; opacity:.9; cursor:pointer; }
+    .control input:checked { box-shadow:0 0 0 3px var(--paper), 0 0 0 4px currentColor; }
+    .control.tang { color:#9b713b; }.control.tang input{background:#b58648}.control.peaks{color:#725145}.control.peaks input{background:#8a5d50}
+    .figure { background:rgba(255,255,255,.17); overflow:hidden; }
+    svg { display:block; width:100%; height:auto; }
+    .status { min-height:27px; padding-top:7px; color:#75827b; font:10px ui-sans-serif,system-ui,sans-serif; letter-spacing:.12em; }
+    .reading { display:grid; grid-template-columns:1.15fr .85fr; gap:42px; margin-top:21px; padding-top:15px; border-top:1px solid rgba(39,52,45,.15); }
+    .reading p { margin:0; color:#58665e; font-size:13px; line-height:1.95; }
+    .reading strong { color:var(--ink); font-weight:600; }
+    .note-list { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:24px; }
+    .note-card { border-top:1px solid rgba(39,52,45,.19); padding-top:9px; }
+    .note-card b { display:block; font-size:18px; font-weight:500; color:#31463e; }
+    .note-card span { color:#758079; font:10px ui-sans-serif,system-ui,sans-serif; letter-spacing:.08em; }
+    @media (max-width:700px) { .page{padding:27px 18px 43px} header{display:block}header aside{width:auto;margin-top:14px}h1{font-size:27px}.reading{grid-template-columns:1fr;gap:13px}.note-list{grid-template-columns:1fr 1fr} }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div>
+        <div class="eyebrow">Tang chivalric poetry · spatial strata</div>
+        <h1>侠踪天下 · 山河叠图</h1>
+        <p class="dek">当代中国作为底图，盛唐疆域作为叠层，侠义诗歌的地理峰值从地点生长。</p>
+      </div>
+      <aside>这不是把两张地图混成一张，而是让“今天的地理容器”与“唐代的历史空间”同时可见：冷色点阵为底，暖色点雾为叠。</aside>
+    </header>
+    <div class="controls" aria-label="地图图层控制">
+      <label class="control"><input id="modernToggle" type="checkbox" checked /> 当代中国 · 点阵底图</label>
+      <label class="control tang"><input id="tangToggle" type="checkbox" checked /> 盛唐疆域 · 暖色叠层</label>
+      <label class="control peaks"><input id="peakToggle" type="checkbox" checked /> 诗歌频次 · 山形峰值</label>
+    </div>
+    <section class="figure" aria-label="当代中国点阵地图、盛唐疆域叠层与诗歌频次山峰">
+      <svg id="scene" viewBox="0 0 1000 700" role="img" aria-label="现代中国点阵底图上叠加盛唐疆域，地点频次以渐变内凹山峰表示">
+        <defs>
+          <pattern id="chinaDots" width="8.2" height="7.1" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="1.7" r="1.1" fill="#315b50" opacity=".34"/><circle cx="6.1" cy="5.35" r=".74" fill="#315b50" opacity=".18"/>
+          </pattern>
+          <pattern id="tangDots" width="7.1" height="6.15" patternUnits="userSpaceOnUse">
+            <circle cx="1.75" cy="1.55" r="1.25" fill="#a27339" opacity=".46"/><circle cx="5.35" cy="4.6" r=".84" fill="#a27339" opacity=".28"/>
+          </pattern>
+          <linearGradient id="tangWash" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#c39b62" stop-opacity=".13"/><stop offset=".58" stop-color="#c39b62" stop-opacity=".08"/><stop offset="1" stop-color="#c39b62" stop-opacity=".02"/>
+          </linearGradient>
+          <linearGradient id="jadePeak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#294e47" stop-opacity=".97"/><stop offset=".44" stop-color="#4f7e72" stop-opacity=".72"/><stop offset="1" stop-color="#a9c7be" stop-opacity=".08"/></linearGradient>
+          <linearGradient id="ochrePeak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#916832" stop-opacity=".92"/><stop offset=".5" stop-color="#bd9252" stop-opacity=".62"/><stop offset="1" stop-color="#e0cda8" stop-opacity=".10"/></linearGradient>
+          <linearGradient id="clayPeak" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7d4f43" stop-opacity=".90"/><stop offset=".52" stop-color="#a67661" stop-opacity=".56"/><stop offset="1" stop-color="#d9b9a5" stop-opacity=".08"/></linearGradient>
+        </defs>
+        <g id="modernLayer"></g>
+        <g id="tangLayer"></g>
+        <g id="tangDensity"></g>
+        <g id="mountainLayer"></g>
+        <g id="placeLabels" fill="#42584f" font-family="ui-sans-serif,system-ui,sans-serif" font-size="10" letter-spacing="1.1"></g>
+        <g fill="#748079" font-family="ui-sans-serif,system-ui,sans-serif" font-size="9" letter-spacing="1.2">
+          <text x="77" y="651">MODERN CHINA · DOT FIELD</text>
+          <text x="500" y="651" text-anchor="middle">TANG TERRITORY · 741 CE</text>
+          <text x="923" y="651" text-anchor="end">POEM FREQUENCY · MOUNTAIN FORM</text>
+        </g>
+      </svg>
+      <div id="status" class="status">正在载入当代中国地理边界……</div>
+    </section>
+    <section class="reading">
+      <p><strong>叠图关系：</strong>底层点阵回答“这些地点今天落在什么地理容器中”；暖色唐域回答“盛唐时期的空间想象延伸到哪里”。两层不互相替代，边缘都不以线条强调。</p>
+      <p><strong>阅读顺序：</strong>先看疆域雾层的大尺度形状，再看点阵中的频次聚集，最后看从真实地点拔起的峰。峰尖浓、山脚淡，左右仍是一条连续内凹弧。</p>
+    </section>
+    <section class="note-list" aria-label="图表摘要">
+      <div class="note-card"><b>100</b><span>诗歌样本 POEMS</span></div>
+      <div class="note-card"><b>741</b><span>盛唐疆域参考年 CE</span></div>
+      <div class="note-card"><b>2 层</b><span>地理空间 MAP STRATA</span></div>
+    </section>
+  </main>
+  <script>
+    const NS='http://www.w3.org/2000/svg';
+    const modernLayer=document.getElementById('modernLayer'), tangLayer=document.getElementById('tangLayer'), tangDensity=document.getElementById('tangDensity'), mountainLayer=document.getElementById('mountainLayer'), placeLabels=document.getElementById('placeLabels'), status=document.getElementById('status');
+    const bbox={minLon:72,maxLon:136,minLat:17,maxLat:54};
+    const project=([lon,lat])=>[100+(lon-bbox.minLon)/(bbox.maxLon-bbox.minLon)*800, 578-(lat-bbox.minLat)/(bbox.maxLat-bbox.minLat)*340];
+    const el=(tag,attrs)=>{const node=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>node.setAttribute(k,v));return node;};
+    const pathRing=ring=>ring.map((p,i)=>{const [x,y]=project(p);return `${i?'L':'M'}${x.toFixed(2)} ${y.toFixed(2)}`;}).join(' ')+' Z';
+    const geoPath=geometry=>{const polygons=geometry.type==='Polygon'?[geometry.coordinates]:geometry.coordinates;return polygons.map(poly=>poly.map(pathRing).join(' ')).join(' ');};
+    const tangBoundary=[[76.5,49.2],[82.3,47.8],[87.6,47.2],[94.2,46.8],[108.5,50.1],[115.8,49.3],[125.2,48.7],[133.8,46.5],[133.8,46.5],[131.2,43.8],[129.5,41.2],[126.8,38.9],[125.3,35.1],[120.2,30.8],[118.5,28.3],[117.8,25.1],[115.2,22.8],[113.6,20.9],[110.8,19.2],[108.3,18.5],[105.7,19.8],[102.4,21.3],[99.8,23.1],[97.2,24.8],[94.5,26.2],[91.8,27.9],[88.2,29.1],[85.6,30.8],[82.1,32.5],[78.9,34.2],[75.8,36.1],[73.2,38.8],[71.5,41.2],[73.8,43.6],[76.5,49.2]];
+    let places=[];
+    const typeColors={
+      '京城':'url(#clayPeak)',
+      '边塞':'url(#jadePeak)',
+      '内陆城市':'url(#jadePeak)',
+      '关隘':'url(#ochrePeak)',
+      '其他':'url(#jadePeak)'
+    };
+    function parseCSV(text){
+      const rows=[]; let row=[]; let field=''; let quoted=false;
+      for(let i=0;i<text.length;i++){
+        const ch=text[i];
+        if(ch==='"' && text[i+1]==='"'){field+='"';i++;continue;}
+        if(ch==='"'){quoted=!quoted;continue;}
+        if(ch===',' && !quoted){row.push(field);field='';continue;}
+        if((ch==='\n' || ch==='\r') && !quoted){if(ch==='\r' && text[i+1]==='\n')i++;row.push(field);if(row.some(value=>value.trim()!==''))rows.push(row);row=[];field='';continue;}
+        field+=ch;
+      }
+      if(field!=='' || row.length){row.push(field);rows.push(row);}
+      return rows;
+    }
+    function parsePlaceRows(text){
+      places=parseCSV(text).slice(1).map((row,index)=>{
+        const coordinate=(row[3]||'').match(/([\d.]+)°?N\s*,\s*([\d.]+)°?E/);
+        if(!coordinate)return null;
+        const freq=Number(row[1])||1;
+        return {name:row[0],lon:Number(coordinate[2]),lat:Number(coordinate[1]),freq,type:row[4]||'其他',fill:typeColors[row[4]]||typeColors['其他'],label:index<4};
+      }).filter(Boolean);
+    }
+    function appendModern(geo){geo.features.forEach(feature=>{const d=geoPath(feature.geometry);modernLayer.appendChild(el('path',{d,fill:'url(#chinaDots)',stroke:'none'}));});}
+    function appendTang(){const d=pathRing(tangBoundary);tangLayer.appendChild(el('path',{d,fill:'url(#tangWash)',stroke:'none'}));tangLayer.appendChild(el('path',{d,fill:'url(#tangDots)',opacity:'.82',stroke:'none'}));tangDensity.appendChild(el('path',{d,fill:'url(#tangDots)',opacity:'.26',stroke:'none'}));}
+    function appendMountain(place,index){const [x,baseY]=project([place.lon,place.lat]);const height=15+place.freq*1.7;const width=14+Math.sqrt(place.freq)*4.8;const peakY=baseY-height;const left=x-width,right=x+width;const d=`M${left.toFixed(2)} ${baseY.toFixed(2)} C${(x-width*.18).toFixed(2)} ${(baseY-height*.22).toFixed(2)} ${(x-width*.08).toFixed(2)} ${(peakY+height*.22).toFixed(2)} ${x.toFixed(2)} ${peakY.toFixed(2)} C${(x+width*.08).toFixed(2)} ${(peakY+height*.22).toFixed(2)} ${(x+width*.18).toFixed(2)} ${(baseY-height*.22).toFixed(2)} ${right.toFixed(2)} ${baseY.toFixed(2)} Z`;mountainLayer.appendChild(el('path',{d,fill:place.fill,opacity:index<4?'.92':'.62',stroke:'none'}));if(place.label){const text=el('text',{x,y:baseY+17,'text-anchor':'middle'});text.textContent=`${place.name} · ${place.freq}首`;placeLabels.appendChild(text);}}
+    function setVisible(id,visible){document.getElementById(id).style.display=visible?'':'none';}
+    document.getElementById('modernToggle').addEventListener('change',e=>setVisible('modernLayer',e.target.checked));
+    document.getElementById('tangToggle').addEventListener('change',e=>{setVisible('tangLayer',e.target.checked);setVisible('tangDensity',e.target.checked);});
+    document.getElementById('peakToggle').addEventListener('change',e=>{setVisible('mountainLayer',e.target.checked);setVisible('placeLabels',e.target.checked);});
+    async function render(){try{const [mapResponse,csvResponse]=await Promise.all([fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json'),fetch('data/地方名称及经纬度.csv')]);const geo=await mapResponse.json();parsePlaceRows(await csvResponse.text());appendModern(geo);appendTang();places.forEach(appendMountain);status.textContent=`当代中国点阵 + 盛唐疆域叠层 + ${places.length}个地点频次峰值`;}catch(error){status.textContent='地图或地点数据载入失败，请刷新后重试';console.error(error);}}
+    render();
+  </script>
+</body>
+</html>

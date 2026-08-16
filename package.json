@@ -4,7 +4,7 @@
   "version": "1.1.0",
   "description": "唐代咏侠诗数字人文可视化项目",
   "scripts": {
-    "dev": "python3 -m http.server 8000",
+    "dev": "python3 scripts/dev_server.py",
     "validate": "python3 scripts/validate_project.py",
     "test": "python3 scripts/validate_project.py && python3 scripts/smoke_test.py --base-url http://127.0.0.1:8000"
   }

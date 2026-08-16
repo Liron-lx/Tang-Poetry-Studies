@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="侠心何似：侠客是诗人的自我投射——八维情志、两个世界、九十首诗各归其位。" />
+  <title>诗风侠影 · 第四幕｜侠心何似</title>
+  <link rel="stylesheet" href="assets/css/common.css" />
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <style>
+    .stage { width: min(1060px, calc(100% - 3rem)); margin: 0 auto; }
+
+    .scene { margin-bottom: 4.5rem; }
+    .scene-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: .4rem; }
+    .scene-head .no {
+      font-family: var(--font-label);
+      font-size: .7rem; letter-spacing: .3em; color: var(--ochre);
+    }
+    .scene-head h2 {
+      font-family: var(--font-title); font-weight: 400;
+      font-size: 1.7rem; letter-spacing: .2em; margin: 0;
+    }
+    .scene-desc { color: var(--ink-2); font-size: .85rem; max-width: 46em; margin: .3rem 0 1.6rem; line-height: 1.9; }
+
+    /* 两个世界 · 对位两栏 */
+    .two-worlds { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+    .world {
+      border-top: 2px solid var(--ink);
+      padding-top: 1rem;
+    }
+    .world.xia { border-top-color: var(--ochre); }
+    .world.shi { border-top-color: var(--blue); }
+    .world .w-title {
+      font-family: var(--font-serif); font-size: 1.15rem; letter-spacing: .18em;
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .world .w-title .w-en { font-family: var(--font-label); font-size: .6rem; letter-spacing: .25em; color: var(--ink-2); }
+    .world .w-dims { font-size: .78rem; color: var(--ink-2); margin: .35rem 0 .8rem; letter-spacing: .06em; }
+    .world .w-chart { width: 100%; height: 300px; }
+    .world-vs {
+      text-align: center; margin: 1.2rem 0 0;
+      font-family: var(--font-serif); color: var(--ink-2); font-size: .88rem; letter-spacing: .1em;
+    }
+
+    /* 投射散点 */
+    .scatter-wrap { position: relative; }
+    #scatterChart { width: 100%; height: 560px; }
+    .poet-filter { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .poet-filter button {
+      font-family: var(--font-serif); font-size: .82rem; letter-spacing: .12em;
+      padding: .3rem .9rem; border: 1px solid rgba(43,43,40,.3); border-radius: 2px;
+      background: transparent; color: var(--ink-2); cursor: pointer;
+      transition: all .25s ease;
+    }
+    .poet-filter button:hover { border-color: var(--ink); color: var(--ink); }
+    .poet-filter button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .scatter-note { font-size: .72rem; color: var(--ink-2); margin-top: .5rem; }
+    /* 图注 · 方法说明（小字淡色） */
+    .m-note { font-size: .72rem; color: var(--mist); line-height: 1.9; margin: 1rem 0 0; max-width: 56em; }
+
+    /* 词象 */
+    .lexicon { display: grid; grid-template-columns: 2fr 3fr; gap: 1.6rem; align-items: start; }
+    .cat-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .8rem; }
+    .cat-chips button {
+      font-size: .7rem; letter-spacing: .08em; padding: .22rem .6rem;
+      border: 1px solid rgba(43,43,40,.25); border-radius: 2px;
+      background: transparent; color: var(--ink-2); cursor: pointer;
+    }
+    .cat-chips button.active { background: var(--blue); border-color: var(--blue); color: var(--paper); }
+    #wordBar { width: 100%; height: 340px; }
+    .lex-field-box { position: relative; }
+    #lexField { width: 100%; height: 480px; }
+    .lex-caption { font-size: .7rem; color: var(--ink-2); margin-top: .4rem; }
+
+    @media (max-width: 820px) {
+      .two-worlds, .lexicon { grid-template-columns: 1fr; }
+      #scatterChart { height: 440px; }
+    }
+  </style>
+</head>
+<body data-chapter="xin" data-seal="心">
+
+  <header class="act-head">
+    <div class="act-no">ACT IV</div>
+    <div>
+      <h1>侠心何似</h1>
+      <p class="act-sub">第四幕 · 心 ｜ 八维情志 · 九十首各归其位</p>
+    </div>
+    <p class="act-question">写侠的人并不仗剑。侠客，是诗人的自我投射——八维情志分成两个世界，九十首诗各归其位。</p>
+  </header>
+
+  <main class="stage">
+
+    <!-- 场一 · 两个世界 -->
+    <section class="scene" id="worlds">
+      <div class="scene-head"><span class="no">壹</span><h2>两个世界</h2></div>
+      <p class="scene-desc">八维情志评分（0–10）分作两列对置：左为侠客的世界——壮怀、同袍、义愤、死生；右为诗人的内心——功名、幻灭、孤愤、孤寂。点线为五类侠义主题在各维度上的中位数。</p>
+      <div class="two-worlds">
+        <div class="world xia">
+          <div class="w-title">侠客的世界 <span class="w-en">THE KNIGHT-ERRANT</span></div>
+          <div class="w-dims">壮怀逸兴 · 同袍之谊 · 家国义愤 · 死生超然</div>
+          <div class="w-chart" id="chartXia"></div>
+        </div>
+        <div class="world shi">
+          <div class="w-title">诗人的内心 <span class="w-en">THE POET</span></div>
+          <div class="w-dims">功名热望 · 功名幻灭 · 孤愤悲慨 · 苍茫孤寂</div>
+          <div class="w-chart" id="chartShi"></div>
+        </div>
+      </div>
+      <p class="world-vs">同一句"侠客行"，左手是剑，右手是功名。</p>
+      <p class="m-note">评分方法 · 每首诗在壮怀逸兴、同袍之谊、家国义愤、死生超然、功名热望、功名幻灭、孤愤悲慨、苍茫孤寂八个维度上人工评分（0–10）。2026-08-16 审计修正 8 处超出量程的录入错误（如 14→4），剔除 3 条语料外记录与 10 条异文重复记录，变更全量记录于 docs/data-changelog-2026-08-16.md。</p>
+    </section>
+
+    <!-- 场二 · 投射散点 -->
+    <section class="scene" id="projection">
+      <div class="scene-head"><span class="no">贰</span><h2>投射图</h2></div>
+      <p class="scene-desc">每首诗一个墨点：横轴为侠客侧均分，纵轴为诗人侧均分，全图以百首均值分作四象——右上"剑气箫心"，侠气与孤愤并盛；左上"箫心独抱"；右下"剑气纵横"；左下"剑箫两淡"。朱砂大点为五位诗人的重心——李白漂在最右，高适与杜甫并肩落在左上。点选诗人可单独检视其诗作：墨点与重心之间牵出投射之线，其余四人的重心将淡去。</p>
+      <div class="poet-filter" id="poetFilter"></div>
+      <div class="scatter-wrap"><div id="scatterChart"></div></div>
+      <p class="m-note">双轨得分 · "侠客侧"取八维中壮怀逸兴、同袍之谊、家国义愤、死生超然之均分；"诗人侧"取功名热望、功名幻灭、孤愤悲慨、苍茫孤寂之均分。本图与第三幕人物仪表均由两均分直接计算，无艺术位移。悬停墨点可读出该诗在两个世界上的坐标。</p>
+    </section>
+
+    <!-- 场三 · 词象 -->
+    <section class="scene" id="lexicon">
+      <div class="scene-head"><span class="no">叁</span><h2>词象</h2></div>
+      <p class="scene-desc">283 个高频词，十三个类别。左侧为各类前八位的准确排布；右侧词林按十三类分圃——面积即词频，"侠客"五十四见，是这片词林的唯一朱砂。</p>
+      <div class="cat-chips" id="catChips"></div>
+      <div class="lexicon">
+        <div id="wordBar"></div>
+        <div class="lex-field-box">
+          <div id="lexField"></div>
+          <p class="lex-caption">词林十三圃 · 283 词各归其类，面积与词频成正比；小圃无字者，悬停可读</p>
+        </div>
+      </div>
+      <p class="m-note">词频与分类 · 分词后保留实义高频词 283 个，归入人物形象、器物、地理、时间等十三类。旧版"情感类"词表存在个别误分类（如"武威""安知"），已标记待复核；跨版本分类口径以 word_frequency.csv 为准。</p>
+    </section>
+
+  </main>
+
+  <div class="act-hook" data-hook-line="九十首诗，五种侠气，最终流向何处？" data-hook-next="keyword-river.html" data-hook-label="终幕 · 侠韵长存 →"></div>
+
+  <script src="assets/js/site.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var XIA_DIMS = ['壮怀逸兴', '同袍之谊', '家国义愤', '死生超然'];
+      var SHI_DIMS = ['功名热望', '功名幻灭', '孤愤悲慨', '苍茫孤寂'];
+      var CLUSTERS = ['侠义抒怀类', '隐逸怀古类', '豪侠交游类', '边塞报国类', '市井任侠类'];
+      var CLUSTER_COLORS = {
+        '侠义抒怀类': '#3D5A6C', '隐逸怀古类': '#8FAE8B', '豪侠交游类': '#5BA4A4',
+        '边塞报国类': '#A67C52', '市井任侠类': '#D9B44A'
+      };
+      var FIVE = ['骆宾王', '王维', '李白', '高适', '杜甫'];
+
+      function median(arr) {
+        if (!arr.length) return 0;
+        var a = arr.slice().sort(function (x, y) { return x - y; });
+        var m = Math.floor(a.length / 2);
+        return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+      }
+
+      Promise.all([
+        XIA.loadCSV('data/emotion_scores.csv'),
+        XIA.loadCSV('data/poetry_with_detailed_clusters_sankey.csv'),
+        XIA.loadCSV('data/word_frequency.csv')
+      ]).then(function (res) {
+        var emo = res[0], sankey = res[1], words = res[2];
+
+        var clusterOf = {};
+        sankey.forEach(function (r) { clusterOf[r['作者'] + '|' + r['诗歌名']] = r['聚类类别']; });
+        // 重复诗题（异文）取去掉题前缀后匹配
+        function findCluster(r) {
+          var k = r.author + '|' + r.title_cn;
+          if (clusterOf[k]) return clusterOf[k];
+          var t = r.title_cn.replace(/^\S*(?:歌辞|曲辞|古题序)\s/, '');
+          return clusterOf[r.author + '|' + t] || null;
+        }
+
+        var poems = emo.map(function (r) {
+          var xia = 0, shi = 0;
+          XIA_DIMS.forEach(function (d) { xia += +r[d]; });
+          SHI_DIMS.forEach(function (d) { shi += +r[d]; });
+          return {
+            author: r.author, title: r.title_cn,
+            cluster: findCluster(r) || '侠义抒怀类',
+            xia: xia / 4, shi: shi / 4,
+            dims: XIA_DIMS.concat(SHI_DIMS).map(function (d) { return +r[d]; }),
+            raw: r
+          };
+        });
+
+        /* ---------- 场一：两个世界 ---------- */
+        function worldChart(el, dims) {
+          var chart = echarts.init(document.getElementById(el));
+          var series = CLUSTERS.map(function (c) {
+            var rows = poems.filter(function (p) { return p.cluster === c; });
+            return {
+              name: c.replace('类', ''),
+              type: 'line',
+              symbol: 'circle', symbolSize: 7,
+              data: dims.map(function (d) {
+                return median(rows.map(function (p) { return +p.raw[d]; }));
+              }),
+              lineStyle: { width: 1.5 },
+              itemStyle: { color: CLUSTER_COLORS[c] },
+              emphasis: { focus: 'series' }
+            };
+          });
+          chart.setOption({
+            grid: { left: 8, right: 16, top: 34, bottom: 8, containLabel: true },
+            legend: {
+              top: 0, icon: 'circle', itemWidth: 8, itemHeight: 8,
+              textStyle: { fontSize: 10, color: '#6E6E66', fontFamily: 'Noto Sans SC' }
+            },
+            xAxis: {
+              type: 'category', data: dims,
+              axisLine: { lineStyle: { color: '#C9C7BC' } },
+              axisLabel: { color: '#2B2B28', fontSize: 11, fontFamily: 'Noto Serif SC' },
+              axisTick: { show: false }
+            },
+            yAxis: {
+              type: 'value', max: 10,
+              splitLine: { lineStyle: { color: '#C9C7BC', type: 'dashed', width: .5 } },
+              axisLabel: { color: '#6E6E66', fontSize: 10 }
+            },
+            series: series
+          });
+          return chart;
+        }
+        worldChart('chartXia', XIA_DIMS);
+        worldChart('chartShi', SHI_DIMS);
+
+        /* ---------- 场二：投射散点 ---------- */
+        var meanX = poems.reduce(function (s, p) { return s + p.xia; }, 0) / poems.length;
+        var meanY = poems.reduce(function (s, p) { return s + p.shi; }, 0) / poems.length;
+
+        var centroids = FIVE.map(function (name) {
+          var mine = poems.filter(function (p) { return p.author === name; });
+          return {
+            name: name,
+            value: [
+              mine.reduce(function (s, p) { return s + p.xia; }, 0) / mine.length,
+              mine.reduce(function (s, p) { return s + p.shi; }, 0) / mine.length
+            ]
+          };
+        });
+
+        var scatter = echarts.init(document.getElementById('scatterChart'));
+        var currentPoet = null;
+
+        function scatterData() {
+          return poems.filter(function (p) { return !currentPoet || p.author === currentPoet; })
+            .map(function (p) {
+              return {
+                name: p.author + '《' + p.title + '》',
+                value: [p.xia, p.shi],
+                poem: p,
+                itemStyle: {
+                  color: CLUSTER_COLORS[p.cluster],
+                  opacity: currentPoet ? .9 : .62,
+                  borderColor: '#F5F2EA', borderWidth: .6
+                }
+              };
+            });
+        }
+
+        /* 投射线：选中诗人时，其诗作墨点向重心牵引 */
+        function linkData() {
+          if (!currentPoet) return [];
+          var cen = null;
+          centroids.forEach(function (c) { if (c.name === currentPoet) cen = c; });
+          if (!cen) return [];
+          return poems.filter(function (p) { return p.author === currentPoet; })
+            .map(function (p) { return { coords: [[p.xia, p.shi], cen.value] }; });
+        }
+
+        function renderScatter() {
+          scatter.setOption({
+            grid: { left: 20, right: 40, top: 40, bottom: 44, containLabel: true },
+            graphic: [
+              { id: 'q-tr', type: 'text', right: 46, top: 46, silent: true,
+                style: { text: '剑气箫心', fill: '#C9C7BC', fontSize: 13, fontFamily: 'Noto Serif SC' } },
+              { id: 'q-tl', type: 'text', left: 66, top: 46, silent: true,
+                style: { text: '箫心独抱', fill: '#C9C7BC', fontSize: 13, fontFamily: 'Noto Serif SC' } },
+              { id: 'q-br', type: 'text', right: 46, bottom: 62, silent: true,
+                style: { text: '剑气纵横', fill: '#C9C7BC', fontSize: 13, fontFamily: 'Noto Serif SC' } },
+              { id: 'q-bl', type: 'text', left: 66, bottom: 62, silent: true,
+                style: { text: '剑箫两淡', fill: '#C9C7BC', fontSize: 13, fontFamily: 'Noto Serif SC' } }
+            ],
+            xAxis: {
+              name: '侠客的世界 →', nameLocation: 'middle', nameGap: 28,
+              nameTextStyle: { color: '#A67C52', fontSize: 11, fontFamily: 'Noto Serif SC' },
+              min: 0, max: 10,
+              axisLine: { lineStyle: { color: '#C9C7BC' } },
+              splitLine: { show: false },
+              axisLabel: { color: '#6E6E66', fontSize: 10 }
+            },
+            yAxis: {
+              name: '诗人的内心 ↑', nameLocation: 'middle', nameGap: 34,
+              nameTextStyle: { color: '#3D5A6C', fontSize: 11, fontFamily: 'Noto Serif SC' },
+              min: 0, max: 10,
+              axisLine: { lineStyle: { color: '#C9C7BC' } },
+              splitLine: { show: false },
+              axisLabel: { color: '#6E6E66', fontSize: 10 }
+            },
+            tooltip: {
+              trigger: 'item',
+              backgroundColor: 'rgba(237,231,217,.96)',
+              borderColor: 'rgba(43,43,40,.35)',
+              textStyle: { color: '#2B2B28', fontSize: 12 },
+              formatter: function (pr) {
+                if (pr.seriesName === 'poets') return '<b>' + pr.data.name + '</b><br/>五人重心';
+                var p = pr.data.poem;
+                return '<b>' + pr.data.name + '</b><br/>' +
+                  p.cluster.replace('类', '') + '<br/>' +
+                  '侠客侧 ' + p.xia.toFixed(2) + ' ｜ 诗人侧 ' + p.shi.toFixed(2);
+              }
+            },
+            series: [
+              {
+                name: 'links', type: 'lines', coordinateSystem: 'cartesian2d',
+                data: linkData(), silent: true, z: 1,
+                lineStyle: { color: '#2B2B28', width: .8, opacity: .18, curveness: .18 }
+              },
+              {
+                name: 'poems', type: 'scatter', data: scatterData(),
+                symbolSize: 9,
+                emphasis: {
+                  focus: 'self',
+                  itemStyle: { borderColor: '#B04A3A', borderWidth: 1.6, opacity: 1 }
+                },
+                blur: { itemStyle: { opacity: .12 } },
+                markLine: {
+                  silent: true, symbol: 'none',
+                  lineStyle: { color: '#C9C7BC', type: 'dashed', width: .8 },
+                  label: {
+                    show: true, formatter: '九十首均值',
+                    color: '#A09A8A', fontSize: 9, position: 'insideEndTop'
+                  },
+                  data: [{ xAxis: meanX }, { yAxis: meanY }]
+                }
+              },
+              {
+                name: 'poets', type: 'scatter',
+                data: centroids.map(function (c) {
+                  var on = !currentPoet || c.name === currentPoet;
+                  return {
+                    name: c.name, value: c.value,
+                    itemStyle: { color: '#B04A3A', opacity: on ? 1 : .12 },
+                    label: {
+                      show: on,
+                      // 高适与杜甫重心几乎重合，一上一下分置避免叠字
+                      position: c.name === '杜甫' ? 'bottom' : 'top'
+                    }
+                  };
+                }),
+                symbolSize: 16,
+                itemStyle: { color: '#B04A3A', borderColor: '#F5F2EA', borderWidth: 1.5 },
+                label: {
+                  show: true, position: 'top', formatter: '{b}',
+                  color: '#B04A3A', fontSize: 11, fontFamily: 'Noto Serif SC'
+                },
+                z: 10
+              }
+            ]
+          }, { replaceMerge: ['series'] });
+        }
+        renderScatter();
+
+        var filterBox = document.getElementById('poetFilter');
+        var poetCount = {};
+        poems.forEach(function (p) { poetCount[p.author] = (poetCount[p.author] || 0) + 1; });
+        ['全部'].concat(FIVE).forEach(function (name) {
+          var b = document.createElement('button');
+          b.textContent = name === '全部' ? '全部 · ' + poems.length : name + ' · ' + (poetCount[name] || 0);
+          if (name === '全部') b.classList.add('active');
+          b.addEventListener('click', function () {
+            currentPoet = name === '全部' ? null : name;
+            filterBox.querySelectorAll('button').forEach(function (x) { x.classList.remove('active'); });
+            b.classList.add('active');
+            renderScatter();
+          });
+          filterBox.appendChild(b);
+        });
+
+        /* ---------- 场三：词象 ---------- */
+        var cats = [];
+        words.forEach(function (w) { if (cats.indexOf(w['分类']) < 0) cats.push(w['分类']); });
+        var bar = echarts.init(document.getElementById('wordBar'));
+
+        function renderBar(cat) {
+          var list = words.filter(function (w) { return w['分类'] === cat; })
+            .sort(function (a, b) { return +b['词频'] - +a['词频']; }).slice(0, 8);
+          bar.setOption({
+            grid: { left: 8, right: 40, top: 10, bottom: 8, containLabel: true },
+            xAxis: {
+              type: 'value',
+              splitLine: { lineStyle: { color: '#C9C7BC', type: 'dashed', width: .5 } },
+              axisLabel: { color: '#6E6E66', fontSize: 10 }
+            },
+            yAxis: {
+              type: 'category', inverse: true,
+              data: list.map(function (w) { return w['词语']; }),
+              axisLine: { lineStyle: { color: '#C9C7BC' } },
+              axisTick: { show: false },
+              axisLabel: { color: '#2B2B28', fontSize: 12, fontFamily: 'Noto Serif SC' }
+            },
+            series: [{
+              type: 'bar',
+              data: list.map(function (w, i) {
+                return {
+                  value: +w['词频'],
+                  itemStyle: { color: i === 0 ? '#B04A3A' : '#3D5A6C', opacity: i === 0 ? .95 : .55 + .35 * (list.length - i) / list.length }
+                };
+              }),
+              barWidth: 12,
+              label: { show: true, position: 'right', color: '#6E6E66', fontSize: 10 }
+            }]
+          }, { replaceMerge: ['series', 'yAxis'] });
+        }
+
+        var chipBox = document.getElementById('catChips');
+
+        /* 词林十三圃 · 矩形树图：位置 = 类别，面积 = 词频 */
+        var field = echarts.init(document.getElementById('lexField'));
+        var catStat = {};
+        words.forEach(function (w) {
+          var c = w['分类'];
+          if (!catStat[c]) catStat[c] = { n: 0, sum: 0 };
+          catStat[c].n++; catStat[c].sum += +w['词频'];
+        });
+        var catOrder = cats.slice().sort(function (a, b) { return catStat[b].sum - catStat[a].sum; });
+        /* 白描词格：纸底细线格子，不填实色；词频化入墨色浓淡（墨分五色）。
+           侠客是一枚朱文印——朱线朱字，不铺红块；只在"人物形象"圃选中时现身 */
+        var LINE_ON = '#3D5A6C';    // 黛蓝 · 选中圃的格线
+        var LINE_OFF = '#C9C7BC';   // 雾灰 · 未选中圃的格线
+        var BAND = '#E9E4D4';       // 绢本 · 圃额底色
+        function washOn(f) { return 'rgba(61,90,108,' + (0.05 + 0.2 * Math.min(1, f / 16)).toFixed(3) + ')'; }
+
+        function fieldData(sel) {
+          return catOrder.map(function (c) {
+            var on = !sel || c === sel;
+            return {
+              name: c,
+              count: catStat[c].n, sum: catStat[c].sum,
+              itemStyle: { color: BAND },
+              upperLabel: {
+                show: catStat[c].sum >= 15,
+                color: on ? '#2B2B28' : '#B0AA9A'
+              },
+              children: words.filter(function (w) { return w['分类'] === c; })
+                .map(function (w) {
+                  var f = +w['词频'];
+                  var isXiaRed = w['词语'] === '侠客' && on;
+                  return {
+                    name: w['词语'], value: f,
+                    itemStyle: isXiaRed
+                      ? { color: 'rgba(176,74,58,.10)', borderColor: '#B04A3A', borderWidth: 1.5 }
+                      : on
+                        ? { color: washOn(f), borderColor: LINE_ON, borderWidth: 1 }
+                        : { color: 'rgba(201,199,188,.12)', borderColor: LINE_OFF, borderWidth: 1 },
+                    label: isXiaRed
+                      ? { show: true, color: '#B04A3A', fontWeight: 'bold', fontSize: 13 }
+                      : on
+                        ? { show: f >= 8, color: '#2B2B28', fontSize: 11 }
+                        : { show: f >= 8, color: '#A8A293', fontSize: 11 }
+                  };
+                })
+            };
+          });
+        }
+
+        function renderField(sel) {
+          field.setOption({
+            series: [{
+              type: 'treemap',
+              left: 0, right: 0, top: 0, bottom: 0,
+              roam: false, nodeClick: false,
+              breadcrumb: { show: false },
+              label: { show: false },
+              itemStyle: { borderColor: '#F5F2EA' },
+              levels: [
+                { itemStyle: { borderWidth: 0, gapWidth: 4 } },
+                {
+                  upperLabel: {
+                    show: true, height: 22, fontSize: 11, fontFamily: 'Noto Serif SC',
+                    formatter: function (p) { return p.name.replace('类', '') + ' ' + p.data.count + ' 词'; }
+                  },
+                  itemStyle: { borderColor: '#F5F2EA', borderWidth: 2, gapWidth: 2 }
+                },
+                {
+                  itemStyle: { borderWidth: 1, gapWidth: 2 },
+                  label: {
+                    fontFamily: 'Noto Serif SC',
+                    overflow: 'truncate'
+                  },
+                  /* 悬停即"点睛"：格线染朱砂，小格亦显字 */
+                  emphasis: { label: { show: true }, itemStyle: { borderColor: '#B04A3A', borderWidth: 1.5 } }
+                }
+              ],
+              data: fieldData(sel)
+            }],
+            tooltip: {
+              backgroundColor: 'rgba(237,231,217,.96)', borderColor: 'rgba(43,43,40,.35)',
+              textStyle: { color: '#2B2B28', fontSize: 12 },
+              formatter: function (pr) {
+                if (pr.data.children) return '<b>' + pr.name + '</b><br/>' + pr.data.count + ' 词 · 共 ' + pr.data.sum + ' 次';
+                var cat = pr.treeAncestors && pr.treeAncestors[1] ? pr.treeAncestors[1].name : '';
+                return '<b>' + pr.name + '</b> · ' + pr.value + ' 次' + (cat ? '<br/>' + cat : '');
+              }
+            }
+          });
+        }
+        renderField(cats[0]);
+
+        cats.forEach(function (c, i) {
+          var b = document.createElement('button');
+          b.textContent = c;
+          if (i === 0) { b.classList.add('active'); renderBar(c); }
+          b.addEventListener('click', function () {
+            chipBox.querySelectorAll('button').forEach(function (x) { x.classList.remove('active'); });
+            b.classList.add('active');
+            renderBar(c);
+            renderField(c);
+          });
+          chipBox.appendChild(b);
+        });
+
+        window.addEventListener('resize', function () {
+          ['chartXia', 'chartShi', 'scatterChart', 'wordBar', 'lexField'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) { var c = echarts.getInstanceByDom(el); if (c) c.resize(); }
+          });
+        });
+      }).catch(function (e) {
+        document.querySelector('.stage').innerHTML = '<p class="shared-error">数据未能展开：' + e.message + '</p>';
+      });
+    }());
+  </script>
+</body>
+</html>

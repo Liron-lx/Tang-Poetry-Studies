@@ -1,121 +1,610 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>侠踪天下 - 唐代咏侠诗地理分布</title>
-    <link rel="stylesheet" href="assets/css/common.css">
-  <!-- 添加p5.js库 -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="侠行何处：76 处地点在盛唐疆域上拔峰而起——长安与边塞之间。" />
+  <title>诗风侠影 · 第二幕｜侠行何处</title>
+  <link rel="stylesheet" href="assets/css/common.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <style>
-    body {
-      /* 移除 margin: 0; padding: 0; 让它使用浏览器默认值 */
-      font-family: 'MiSans', sans-serif;
+    /* ============ 第一屏 · 山河地图 ============ */
+    .screen-map {
+      height: calc(100vh - 3.4rem); /* 扣除顶部章回导航高度，保证首屏完整 */
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      width: min(1240px, calc(100% - 2.5rem));
+      margin: 0 auto;
+      padding-top: 1.6rem;
     }
-    #map-container {
+    /* 幕头用全站统一的 .act-head，此处只适配地图屏的宽度与间距 */
+    .screen-map .act-head {
       width: 100%;
-      height: 100%;
+      padding: 0 0 1rem;
+    }
+    .map-stage {
       position: relative;
+      flex: 1;
+      min-height: 0;
+      border-top: 1px solid rgba(43, 43, 40, .18);
     }
-    #tooltip {
+    #mapSvg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+    .peak { cursor: pointer; outline: none; }
+    .peak path { transition: opacity .2s ease; }
+    .peak:hover path, .peak:focus-visible path { opacity: 1 !important; }
+    .peak.is-active path { stroke: var(--cinnabar); stroke-width: 1.4; }
+
+    .map-foot {
       position: absolute;
-      background: rgba(255, 255, 255, 0.9);
-      color: black;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      pointer-events: none;
-      display: none;
-      z-index: 1000;
-      border: 1px solid #ccc;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      padding: 1.8rem .2rem .6rem;
+      background: linear-gradient(to top, rgba(245, 242, 234, .94) 55%, rgba(245, 242, 234, 0));
+      color: var(--ink-2);
+      font-size: .68rem;
+      letter-spacing: .08em;
     }
-    .underline {
-      width: 65px;
-      height: 3px;
-      position: absolute;
-      top: 62px;
-      background: black;
-      border-radius: 20px;
-      transition: left 0.3s ease-in-out;
+    .map-legend { display: flex; flex-wrap: wrap; gap: .5rem 1.3rem; align-items: center; }
+    .map-legend .lg { display: inline-flex; align-items: center; gap: .42rem; }
+    .map-legend svg { display: block; }
+    .scroll-cue {
+      display: inline-flex;
+      align-items: center;
+      gap: .55rem;
+      font-family: var(--font-serif);
+      font-size: .8rem;
+      letter-spacing: .2em;
+      color: var(--ink);
+      cursor: pointer;
     }
-</style>
-    <script src="assets/js/navigation.js" defer></script>
+    .scroll-cue:hover { color: var(--cinnabar); }
+    .scroll-cue .cue-line { width: 2.6rem; height: 1px; background: currentColor; opacity: .5; }
+
+    /* 地点详情浮卡（与第一幕信息卡同族） */
+    .place-detail {
+      position: fixed;
+      z-index: 60;
+      right: max(1.25rem, calc((100vw - 1240px) / 2));
+      bottom: 4.4rem; /* 抬高，避开图例与下卷提示条 */
+      width: min(300px, calc(100vw - 2.5rem));
+      padding: 1rem 1.1rem;
+      border: 1px solid rgba(43, 43, 40, .22);
+      background: rgba(245, 242, 234, .92);
+      box-shadow: 0 12px 35px rgba(43, 43, 40, .1);
+      backdrop-filter: blur(8px);
+      transition: opacity .35s ease;
+    }
+    .place-detail.is-hidden { opacity: 0; pointer-events: none; }
+    .place-detail .pd-label {
+      font-family: var(--font-label);
+      font-size: .6rem;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--ochre);
+    }
+    .place-detail .pd-name { margin: .4rem 0 .2rem; font-family: var(--font-serif); font-size: 1.1rem; }
+    .place-detail .pd-meta { margin: 0; color: var(--ink-2); font-size: .74rem; line-height: 1.85; }
+    .place-detail .pd-note { margin: .4rem 0 0; font-size: .74rem; color: var(--ink); }
+
+    /* ============ 第二屏 · 长安与边塞 ============ */
+    .screen-poles {
+      min-height: 100vh;
+      width: min(1120px, calc(100% - 2.5rem));
+      margin: 0 auto;
+      padding: 4.5rem 0 2rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .poles-head { text-align: center; margin-bottom: 3rem; }
+    .poles-head .data-tag { display: block; margin-bottom: .9rem; }
+    .poles-head h2 {
+      margin: 0;
+      font-family: var(--font-title);
+      font-weight: 400;
+      font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+      letter-spacing: .3em;
+    }
+    .poles-head p {
+      margin: .9rem auto 0;
+      max-width: 34em;
+      color: var(--ink-2);
+      font-size: .88rem;
+      line-height: 1.9;
+    }
+    .poles-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: clamp(1.5rem, 4vw, 3.2rem);
+      align-items: stretch;
+    }
+    .pole-axis {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: .5rem 0;
+    }
+    .pole-axis .axis-line { flex: 1; width: 1px; background: linear-gradient(to bottom, transparent, var(--mist) 18%, var(--mist) 82%, transparent); }
+    .pole-axis .axis-seal {
+      writing-mode: vertical-rl;
+      font-family: var(--font-serif);
+      font-size: .82rem;
+      letter-spacing: .55em;
+      color: var(--ochre);
+    }
+    .pole .p-kicker {
+      font-family: var(--font-label);
+      font-size: .62rem;
+      letter-spacing: .3em;
+      text-transform: uppercase;
+      color: var(--ink-2);
+    }
+    .pole-illus {
+      margin: 0 0 1.5rem;
+      border: 1px solid rgba(43, 43, 40, .18);
+      background: var(--silk);
+    }
+    .pole-illus img { display: block; width: 100%; height: auto; }
+    .pole .p-title {
+      margin: .5rem 0 0;
+      font-family: var(--font-serif);
+      font-size: 2rem;
+      letter-spacing: .3em;
+    }
+    .pole .p-big {
+      display: flex;
+      align-items: baseline;
+      gap: .6rem;
+      margin: 1.2rem 0 .2rem;
+    }
+    .pole .p-big .num {
+      font-family: var(--font-serif);
+      font-size: 3.4rem;
+      line-height: 1;
+    }
+    .pole .p-big .unit { font-size: .74rem; color: var(--ink-2); letter-spacing: .12em; }
+    .pole .p-line { margin: .3rem 0 0; color: var(--ink-2); font-size: .8rem; line-height: 1.9; }
+    .pole .p-old {
+      margin: .9rem 0 0;
+      font-family: var(--font-serif);
+      font-size: .82rem;
+      color: var(--ink);
+      letter-spacing: .05em;
+    }
+    .pole.frontier { text-align: right; }
+    .pole.frontier .p-big { justify-content: flex-end; }
+    .pole.frontier .p-title, .pole.frontier .p-big .num { color: var(--cinnabar); }
+    .pole.capital .p-title, .pole.capital .p-big .num { color: var(--blue); }
+
+    .pole-bars { margin-top: 1.6rem; display: flex; flex-direction: column; gap: .5rem; }
+    .pole-bars .pb-title {
+      font-size: .64rem;
+      letter-spacing: .2em;
+      color: var(--ink-2);
+      margin-bottom: .3rem;
+    }
+    .pb-row {
+      display: grid;
+      grid-template-columns: 5.6rem 1fr 2rem;
+      align-items: center;
+      gap: .7rem;
+      cursor: pointer;
+      padding: .12rem .2rem;
+      border-radius: 2px;
+    }
+    .pole.frontier .pb-row { grid-template-columns: 2rem 1fr 5.6rem; direction: rtl; }
+    .pb-row:hover { background: rgba(237, 231, 217, .8); }
+    .pb-row .pb-name { font-family: var(--font-serif); font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pb-row .pb-track { height: 8px; background: rgba(43, 43, 40, .06); border-radius: 4px; overflow: hidden; }
+    .pb-row .pb-fill { display: block; height: 100%; width: 0; border-radius: 4px; transition: width .9s cubic-bezier(.4, 0, .2, 1); }
+    .pb-row .pb-num { font-family: var(--font-label); font-size: .78rem; color: var(--ink-2); text-align: right; }
+    .pole.frontier .pb-row .pb-num { text-align: left; }
+    .pb-hint { margin-top: .9rem; font-size: .64rem; color: var(--ink-2); letter-spacing: .1em; }
+
+    .poles-verse {
+      margin: 3.2rem auto 0;
+      text-align: center;
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      letter-spacing: .18em;
+      color: var(--ink);
+    }
+    .poles-verse span { color: var(--ink-2); font-size: .76rem; letter-spacing: .1em; display: block; margin-top: .6rem; }
+
+    @media (max-width: 860px) {
+      .poles-grid { grid-template-columns: 1fr; }
+      .pole-axis { flex-direction: row; justify-content: center; }
+      .pole-axis .axis-line { width: 40%; height: 1px; }
+      .pole-axis .axis-seal { writing-mode: horizontal-tb; letter-spacing: .4em; }
+      .pole.frontier { text-align: left; }
+      .pole.frontier .p-big { justify-content: flex-start; }
+      .pole.frontier .pb-row { grid-template-columns: 5.6rem 1fr 2rem; direction: ltr; }
+      .pole.frontier .pb-row .pb-num { text-align: right; }
+      .place-detail { right: 1rem; }
+    }
+  </style>
 </head>
-<body>
-  <div style="width: 1440px; height: 900px; position: relative; background: white; overflow: hidden"> 
-    <!-- 顶部导航栏开始 --> 
-    <div style="z-index: 1000; position: relative;">
-      <img style="width: 24px; height: 24px; left: 30px; top: 30px; position: absolute; z-index: 1001; cursor: pointer;" src="image/home.svg" alt="home" data-route="index.html">
-      <div style="left: 438px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="interactive.html">侠踪天下</div>
-      <div style="left: 597px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="poetry-emotion.html">剑影诗心</div>
-      <div style="left: 763px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="word-association.html">侠骨柔情</div>
-      <div style="left: 922px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="keyword-river.html">侠韵流殇</div>
-      <img style="width: 24px; height: 24px; left: 1384px; top: 29px; position: absolute" src="image/menu.svg" alt="menu"> 
-      <div style="width: 1400px; height: 0px; left: 16px; top: 64px; position: absolute; outline: 1px #979797 solid; outline-offset: -0.50px"></div> 
-      <div class="underline" style="left: 437px;"></div>
-      <img style="width: 64px; height: 18px; left: 63px; top: 34px; position: absolute" src="image/诗风侠影.svg" alt="诗风侠影"> 
-    </div>
-    <!-- 顶部导航栏结束 -->
-    
-    <!-- 将 <div> 替换为 <img> 标签 -->
-    <!-- 继续按钮 -->
-    <div style="padding: 12px; position: absolute; right: 30px; bottom: 20px; border-radius: 46.50px; flex-direction: column; justify-content: flex-start; align-items: flex-end; gap: 10px; display: inline-flex; cursor: pointer; z-index: 9999;" data-route="poetry-emotion.html">
-      <div style="justify-content: flex-start; align-items: center; gap: 16px; display: inline-flex"> 
-        <div style="color: black; font-size: 20px; font-family: MiSans; font-weight: 400; word-wrap: break-word">继续</div> 
-        <div style="padding: 12px; background: #FBEEEE; border-radius: 29px; justify-content: flex-start; align-items: center; gap: 10px; display: flex"> 
-          <img style="width: 16px; height: 16px;" src="image/arrow-right.svg" alt="arrow right"> 
-        </div> 
-      </div> 
-    </div>
-    <!-- 删除下面这行 -->
-    <!-- <img style="width: 64px; height: 18px; left: 63px; top: 34px; position: absolute" src="/image/诗风侠影.svg" alt="诗风侠影"> -->
-  
-    <!-- 留出空间放可交互的数字人文内容 -->
-    <div style="margin-top: 100px; padding: 20px;">
-      <!-- 组合图片元素 -->
-      <div style="position: absolute; left: 30px; bottom: 30px; width: 120px;">
-        <img style="width: 100%; height: auto;" src="image/Group 3.svg" alt="Group 3">
+<body data-chapter="di" data-seal="地">
+
+  <!-- ============ 第一屏 · 山河地图 ============ -->
+  <section class="screen-map" id="screenMap">
+    <header class="act-head">
+      <div class="act-no">ACT II</div>
+      <div>
+        <h1>侠行何处</h1>
+        <p class="act-sub">第二幕 · 地 ｜ 七十六处地点 · 自诗中拔峰而起</p>
       </div>
-  
-      <!-- 可交互的数字人文内容 -->
-      <div style="position: absolute; left: 30px; top: 84px; width: 1380px; height: 769px; margin-bottom: 20px;">
-        <!-- p5.js画布容器 -->
-        <div id="map-container" style="width: 1000px; height: 700px; margin: 0 auto;"></div>
-        <!-- 工具提示 -->
-        <div id="tooltip"></div>
-        
-        <!-- 图例说明 -->
-        <div id="legend" style="position: absolute; right: 20px; bottom: 80px; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; font-size: 14px;">
-          <div class="legend-item" data-type="京城" style="margin-bottom: 8px; cursor: pointer; display: flex; align-items: center;">
-            <canvas class="legend-triangle" width="20" height="15" style="margin-right: 8px;"></canvas>
-            京城
-          </div>
-          <div class="legend-item" data-type="边塞" style="margin-bottom: 8px; cursor: pointer; display: flex; align-items: center;">
-            <canvas class="legend-triangle" width="20" height="15" style="margin-right: 8px;"></canvas>
-            边塞
-          </div>
-          <div class="legend-item" data-type="内陆城市" style="margin-bottom: 8px; cursor: pointer; display: flex; align-items: center;">
-            <canvas class="legend-triangle" width="20" height="15" style="margin-right: 8px;"></canvas>
-            内陆城市
-          </div>
-          <div class="legend-item" data-type="关隘" style="margin-bottom: 8px; cursor: pointer; display: flex; align-items: center;">
-            <canvas class="legend-triangle" width="20" height="15" style="margin-right: 8px;"></canvas>
-            关隘
-          </div>
-          <div class="legend-item" data-type="其他" style="cursor: pointer; display: flex; align-items: center;">
-            <canvas class="legend-triangle" width="20" height="15" style="margin-right: 8px;"></canvas>
-            其他地理要素
-          </div>
-        </div>
-        
-        <!-- 样本量和单位说明 -->
-        <div style="position: fixed; left: 30px; bottom: 100px; font-size: 12px; color: #999; z-index: 1000;">
-          样本量：100首唐代咏侠诗 | 单位：地理位置分布频次
+      <p class="act-question">侠客在什么地方出现？峰愈高，诗中提及愈多——一眼可见，众山拱卫一京。</p>
+    </header>
+
+    <div class="map-stage">
+      <svg id="mapSvg" role="img" aria-label="盛唐疆域上，七十六处咏侠诗地点以山形峰值呈现"></svg>
+      <div class="map-foot">
+        <div class="map-legend" id="mapLegend" aria-label="地点类型图例"></div>
+        <a class="scroll-cue" href="#screenPoles">下卷 · 长安与边塞 <i class="cue-line"></i> ↓</a>
+      </div>
+    </div>
+  </section>
+
+  <aside id="placeDetail" class="place-detail" aria-live="polite">
+    <div class="pd-label">山间一峰</div>
+    <div class="pd-name">点任一座山峰</div>
+    <p class="pd-meta">峰高即诗中提及频次；此处展开其历史地名与归属。</p>
+  </aside>
+
+  <!-- ============ 第二屏 · 长安与边塞 ============ -->
+  <section class="screen-poles" id="screenPoles">
+    <header class="poles-head">
+      <span class="data-tag">TWO POLES · 侠义书写的两极</span>
+      <h2>长安与边塞</h2>
+      <p>一边是功名的现实世界，一边是义气的想象空间。诗人在长安求仕、交游、写少年意气；把剑与功名未竟的孤愤，寄往塞外关山。</p>
+    </header>
+
+    <div class="poles-grid">
+      <div class="pole capital" id="poleCapital">
+        <figure class="pole-illus">
+          <img src="image/act2-changan.png" alt="长安插画：暖色城楼、城墙与雁塔，街上有负剑行人" loading="lazy" />
+        </figure>
+        <div class="p-kicker">诗人的现实世界</div>
+        <h3 class="p-title">长 安</h3>
+        <div class="p-big"><span class="num" id="capNum">—</span><span class="unit">次提及 · 居众地之首</span></div>
+        <p class="p-old" id="capOld">—</p>
+        <p class="p-line">功名、交游、少年意气。九十首咏侠诗，半数绕不开这座城——侠客在这里是仕子、是少年、是市井里的快意人。</p>
+        <div class="pole-bars">
+          <div class="pb-title">京城与内地 · 提及前列</div>
+          <div id="capBars"></div>
+          <div class="pb-hint" id="capCount">—</div>
         </div>
       </div>
-      
-      <!-- 加载可视化脚本 -->
-      <script src="sketch.js"></script>
-    </div> 
-  </body>
+
+      <div class="pole-axis" aria-hidden="true">
+        <div class="axis-line"></div>
+        <div class="axis-seal">京 · 塞</div>
+        <div class="axis-line"></div>
+      </div>
+
+      <div class="pole frontier" id="poleFrontier">
+        <figure class="pole-illus">
+          <img src="image/act2-frontier.png" alt="边塞插画：蓝灰关山中的孤城与沙漠上持矛的骑士" loading="lazy" />
+        </figure>
+        <div class="p-kicker">侠客的想象空间</div>
+        <h3 class="p-title">边 塞</h3>
+        <div class="p-big"><span class="num" id="frNum">—</span><span class="unit">处边塞关隘 · 提及 <b id="frSum">—</b> 次</span></div>
+        <p class="p-old" id="frOld">—</p>
+        <p class="p-line">幽州、渔阳、玉门、楼兰——多数诗人未必亲至，却反复把侠义安放在这片想象的边疆：功名若不可得，便当死于边野。</p>
+        <div class="pole-bars">
+          <div class="pb-title">边塞与关隘 · 提及前列</div>
+          <div id="frBars"></div>
+          <div class="pb-hint" id="frCount">—</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="poles-verse">功名在长安，义气在边塞。<span>点击任一条目，回到山河图上指认那座峰。</span></p>
+  </section>
+
+  <div class="act-hook" data-hook-line="长安与边塞之间，写诗的是谁？" data-hook-next="poets.html" data-hook-label="第三幕 · 侠者何人 →"></div>
+
+  <script src="assets/js/site.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      /* ---------- 类型设定：色、释、排序 ---------- */
+      var TYPE = {
+        "京城":     { fill: "url(#gradCapital)",  solid: "#B04A3A", note: "功名与交游的舞台" },
+        "边塞":     { fill: "url(#gradFrontier)", solid: "#5B7183", note: "报国与想象的边疆" },
+        "关隘":     { fill: "url(#gradPass)",     solid: "#A67C52", note: "出入之间的咽喉" },
+        "内陆城市": { fill: "url(#gradInland)",   solid: "#5BA4A4", note: "江湖与市井之间" },
+        "其他":     { fill: "url(#gradMisc)",     solid: "#98A9AA", note: "山河泛指之地" }
+      };
+      var LEGEND_ORDER = ["京城", "边塞", "关隘", "内陆城市", "其他"];
+      function isFrontier(p) { return p.type === "边塞" || p.type === "关隘"; }
+
+      /* ---------- 引号感知的 CSV 解析（坐标字段内含逗号） ---------- */
+      function parseCSV(text) {
+        var rows = [], row = [], field = "", quoted = false;
+        text = text.replace(/^﻿/, "");
+        for (var i = 0; i < text.length; i++) {
+          var ch = text[i];
+          if (ch === '"' && text[i + 1] === '"') { field += '"'; i++; continue; }
+          if (ch === '"') { quoted = !quoted; continue; }
+          if (ch === "," && !quoted) { row.push(field); field = ""; continue; }
+          if ((ch === "\n" || ch === "\r") && !quoted) {
+            if (ch === "\r" && text[i + 1] === "\n") i++;
+            row.push(field);
+            if (row.some(function (v) { return v.trim() !== ""; })) rows.push(row);
+            row = []; field = ""; continue;
+          }
+          field += ch;
+        }
+        if (field !== "" || row.length) { row.push(field); rows.push(row); }
+        var headers = rows[0];
+        return rows.slice(1).map(function (r) {
+          var o = {};
+          headers.forEach(function (h, j) { o[h] = r[j]; });
+          return o;
+        });
+      }
+      function parseCoord(s) {
+        var m = (s || "").match(/([\d.]+)°?N\s*,\s*([\d.]+)°?E/);
+        return m ? [+m[2], +m[1]] : null;
+      }
+
+      Promise.all([
+        fetch("data/tang_dynasty_detailed_boundary.json").then(function (r) { return r.json(); }),
+        fetch("data/地方名称及经纬度.csv").then(function (r) {
+          if (!r.ok) throw new Error("地点数据加载失败");
+          return r.text();
+        }).then(parseCSV)
+      ]).then(function (res) {
+        var tang = res[0];
+        var places = res[1].map(function (r) {
+          return {
+            name: r["现今地名"],
+            freq: +r["总频次"] || 1,
+            oldNames: r["包含历史地名"],
+            coord: parseCoord(r["地理坐标"]),
+            type: TYPE[r["类型说明"]] ? r["类型说明"] : "其他"
+          };
+        }).filter(function (p) { return p.coord; });
+        places.sort(function (a, b) { return b.freq - a.freq; });
+
+        drawMap(tang, places);
+        buildPoles(places);
+      }).catch(function (e) {
+        document.querySelector(".map-stage").innerHTML =
+          '<p class="shared-error">山河图未能展开：' + e.message + "</p>";
+      });
+
+      /* ============ 第一屏 · 地图 ============ */
+      var selected = null;
+      var peakNodes = null;
+      var detailEl = document.getElementById("placeDetail");
+
+      /* 浮卡只在地图屏可见 */
+      new IntersectionObserver(function (entries) {
+        detailEl.classList.toggle("is-hidden", !entries[0].isIntersecting);
+      }, { threshold: .1 }).observe(document.getElementById("screenMap"));
+
+      function drawMap(tang, places) {
+        var W = 1280, H = 800;
+        var svg = d3.select("#mapSvg")
+          .attr("viewBox", "0 0 " + W + " " + H)
+          .attr("preserveAspectRatio", "xMidYMid meet");
+
+        /* 渐变定义：峰尖浓、山脚淡 */
+        var defs = svg.append("defs");
+        function peakGradient(id, top, mid, base) {
+          var g = defs.append("linearGradient")
+            .attr("id", id).attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
+          g.append("stop").attr("offset", "0").attr("stop-color", top).attr("stop-opacity", .95);
+          g.append("stop").attr("offset", ".48").attr("stop-color", mid).attr("stop-opacity", .6);
+          g.append("stop").attr("offset", "1").attr("stop-color", base).attr("stop-opacity", .06);
+        }
+        peakGradient("gradCapital",  "#8E3A2E", "#B04A3A", "#D9B0A0");
+        peakGradient("gradFrontier", "#42566A", "#5B7183", "#B8C4CE");
+        peakGradient("gradPass",     "#8A6337", "#A67C52", "#DECAA8");
+        peakGradient("gradInland",   "#3E7C7C", "#5BA4A4", "#BCD8D4");
+        peakGradient("gradMisc",     "#7E8C8E", "#98A9AA", "#D3D8D6");
+
+        /* 疆域点雾 */
+        defs.append("pattern").attr("id", "tangDots")
+          .attr("width", 7.4).attr("height", 6.4).attr("patternUnits", "userSpaceOnUse")
+          .selectAll("circle").data([
+            { cx: 1.8, cy: 1.6, r: 1.15, o: .34 },
+            { cx: 5.5, cy: 4.8, r: .8,  o: .2 }
+          ]).join("circle")
+          .attr("cx", function (d) { return d.cx; }).attr("cy", function (d) { return d.cy; })
+          .attr("r", function (d) { return d.r; })
+          .attr("fill", "#A67C52").attr("opacity", function (d) { return d.o; });
+        var wash = defs.append("linearGradient").attr("id", "tangWash")
+          .attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
+        wash.append("stop").attr("offset", "0").attr("stop-color", "#C39B62").attr("stop-opacity", .12);
+        wash.append("stop").attr("offset", "1").attr("stop-color", "#C39B62").attr("stop-opacity", .02);
+
+        /* 投影：顶部为峰尖留空 */
+        var feature = { type: "Feature", geometry: tang.boundary };
+        var projection = d3.geoEquirectangular().fitSize([W - 120, H - 220], feature);
+        var geoPath = d3.geoPath(projection);
+        var gRoot = svg.append("g").attr("transform", "translate(60,150)");
+
+        /* 疆域：暖色点雾，不以线条勾边 */
+        gRoot.append("path").attr("d", geoPath(feature)).attr("fill", "url(#tangWash)");
+        gRoot.append("path").attr("d", geoPath(feature)).attr("fill", "url(#tangDots)").attr("opacity", .85);
+
+        /* 河流 */
+        Object.keys(tang.rivers || {}).forEach(function (name) {
+          var coords = tang.rivers[name].coordinates;
+          gRoot.append("path")
+            .attr("d", d3.line().curve(d3.curveBasis)(coords.map(function (c) { return projection(c); })))
+            .attr("fill", "none").attr("stroke", "#5BA4A4")
+            .attr("stroke-width", 1).attr("stroke-opacity", .42);
+        });
+        gRoot.append("text")
+          .attr("x", projection([112, 36.4])[0]).attr("y", projection([112, 36.4])[1])
+          .attr("class", "river-label")
+          .attr("style", "font-size:10px; fill:#5BA4A4; opacity:.65; font-family:'Noto Serif SC',serif; letter-spacing:3px;")
+          .text("黄河");
+
+        /* 丝绸之路 */
+        Object.keys(tang.trade_routes || {}).forEach(function (name) {
+          var coords = tang.trade_routes[name].coordinates;
+          gRoot.append("path")
+            .attr("d", d3.line().curve(d3.curveBasis)(coords.map(function (c) { return projection(c); })))
+            .attr("fill", "none").attr("stroke", "#A67C52")
+            .attr("stroke-width", .7).attr("stroke-dasharray", "3 5").attr("stroke-opacity", .4);
+        });
+
+        /* 参照城市：细点不标名，只作地理锚 */
+        Object.keys(tang.cities || {}).forEach(function (name) {
+          var c = tang.cities[name];
+          if (c.importance < 8) return;
+          var p = projection(c.coordinates);
+          gRoot.append("circle").attr("cx", p[0]).attr("cy", p[1]).attr("r", 1.6)
+            .attr("fill", "#6E6E66").attr("opacity", .5);
+        });
+
+        /* ---------- 山峰：高 ∝ 提及频次，左右连续内凹弧 ---------- */
+        var hScale = function (f) { return 15 + Math.sqrt(f) * 11; };
+        var wScale = function (f) { return 10 + Math.sqrt(f) * 3.6; };
+        function peakPath(x, baseY, h, w) {
+          var peakY = baseY - h;
+          return "M" + (x - w) + " " + baseY +
+            " C" + (x - w * .18) + " " + (baseY - h * .22) +
+            " " + (x - w * .08) + " " + (peakY + h * .22) +
+            " " + x + " " + peakY +
+            " C" + (x + w * .08) + " " + (peakY + h * .22) +
+            " " + (x + w * .18) + " " + (baseY - h * .22) +
+            " " + (x + w) + " " + baseY + " Z";
+        }
+
+        var gPeaks = gRoot.append("g");
+        peakNodes = gPeaks.selectAll("g.peak").data(places).join("g")
+          .attr("class", "peak")
+          .attr("tabindex", 0)
+          .attr("role", "button")
+          .attr("aria-label", function (p) {
+            return p.oldNames.split("(")[0] + "，" + p.type + "，提及" + p.freq + "次";
+          })
+          .on("mouseenter", function (event, p) {
+            XIA.tip.show(
+              '<div class="tip-title">' + p.oldNames.split("(")[0] + "</div>" +
+              '<div class="tip-meta">' + p.name + "<br/>" + p.type + " · 提及 " + p.freq + " 次</div>",
+              event.clientX, event.clientY);
+          })
+          .on("mousemove", function (event) { XIA.tip.show(d3.select(".viz-tip").html(), event.clientX, event.clientY); })
+          .on("mouseleave", function () { XIA.tip.hide(); })
+          .on("click", function (event, p) { selectPlace(p); })
+          .on("keydown", function (event, p) {
+            if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectPlace(p); }
+          });
+
+        peakNodes.append("path")
+          .attr("d", function (p) {
+            var pt = projection(p.coord);
+            return peakPath(pt[0], pt[1], hScale(p.freq), wScale(p.freq));
+          })
+          .attr("fill", function (p) { return TYPE[p.type].fill; })
+          .attr("opacity", function (p) { return p.freq >= 20 ? .96 : p.freq >= 5 ? .82 : .6; });
+
+        /* 题跋式标注：前六高峰 */
+        var labelPlaces = places.slice(0, 6);
+        gRoot.selectAll("text.peak-label").data(labelPlaces).join("text")
+          .attr("x", function (p) { return projection(p.coord)[0]; })
+          .attr("y", function (p) { return projection(p.coord)[1] - hScale(p.freq) - 7; })
+          .attr("text-anchor", "middle")
+          .attr("style", "font-size:12px; fill:#2B2B28; font-family:'Noto Serif SC',serif; letter-spacing:2px;")
+          .text(function (p) { return p.oldNames.split("(")[0] + " · " + p.freq; });
+
+        /* 图例 */
+        var legend = document.getElementById("mapLegend");
+        LEGEND_ORDER.forEach(function (t) {
+          var item = document.createElement("span");
+          item.className = "lg";
+          item.innerHTML =
+            '<svg width="14" height="11" viewBox="0 0 14 11"><path d="M1 11 C4 8 5.5 3 7 1 C8.5 3 10 8 13 11 Z" fill="' +
+            TYPE[t].solid + '" opacity=".85"/></svg>' + t;
+          legend.appendChild(item);
+        });
+        var note = document.createElement("span");
+        note.textContent = "峰高 ∝ 诗中提及频次";
+        note.style.marginLeft = ".4rem";
+        legend.appendChild(note);
+      }
+
+      /* ---------- 地点选中：浮卡 + 峰描边 ---------- */
+      function selectPlace(p) {
+        selected = p.name;
+        if (peakNodes) {
+          peakNodes.classed("is-active", function (d) { return d.name === p.name; });
+        }
+        var info = TYPE[p.type];
+        detailEl.innerHTML =
+          '<div class="pd-label">' + p.type + " · 提及 " + p.freq + ' 次</div>' +
+          '<div class="pd-name">' + p.oldNames.split("(")[0] + "</div>" +
+          '<p class="pd-meta">现今：' + p.name + "<br/>历史地名：" + p.oldNames + "</p>" +
+          '<p class="pd-note">' + info.note + "</p>";
+      }
+
+      /* ============ 第二屏 · 长安与边塞 ============ */
+      function buildPoles(places) {
+        var frontier = places.filter(isFrontier);
+        var inland = places.filter(function (p) { return !isFrontier(p); });
+        var changan = places.find(function (p) { return p.name.indexOf("西安") >= 0; });
+        var frSum = frontier.reduce(function (s, p) { return s + p.freq; }, 0);
+
+        document.getElementById("capNum").textContent = changan ? changan.freq : "—";
+        document.getElementById("capOld").textContent = changan ? "历史地名：" + changan.oldNames : "";
+        document.getElementById("capCount").textContent =
+          "京城与内地共 " + inland.length + " 处 · 点击回到地图指认";
+        document.getElementById("frNum").textContent = frontier.length;
+        document.getElementById("frSum").textContent = frSum;
+        document.getElementById("frOld").textContent =
+          "幽州 · 渔阳 · 玉门 · 蓟州 · 楼兰 · 龙城 ……";
+        document.getElementById("frCount").textContent =
+          "边塞与关隘共 " + frontier.length + " 处 · 点击回到地图指认";
+
+        function bars(el, list, color) {
+          var box = document.getElementById(el);
+          var max = list[0] ? list[0].freq : 1;
+          list.forEach(function (p) {
+            var row = document.createElement("div");
+            row.className = "pb-row";
+            row.setAttribute("tabindex", "0");
+            row.innerHTML =
+              '<span class="pb-name">' + p.oldNames.split("(")[0] + "</span>" +
+              '<span class="pb-track"><span class="pb-fill" style="background:' + color + ';opacity:.8"></span></span>' +
+              '<span class="pb-num">' + p.freq + "</span>";
+            function go() {
+              document.getElementById("screenMap").scrollIntoView({ behavior: "smooth" });
+              selectPlace(p);
+            }
+            row.addEventListener("click", go);
+            row.addEventListener("keydown", function (e) {
+              if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+            });
+            box.appendChild(row);
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () {
+                row.querySelector(".pb-fill").style.width = (p.freq / max * 100) + "%";
+              });
+            });
+          });
+        }
+        bars("capBars", inland.slice(0, 5), "#3D5A6C");
+        bars("frBars", frontier.slice(0, 5), "#B04A3A");
+      }
+    }());
+  </script>
+</body>
 </html>

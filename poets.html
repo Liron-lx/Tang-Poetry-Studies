@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="侠者何人：骆宾王、王维、李白、高适、杜甫——五位唐代诗人的侠义诗群像。" />
+  <title>诗风侠影 · 第三幕｜侠者何人</title>
+  <link rel="stylesheet" href="assets/css/common.css" />
+  <style>
+    /* ---------- 五人时间带 ---------- */
+    .lifeline {
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto 1rem;
+      padding: 1.5rem 0 2.5rem;
+    }
+    .lifeline svg { display: block; width: 100%; height: auto; }
+
+    /* ---------- 诗人段落 ---------- */
+    .poet-section {
+      position: relative;
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding: 4.5rem 0 3rem;
+      border-top: 1px solid rgba(43, 43, 40, .14);
+      overflow: hidden;
+    }
+    .poet-section .scene-watermark {
+      position: absolute;
+      top: 3rem;
+      font-family: var(--font-title);
+      font-size: clamp(4rem, 10vw, 7rem);
+      color: var(--ink);
+      opacity: .05;
+      writing-mode: vertical-rl;
+      letter-spacing: .3em;
+      pointer-events: none;
+      user-select: none;
+    }
+    .poet-section:nth-child(odd) .scene-watermark { right: 0; }
+    .poet-section:nth-child(even) .scene-watermark { left: 0; }
+
+    .poet-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: clamp(1.5rem, 4vw, 3.5rem);
+      align-items: start;
+    }
+    .poet-section.flip .poet-grid { grid-template-columns: 1fr 240px; }
+    .poet-section.flip .portrait-col { order: 2; }
+
+    .portrait-col { text-align: center; position: sticky; top: 5.5rem; }
+    .portrait-col img {
+      width: 100%;
+      max-width: 230px;
+      filter: drop-shadow(0 18px 24px rgba(43, 43, 40, .12));
+    }
+    .portrait-col .p-name {
+      font-family: var(--font-title);
+      font-size: 2.1rem;
+      letter-spacing: .3em;
+      text-indent: .3em;
+      margin: .8rem 0 .3rem;
+    }
+    .portrait-col .p-years {
+      font-family: var(--font-label);
+      font-size: .72rem;
+      letter-spacing: .2em;
+      color: var(--ink-2);
+    }
+    .portrait-col .p-epithet {
+      display: inline-block;
+      margin-top: .7rem;
+      font-family: var(--font-serif);
+      font-size: .72rem;
+      color: var(--cinnabar);
+      border: 1px solid var(--cinnabar);
+      border-radius: 2px;
+      padding: .15rem .5rem;
+      letter-spacing: .18em;
+      transform: rotate(-2deg);
+    }
+
+    /* 双轨仪表 */
+    .dual-meter { margin-top: 1.3rem; text-align: left; }
+    .dual-meter .dm-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .62rem;
+      letter-spacing: .14em;
+      color: var(--ink-2);
+      margin-bottom: .35rem;
+    }
+    .dual-meter .dm-track {
+      position: relative;
+      height: 3px;
+      background: linear-gradient(90deg, var(--blue) 0%, var(--mist) 50%, var(--ochre) 100%);
+      border-radius: 2px;
+    }
+    .dual-meter .dm-marker {
+      position: absolute;
+      top: 50%;
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--cinnabar);
+      border: 2px solid var(--paper);
+      transform: translate(-50%, -50%);
+      box-shadow: 0 2px 6px rgba(43, 43, 40, .25);
+    }
+    .dual-meter .dm-value {
+      margin-top: .45rem;
+      font-size: .66rem;
+      color: var(--ink-2);
+      text-align: center;
+      letter-spacing: .1em;
+    }
+
+    /* 诗人小传与数据 */
+    .p-note {
+      font-family: var(--font-serif);
+      font-size: .95rem;
+      line-height: 2.1;
+      color: var(--ink);
+      max-width: 36em;
+      margin: 0 0 1.6rem;
+    }
+    .p-stats {
+      display: flex;
+      gap: 2.2rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .p-stat .s-num { font-family: var(--font-serif); font-size: 1.7rem; line-height: 1.1; }
+    .p-stat .s-label { font-size: .66rem; letter-spacing: .2em; color: var(--ink-2); margin-top: .3rem; }
+
+    /* 题材构成条 */
+    .cluster-bars { margin-bottom: 2.2rem; max-width: 460px; }
+    .cluster-bars .cb-row {
+      display: grid;
+      grid-template-columns: 5.2rem 1fr 1.6rem;
+      align-items: center;
+      gap: .7rem;
+      margin-bottom: .4rem;
+      font-size: .72rem;
+      color: var(--ink-2);
+    }
+    .cluster-bars .cb-track { height: 7px; background: rgba(43,43,40,.06); border-radius: 4px; overflow: hidden; }
+    .cluster-bars .cb-fill { height: 100%; border-radius: 4px; }
+
+    /* 诗牌 */
+    .plaques {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    .plaque {
+      perspective: 900px;
+      min-height: 240px;
+      cursor: pointer;
+    }
+    .plaque-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 240px;
+      transition: transform .7s cubic-bezier(.4, 0, .2, 1);
+      transform-style: preserve-3d;
+    }
+    .plaque.flipped .plaque-inner { transform: rotateY(180deg); }
+    .plaque-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      background: rgba(237, 231, 217, .72);
+      border: 1px solid rgba(43, 43, 40, .16);
+      border-radius: 3px;
+      padding: .9rem .8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .plaque-face.back {
+      transform: rotateY(180deg);
+      background: rgba(43, 43, 40, .92);
+      color: var(--paper);
+    }
+    .plaque .q-line {
+      writing-mode: vertical-rl;
+      font-family: var(--font-serif);
+      font-size: .98rem;
+      letter-spacing: .18em;
+      line-height: 1.9;
+      max-height: 150px;
+      overflow: hidden;
+      margin: .4rem 0 auto;
+    }
+    .plaque .q-title {
+      font-size: .62rem;
+      color: var(--ink-2);
+      letter-spacing: .1em;
+      writing-mode: vertical-rl;
+      max-height: 90px;
+      overflow: hidden;
+    }
+    .plaque .q-foot {
+      margin-top: .6rem;
+      display: flex;
+      align-items: center;
+      gap: .45rem;
+    }
+    .plaque .q-seal {
+      font-size: .56rem;
+      color: var(--cinnabar);
+      border: 1px solid var(--cinnabar);
+      border-radius: 2px;
+      padding: .05rem .3rem;
+      letter-spacing: .05em;
+      white-space: nowrap;
+    }
+    .plaque .q-year { font-size: .62rem; color: var(--ink-2); font-family: var(--font-label); }
+    .plaque .q-year.inferred { opacity: .65; font-style: normal; }
+    .plaque .q-year.unavailable { color: var(--mist); }
+    .plaque-face.back .b-label {
+      font-size: .58rem;
+      letter-spacing: .25em;
+      color: var(--yellow);
+      margin-bottom: .6rem;
+    }
+    .plaque-face.back .b-row {
+      font-size: .68rem;
+      line-height: 1.9;
+      color: rgba(245, 242, 234, .85);
+      text-align: left;
+      width: 100%;
+    }
+    .plaque-face.back .b-row strong { color: var(--paper); font-weight: 500; }
+    .plaque:hover .plaque-inner { box-shadow: 0 14px 34px rgba(43,43,40,.14); }
+
+    @media (max-width: 760px) {
+      .poet-grid, .poet-section.flip .poet-grid { grid-template-columns: 1fr; }
+      .poet-section.flip .portrait-col { order: 0; }
+      .portrait-col { position: static; }
+      .portrait-col img { max-width: 180px; }
+    }
+  </style>
+</head>
+<body data-chapter="ren" data-seal="人">
+
+  <header class="act-head">
+    <div class="act-no">ACT III</div>
+    <div>
+      <h1>侠者何人</h1>
+      <p class="act-sub">第三幕 · 人 ｜ 五十六位诗人 · 五人写近三分之一</p>
+    </div>
+    <p class="act-question">五十六位诗人写侠，五人写了近三分之一。他们是谁？</p>
+  </header>
+
+  <!-- 五人生卒时间带 -->
+  <section class="lifeline">
+    <svg id="lifelineSvg" viewBox="0 0 1000 150" role="img" aria-label="五位诗人生卒年时间带"></svg>
+    <p class="colophon" style="text-align:center; margin-top:.6rem;">初唐的骆宾王收笔那年，王维与李白刚刚出生——侠义之笔在五人间传递了一百三十年。</p>
+  </section>
+
+  <main id="poets"></main>
+
+  <div class="act-hook" data-hook-line="他们写下这些句子时，心里装的是什么？" data-hook-next="emotions.html" data-hook-label="第四幕 · 侠心何似 →"></div>
+
+  <script src="assets/js/site.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var CLUSTER_COLORS = {
+        "侠义抒怀类": "#3D5A6C",
+        "隐逸怀古类": "#8FAE8B",
+        "豪侠交游类": "#5BA4A4",
+        "边塞报国类": "#A67C52",
+        "市井任侠类": "#D9B44A"
+      };
+      var YEAR_MIN = 600, YEAR_MAX = 790;
+
+      function x(year) { return 60 + (year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN) * 880; }
+
+      function drawLifeline(poets) {
+        var svg = document.getElementById('lifelineSvg');
+        var ns = 'http://www.w3.org/2000/svg';
+        // 年代刻度
+        [618, 700, 755, 790].forEach(function (yr) {
+          var t = document.createElementNS(ns, 'text');
+          t.setAttribute('x', x(yr)); t.setAttribute('y', 138);
+          t.setAttribute('text-anchor', 'middle');
+          t.setAttribute('style', 'font-size:11px; fill:#6E6E66; font-family:EB Garamond,serif; letter-spacing:2px;');
+          t.textContent = yr === 618 ? '618 唐立' : yr === 755 ? '755 安史之乱' : yr;
+          svg.appendChild(t);
+          var l = document.createElementNS(ns, 'line');
+          l.setAttribute('x1', x(yr)); l.setAttribute('x2', x(yr));
+          l.setAttribute('y1', 18); l.setAttribute('y2', 126);
+          l.setAttribute('stroke', yr === 755 ? '#B04A3A' : '#C9C7BC');
+          l.setAttribute('stroke-width', yr === 755 ? 1 : 0.5);
+          l.setAttribute('stroke-dasharray', yr === 755 ? 'none' : '3 5');
+          l.setAttribute('opacity', yr === 755 ? 0.55 : 0.8);
+          svg.appendChild(l);
+        });
+        poets.forEach(function (p, i) {
+          var yy = 34 + i * 19;
+          var birth = +p.birth || YEAR_MIN, death = +p.death || YEAR_MAX;
+          var bar = document.createElementNS(ns, 'rect');
+          bar.setAttribute('x', x(birth)); bar.setAttribute('y', yy);
+          bar.setAttribute('width', Math.max(4, x(death) - x(birth))); bar.setAttribute('height', 7);
+          bar.setAttribute('rx', 3.5);
+          bar.setAttribute('fill', '#3D5A6C'); bar.setAttribute('opacity', 0.28 + i * 0.1);
+          svg.appendChild(bar);
+          var t = document.createElementNS(ns, 'text');
+          t.setAttribute('x', x(birth) - 8); t.setAttribute('y', yy + 7);
+          t.setAttribute('text-anchor', 'end');
+          t.setAttribute('style', 'font-size:12px; fill:#2B2B28; font-family:Noto Serif SC,serif; letter-spacing:2px;');
+          t.textContent = p.name;
+          svg.appendChild(t);
+        });
+      }
+
+      function firstLine(poem, poet) {
+        if (poem.title === poet.signature_from) return poet.signature;
+        var parts = poem.text.split(/[，。！？；]/).filter(function (s) { return s.trim(); });
+        return parts.slice(0, 2).join('，');
+      }
+
+      function yearLabel(poem) {
+        if (poem.status === 'unavailable' || !poem.year) return { text: '待考', cls: 'unavailable' };
+        if (poem.status === 'inferred') return { text: '约' + poem.year, cls: 'inferred' };
+        return { text: String(poem.year), cls: '' };
+      }
+
+      function renderPoet(p, idx) {
+        var sec = document.createElement('section');
+        sec.className = 'poet-section' + (idx % 2 ? ' flip' : '');
+
+        var total = p.poems.length;
+        var observed = p.poems.filter(function (x) { return x.status === 'observed'; }).length;
+        var dualText = p.dual >= 0 ? '偏侠客 +' + p.dual.toFixed(2) : '偏诗人 ' + p.dual.toFixed(2);
+        var markerPct = Math.max(2, Math.min(98, 50 + p.dual / 2.5 * 50));
+
+        var clusterRows = Object.keys(CLUSTER_COLORS)
+          .filter(function (c) { return p.clusters[c]; })
+          .map(function (c) {
+            var n = p.clusters[c];
+            return '<div class="cb-row"><span>' + c.replace('类', '') + '</span>' +
+              '<span class="cb-track"><span class="cb-fill" style="display:block;width:' + (n / total * 100) + '%;background:' + CLUSTER_COLORS[c] + '"></span></span>' +
+              '<span>' + n + '</span></div>';
+          }).join('');
+
+        var plaques = p.poems.map(function (poem) {
+          var yl = yearLabel(poem);
+          var dualInfo = (poem.xia !== undefined)
+            ? '<div class="b-row">侠客侧 <strong>' + poem.xia.toFixed(1) + '</strong> ｜ 诗人侧 <strong>' + poem.shi.toFixed(1) + '</strong></div>' : '';
+          var evText = poem.status === 'observed' ? '作品级系年'
+            : poem.status === 'inferred' ? '活动期推定' : '未获系年';
+          return '<div class="plaque" tabindex="0" role="button" aria-label="' + p.name + poem.title + '，翻看系年证据">' +
+            '<div class="plaque-inner">' +
+              '<div class="plaque-face front">' +
+                '<span class="q-title">' + poem.title + '</span>' +
+                '<span class="q-line">' + firstLine(poem, p) + '</span>' +
+                '<span class="q-foot"><span class="q-seal">' + poem.cluster.replace('类', '') + '</span>' +
+                '<span class="q-year ' + yl.cls + '">' + yl.text + '</span></span>' +
+              '</div>' +
+              '<div class="plaque-face back">' +
+                '<div class="b-label">系 年 证 据</div>' +
+                '<div class="b-row"><strong>' + poem.title + '</strong></div>' +
+                '<div class="b-row">' + evText + (poem.date_label && poem.date_label !== '未知' ? ' · ' + poem.date_label : '') + '</div>' +
+                dualInfo +
+                '<div class="b-row" style="opacity:.6; margin-top:.5rem;">' + poem.text.slice(0, 40) + '…</div>' +
+              '</div>' +
+            '</div></div>';
+        }).join('');
+
+        sec.innerHTML =
+          '<div class="scene-watermark">' + p.scene + '</div>' +
+          '<div class="poet-grid">' +
+            '<div class="portrait-col">' +
+              '<img src="image/poets/' + p.name + '.png" alt="' + p.name + '全身像" />' +
+              '<div class="p-name">' + p.name + '</div>' +
+              '<div class="p-years">' + (p.birth || '？') + ' — ' + (p.death || '？') + '</div>' +
+              '<span class="p-epithet">' + p.epithet + '</span>' +
+              '<div class="dual-meter">' +
+                '<div class="dm-label"><span>诗人内心</span><span>侠客世界</span></div>' +
+                '<div class="dm-track"><span class="dm-marker" style="left:' + markerPct + '%"></span></div>' +
+                '<div class="dm-value">' + dualText + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div>' +
+              '<p class="p-note">' + p.note + '</p>' +
+              '<div class="p-stats">' +
+                '<div class="p-stat"><div class="s-num">' + total + '</div><div class="s-label">语料中诗作</div></div>' +
+                '<div class="p-stat"><div class="s-num">' + observed + '</div><div class="s-label">首作品级系年</div></div>' +
+                '<div class="p-stat"><div class="s-num">' + (p.activity[0] || '？') + '</div><div class="s-label">始笔之年</div></div>' +
+              '</div>' +
+              '<div class="cluster-bars">' + clusterRows + '</div>' +
+              '<div class="plaques">' + plaques + '</div>' +
+            '</div>' +
+          '</div>';
+        return sec;
+      }
+
+      fetch('data/poets.json').then(function (r) { return r.json(); }).then(function (data) {
+        drawLifeline(data.poets);
+        var main = document.getElementById('poets');
+        data.poets.forEach(function (p, i) { main.appendChild(renderPoet(p, i)); });
+        document.querySelectorAll('.plaque').forEach(function (el) {
+          function toggle() { el.classList.toggle('flipped'); }
+          el.addEventListener('click', toggle);
+          el.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+          });
+        });
+      });
+    }());
+  </script>
+</body>
+</html>

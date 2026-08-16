@@ -1,10 +1,10 @@
 # 唐代侠义诗可视化
 
-这是一个以唐代咏侠诗为对象的静态数字人文可视化项目，包含地理分布、词频、情感强度和作者—聚类关系等页面。
+这是一个以唐代咏侠诗为对象的静态数字人文可视化项目。全站为六幕章回叙事：**序 · 时 · 地 · 人 · 心 · 存**，视觉依据《唐代侠义诗可视化 · 视觉规范》（宣纸青绿体系），叙事架构见 `docs/narrative-architecture.md`。
 
 ## 本地运行
 
-项目使用浏览器端 HTML、D3、ECharts 和 p5.js，不需要构建步骤。由于页面需要通过 `fetch`、`d3.csv` 和 JSON 请求加载资源，请通过静态服务器访问：
+项目使用浏览器端 HTML、D3 和 ECharts，不需要构建步骤。由于页面需要通过 `fetch` 请求加载数据，请通过静态服务器访问：
 
 ```bash
 npm run dev
@@ -18,21 +18,25 @@ python3 -m http.server 8000
 
 然后打开 <http://127.0.0.1:8000/index.html>。
 
-## 页面入口
+## 页面入口（六幕）
 
-- `index.html`：项目首页
-- `interactive.html`：唐代咏侠诗地理分布（p5.js）
-- `poetry-emotion.html`：词频类别可视化
-- `word-association.html`：诗词情感强度可视化
-- `keyword-river.html`：作者与聚类类别关系图
-- `circular_sankey.html`：关系弦图备用页面
-- `geography.html`：ECharts 地理分布备用页面
+- `index.html`：序 · 何谓侠——考据悬念开场、语料事实带、六幕回目
+- `xiayi-scroll.html`：一幕 · 侠从何来——五脉汇流横向河流图（河宽 = 十年诗作密度，朝代分期、755 事件线、待考雾域）
+- `interactive.html`：二幕 · 侠行何处——唐代疆域地点分布 + 十处要地排行
+- `poets.html`：三幕 · 侠者何人——五位诗人全身像、诗牌与系年证据
+- `emotions.html`：四幕 · 侠心何似——双轨视角（侠客的世界 × 诗人的内心）、投射图、词象
+- `keyword-river.html`：终幕 · 侠韵长存——诗人×主题矩阵、十二家主笔、数据与方法
+
+被替换的旧版页面已移入 `archive/`（含 p5.js 地图 sketch.js、弦图、旧词频/情感页）。
 
 ## 数据
 
 权威数据位于 `data/`：
 
 - `poetry_with_detailed_clusters_sankey.csv`：100 条诗歌记录及聚类类别
+- `emotion_scores.csv`：100 条诗歌的八维情感强度评分（0-10 分），`emotions.html` 从此读取
+- `word_frequency.csv`：283 个词语的词频与分类全量版，`emotions.html` 从此读取
+- `poets.json`：五位高频诗人的档案、诗作、系年与双轨得分（`scripts/build_poets_json.py` 生成），`poets.html` 从此读取
 - `poem_dates.csv`：自动查询日志与人工考证合并后的逐条创作年代审计
 - `poem_dates_manual.csv`：以 `record_id` 为主键的人工系年证据、来源和复核状态
 - `author_activity_periods.csv`：53 位唐代主体作者的活动期、生卒期和来源复核记录

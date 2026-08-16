@@ -1,92 +1,516 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <title>数字人文测试</title>
-    <link rel="stylesheet" href="assets/css/common.css">
-    <style>
-      .component-image {
-        transition: all 0.3s ease;
-      }
-      .component-image:hover {
-        opacity: 0.8 !important;
-        transform: scale(1.05);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
-      }
-    </style>
-      <script src="assets/js/navigation.js" defer></script>
-</head>
-  <body>
-    <div style="width: 1440px; height: 1800px; position: relative; background: white; overflow: visible"> 
-      <!-- 顶部导航栏开始 --> 
-      <div style="z-index: 1000; position: relative;">
-        <img style="width: 24px; height: 24px; left: 30px; top: 30px; position: absolute; z-index: 1001;" src="image/home.svg" alt="home"> 
-        <div style="left: 438px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="interactive.html">侠踪天下</div>
-        <div style="left: 597px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="poetry-emotion.html">剑影诗心</div>
-        <div style="left: 763px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="word-association.html">侠骨柔情</div>
-        <div style="left: 922px; top: 30px; position: absolute; color: black; font-size: 16px; font-family: Arial, sans-serif; font-weight: 400; line-height: 24px; word-wrap: break-word; cursor: pointer; z-index: 1001;" data-route="keyword-river.html">侠韵流殇</div>
-        <img style="width: 24px; height: 24px; left: 1384px; top: 29px; position: absolute" src="image/menu.svg" alt="menu"> 
-        <div style="width: 1400px; height: 0px; left: 16px; top: 64px; position: absolute; outline: 1px #979797 solid; outline-offset: -0.50px"></div> 
-        <div style="width: 65px; height: 3px; left: 437px; top: 62px; position: absolute; background: black; border-radius: 20px; display: none"></div> 
-        <!-- 修正拼写错误并移动到此 -->
-        <img style="width: 64px; height: 18px; left: 63px; top: 34px; position: absolute" src="image/诗风侠影.svg" alt="诗风侠影"> 
-      </div>
-      <!-- 顶部导航栏结束 --> 
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="诗风侠影：九十首唐代咏侠诗的信息可视化长卷。侠气从何时起，到何处去。" />
+  <title>诗风侠影 · 序｜何谓侠</title>
+  <link rel="stylesheet" href="assets/css/common.css" />
+  <style>
+    /* ---------- 序章专用 ---------- */
+    .hero {
+      position: relative;
+      min-height: 92vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    /* 层叠远山（路线 B） */
+    .mountains {
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 46vh;
+      pointer-events: none;
+    }
+    .mountains svg { display: block; width: 100%; height: 100%; }
 
-      <!-- 使用相对路径 -->
-      <img style="width: 1440px; height: 638px; left: 0px; top: 0px; position: absolute" src="image/image.jpg" /> 
-      <!-- 将 <div> 替换为 <img> 标签 -->
-      <img style="width: 512px; height: 148px; left: 837px; top: 444px; position: absolute" src="image/诗风侠影.svg" alt="诗风侠影"> 
-      <!-- 新增文字框 -->
-      <div style="position: absolute; top: 672px; left: 866px; right: 72px; font-size: 16px; font-family: MiSans; font-weight: 400; line-height: 24px; color: #777777; word-wrap: break-word; z-index: 100;">在唐代文学的星空中，咏侠诗如淬光利剑，闪耀着不羁的豪情与理想主义光芒。诗中侠客的仗剑独行、诗人的慷慨意气，凝结于文字却又超越纸面。</div>
-      <div style="left: 54px; top: 563px; position: absolute; color: #747474; font-size: 16px; font-family: MiSans; font-weight: 400; word-wrap: break-word">唐代咏侠诗信息可视化探索呈现</div> 
-      <div style="padding-top: 12px; padding-bottom: 12px; padding-left: 20px; padding-right: 12px; right: 60px; bottom: 60px; position: absolute; border-radius: 46.50px; flex-direction: column; justify-content: flex-start; align-items: flex-end; gap: 10px; display: inline-flex">
-        <div style="justify-content: flex-start; align-items: center; gap: 16px; display: inline-flex"> 
-          <div style="color: black; font-size: 20px; font-family: MiSans; font-weight: 400; word-wrap: break-word">开始探索</div> 
-          <div style="padding: 12px; background: #FBEEEE; border-radius: 29px; justify-content: flex-start; align-items: center; gap: 10px; display: flex; cursor: pointer;" data-route="interactive.html">
-            <img style="width: 16px; height: 16px;" src="image/arrow-right.svg" alt="arrow right"> 
-          </div> 
-        </div> 
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 2rem 1.5rem 16vh;
+      max-width: 720px;
+      transition: opacity .9s ease, transform .9s ease;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-label);
+      font-size: .68rem;
+      letter-spacing: .5em;
+      color: var(--ochre);
+      text-transform: uppercase;
+      margin-bottom: 1.6rem;
+    }
+    .hero h1 {
+      font-family: var(--font-title);
+      font-weight: 400;
+      font-size: clamp(3.4rem, 9vw, 6.5rem);
+      letter-spacing: .22em;
+      margin: 0 0 1.4rem;
+      text-indent: .22em;
+    }
+    .hero .thesis {
+      font-family: var(--font-serif);
+      font-size: clamp(.98rem, 2vw, 1.15rem);
+      color: var(--ink-2);
+      letter-spacing: .1em;
+      line-height: 2.1;
+      margin: 0 auto 2.6rem;
+      max-width: 30em;
+    }
+
+    /* 雾中诗 · 考据悬念 */
+    .mystery {
+      position: relative;
+      margin: 0 auto;
+      max-width: 560px;
+      padding: 2.2rem 2rem 2rem;
+      background: rgba(237, 231, 217, .55);
+      border: 1px solid rgba(43, 43, 40, .14);
+      border-radius: 3px;
+      backdrop-filter: blur(4px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+    .mystery .m-label, .mystery .m-poem, .mystery .m-question {
+      transition: opacity 1.2s ease, transform 1.2s ease, filter 1.2s ease;
+    }
+    .mystery.sinking .m-label,
+    .mystery.sinking .m-poem,
+    .mystery.sinking .m-question { opacity: .3; transform: translateY(6px); filter: blur(1px); }
+    .mystery .m-label {
+      font-size: .68rem;
+      letter-spacing: .3em;
+      color: var(--ink-2);
+      margin-bottom: 1rem;
+    }
+    .mystery .m-poem {
+      font-family: var(--font-serif);
+      font-size: 1.12rem;
+      letter-spacing: .12em;
+      line-height: 2;
+      color: var(--ink);
+    }
+    .mystery .m-poem .m-title { color: var(--ink-2); font-size: .85rem; }
+    .mystery .m-question {
+      margin-top: 1.2rem;
+      font-family: var(--font-serif);
+      font-size: 1.02rem;
+      color: var(--cinnabar);
+      letter-spacing: .14em;
+      line-height: 2.1;
+    }
+    .mystery .m-question strong { color: var(--ink); font-weight: 500; }
+    .mystery .m-action {
+      margin-top: 1.4rem;
+      display: inline-block;
+      font-family: var(--font-serif);
+      font-size: .9rem;
+      letter-spacing: .3em;
+      color: var(--ink);
+      border: 1px solid var(--ink);
+      padding: .55rem 1.6rem .55rem 1.9rem;
+      cursor: pointer;
+      background: transparent;
+      transition: background .3s ease, color .3s ease;
+    }
+    .mystery .m-action:hover { background: var(--ink); color: var(--paper); }
+
+    /* 证据链 */
+    .evidence {
+      display: none;
+      margin-top: 1.6rem;
+      text-align: left;
+    }
+    .evidence.open { display: block; }
+    .ev-step {
+      display: flex;
+      align-items: baseline;
+      gap: .9rem;
+      padding: .65rem 0;
+      border-top: 1px dashed rgba(43, 43, 40, .2);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+    .ev-step.show { opacity: 1; transform: none; }
+    .ev-step .ev-name {
+      font-family: var(--font-serif);
+      font-size: .92rem;
+      white-space: nowrap;
+    }
+    .ev-step .ev-result {
+      margin-left: auto;
+      flex: 1;
+      min-width: 0;
+      font-size: .8rem;
+      letter-spacing: .06em;
+      line-height: 1.8;
+      text-align: right;
+      color: var(--ink-2);
+    }
+    .ev-step .ev-result.none { color: var(--cinnabar); }
+    .ev-verdict {
+      margin-top: 1.2rem;
+      font-family: var(--font-serif);
+      font-size: .95rem;
+      line-height: 2;
+      color: var(--ink-2);
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+    .ev-verdict.show { opacity: 1; }
+    .ev-verdict strong { color: var(--ink); font-weight: 500; }
+
+    /* 展卷 · 序章与正文之间的门槛 */
+    .m-unfurl { display: none; margin-top: 1.6rem; }
+    .m-unfurl.show {
+      display: inline-block;
+      opacity: 0;
+      animation: unfurlIn 1.2s ease .2s forwards, unfurlBreathe 3.4s ease-in-out 1.6s infinite;
+    }
+    @keyframes unfurlIn { to { opacity: 1; } }
+    @keyframes unfurlBreathe {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(154, 43, 42, 0); }
+      50% { box-shadow: 0 0 20px 2px rgba(154, 43, 42, .16); }
+    }
+    .scroll-rod {
+      position: fixed;
+      left: 0; right: 0; top: -4px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cinnabar) 30%, var(--cinnabar) 70%, transparent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 60;
+    }
+    body.unfurling .scroll-rod {
+      opacity: 1;
+      top: 100vh;
+      transition: top 1.15s cubic-bezier(.6, .05, .3, 1), opacity .4s ease 1.2s;
+    }
+    body.unfurling .hero-inner {
+      opacity: 0;
+      transform: translateY(-28px);
+      transition: opacity .9s ease, transform .9s ease;
+    }
+    .toc.revealable .toc-item {
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .8s ease, transform .8s ease;
+    }
+    .toc.revealable.in-view .toc-item { opacity: 1; transform: none; }
+    .toc.revealable.in-view .toc-item:nth-child(2) { transition-delay: .1s; }
+    .toc.revealable.in-view .toc-item:nth-child(3) { transition-delay: .2s; }
+    .toc.revealable.in-view .toc-item:nth-child(4) { transition-delay: .3s; }
+    .toc.revealable.in-view .toc-item:nth-child(5) { transition-delay: .4s; }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 5vh;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      font-size: .68rem;
+      letter-spacing: .4em;
+      color: var(--ink-2);
+      writing-mode: vertical-rl;
+      opacity: .7;
+    }
+    .scroll-hint::after {
+      content: "";
+      display: block;
+      width: 1px;
+      height: 3.2rem;
+      margin: .8rem auto 0;
+      background: linear-gradient(var(--ink-2), transparent);
+    }
+
+    /* ---------- 事实带 ---------- */
+    .facts {
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding: 6rem 0 4rem;
+    }
+    .facts .f-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 2.5rem;
+      text-align: center;
+    }
+    .fact .f-num {
+      font-family: var(--font-serif);
+      font-size: clamp(2.6rem, 6vw, 4rem);
+      line-height: 1;
+      color: var(--ink);
+    }
+    .fact .f-num sup { font-size: .35em; color: var(--cinnabar); }
+    .fact .f-label {
+      margin-top: .8rem;
+      font-size: .78rem;
+      letter-spacing: .3em;
+      color: var(--ink-2);
+    }
+    .fact .f-sub {
+      margin-top: .35rem;
+      font-size: .68rem;
+      color: var(--ink-2);
+      opacity: .8;
+      line-height: 1.8;
+    }
+    .facts .f-note {
+      margin-top: 3rem;
+      text-align: center;
+      font-family: var(--font-serif);
+      color: var(--ink-2);
+      font-size: .9rem;
+      letter-spacing: .12em;
+      line-height: 2.1;
+    }
+
+    /* ---------- 回目 ---------- */
+    .toc {
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding: 3rem 0 5rem;
+    }
+    .toc .toc-title {
+      text-align: center;
+      font-family: var(--font-title);
+      font-size: 1.7rem;
+      letter-spacing: .4em;
+      text-indent: .4em;
+      margin-bottom: .8rem;
+    }
+    .toc .toc-sub {
+      text-align: center;
+      font-size: .72rem;
+      letter-spacing: .3em;
+      color: var(--ink-2);
+      margin-bottom: 3rem;
+    }
+    .toc-list { display: flex; flex-direction: column; }
+    .toc-item {
+      display: grid;
+      grid-template-columns: 4.5rem 8.5rem 1fr auto;
+      align-items: baseline;
+      gap: 1.4rem;
+      padding: 1.35rem .8rem;
+      border-top: 1px solid rgba(43, 43, 40, .14);
+      cursor: pointer;
+      transition: background .3s ease;
+      color: var(--ink);
+    }
+    .toc-item:last-child { border-bottom: 1px solid rgba(43, 43, 40, .14); }
+    .toc-item:hover { background: rgba(237, 231, 217, .6); }
+    .toc-item .t-char {
+      font-family: var(--font-title);
+      font-size: 2rem;
+      color: var(--ink-2);
+      transition: color .3s ease;
+    }
+    .toc-item:hover .t-char { color: var(--cinnabar); }
+    .toc-item .t-name {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      letter-spacing: .2em;
+    }
+    .toc-item .t-desc { font-size: .82rem; color: var(--ink-2); line-height: 1.8; }
+    .toc-item .t-data {
+      font-family: var(--font-label);
+      font-size: .62rem;
+      letter-spacing: .22em;
+      color: var(--ochre);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .colophon-footer {
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding: 2.5rem 0 5rem;
+      border-top: 1px solid rgba(43, 43, 40, .12);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 2rem;
+      flex-wrap: wrap;
+      font-size: .7rem;
+      color: var(--ink-2);
+      line-height: 2;
+    }
+
+    @media (max-width: 720px) {
+      .toc-item { grid-template-columns: 3rem 1fr; }
+      .toc-item .t-desc, .toc-item .t-data { grid-column: 2; }
+    }
+  </style>
+</head>
+<body data-chapter="xu" data-seal="侠">
+
+  <!-- 第一屏 · 雾中诗 -->
+  <section class="hero" id="hero">
+    <div class="mountains" aria-hidden="true">
+      <svg viewBox="0 0 1440 460" preserveAspectRatio="none">
+        <path d="M0,360 C180,300 260,220 420,260 C560,295 640,180 800,215 C960,250 1040,160 1200,200 C1330,232 1400,210 1440,225 L1440,460 L0,460 Z" fill="#8A9BA8" opacity=".14"/>
+        <path d="M0,395 C200,350 320,280 480,310 C640,340 720,250 880,280 C1040,310 1120,235 1280,265 C1370,282 1420,270 1440,278 L1440,460 L0,460 Z" fill="#5BA4A4" opacity=".12"/>
+        <path d="M0,425 C220,395 360,340 540,362 C700,382 800,320 960,345 C1120,370 1240,320 1440,352 L1440,460 L0,460 Z" fill="#3D5A6C" opacity=".10"/>
+      </svg>
+    </div>
+
+    <div class="hero-inner">
+      <p class="hero-eyebrow">TANG DYNASTY · CHIVALRIC POETRY</p>
+      <h1>诗风侠影</h1>
+      <p class="thesis">九十首唐代咏侠诗，如何在天下、人物、意象与情志之间，<br />塑造"侠"的共同想象？</p>
+
+      <div class="mystery" id="mystery">
+        <p class="m-label">卷外一首 · 问侠</p>
+        <p class="m-poem">
+          侠客重恩光，骢马饰金装。<br />
+          瞥闻传羽檄，驰突救边荒。<br />
+          <span class="m-title">——张易之《横吹曲辞 出塞》</span>
+        </p>
+        <p class="m-question">
+          写它的人，是武周朝的宠臣，<br />
+          一生未曾到过边荒——<br />
+          <strong>他为什么需要想象一个侠客？</strong>
+        </p>
+        <button class="m-action" id="evidenceBtn">展 卷 寻 侠</button>
+
+        <div class="evidence" id="evidence">
+          <div class="ev-step"><span class="ev-name">其 人</span><span class="ev-result">武周宠臣，以姿容音律侍于左右，未履边塞一步</span></div>
+          <div class="ev-step"><span class="ev-name">其 诗</span><span class="ev-result">拟乐府旧题：四句侠客开场，八句思妇收尾，侠是借来的衣冠</span></div>
+          <div class="ev-step"><span class="ev-name">其 年</span><span class="ev-result none">写作年份无考：它在时间里没有锚点，几乎只作为想象存在</span></div>
+          <p class="ev-verdict" id="verdict">
+            侠的想象，强大到<strong>连未曾仗剑的人，也需要借它说话</strong>。<br />
+            这九十首诗，就是这场共同想象的证词。
+          </p>
+          <button class="m-action m-unfurl" id="unfurlBtn">展 卷</button>
+        </div>
       </div>
-      <img style="width: 49.86px; height: 76.84px; left: 1331.14px; top: 547.36px; position: absolute" src="image/Group 2.svg" alt="Group 2"> 
-      
-      <!-- 更兼容的组件布局：使用绝对定位确保间距 -->
-      <div style="position: absolute; left: 224px; top: 1068px; width: 992px; height: 560px;"> 
-        <!-- 第一个组件：侠踪天下 -> 时空分布 -->
-        <div style="width: 200px; height: 560px; position: absolute; left: 0px; top: 0px;"> 
-          <img class="component-image" style="width: 200px; height: 512px; left: 0px; top: 0px; position: absolute; opacity: 0.40; cursor: pointer;" src="image/侠踪天下.jpg" data-route="interactive.html" />
-          <div style="width: 56px; height: 210px; left: 10px; top: 350px; position: absolute"> 
-            <img style="width: 46.85px; height: 203.76px; left: 5px; top: 3px; position: absolute;" src="image/侠踪天下.svg" alt="侠踪天下" /> 
-          </div> 
-        </div> 
-        <!-- 第二个组件：剑影诗心 -> 诗词情感 -->
-        <div style="width: 200px; height: 560px; position: absolute; left: 264px; top: 0px;"> 
-          <img class="component-image" style="width: 200px; height: 512px; left: 0px; top: 48px; position: absolute; opacity: 0.40; cursor: pointer;" src="image/剑影诗心.jpg" data-route="poetry-emotion.html" />
-          <div style="width: 56px; height: 210px; left: 10px; top: 0px; position: absolute"> 
-            <img style="width: 48.48px; height: 188.30px; left: 4px; top: 11px; position: absolute;" src="image/剑影诗心.svg" alt="剑影诗心" /> 
-          </div> 
-        </div> 
-        <!-- 第三个组件：侠骨柔情 -> 词汇关联 -->
-        <div style="width: 200px; height: 560px; position: absolute; left: 528px; top: 0px;"> 
-          <img class="component-image" style="width: 200px; height: 512px; left: 0px; top: 0px; position: absolute; opacity: 0.40; cursor: pointer;" src="image/侠骨柔情.jpg" data-route="word-association.html" />
-          <div style="width: 56px; height: 210px; left: 134px; top: 350px; position: absolute"> 
-            <img style="width: 52.42px; height: 205.68px; left: 2px; top: 2px; position: absolute;" src="image/侠骨柔情.svg" alt="侠骨柔情" /> 
-          </div> 
-        </div> 
-        <!-- 第四个组件：侠韵流殇 -> 关键词河流 -->
-        <div style="width: 200px; height: 560px; position: absolute; left: 792px; top: 0px;"> 
-          <img class="component-image" style="width: 200px; height: 512px; left: 0px; top: 48px; position: absolute; opacity: 0.40; cursor: pointer;" src="image/侠韵流殇.jpg" data-route="keyword-river.html" />
-          <div style="width: 56px; height: 210px; left: 134px; top: 0px; position: absolute"> 
-            <img style="width: 51.41px; height: 204.34px; left: 2px; top: 3px; position: absolute;" src="image/侠韵流殇.svg" alt="侠韵流殇" /> 
-          </div> 
-        </div> 
-      </div> 
-    </div> 
-  </body>
+    </div>
+    <div class="scroll-hint">展卷</div>
+  </section>
+
+  <!-- 第二屏 · 事实带 -->
+  <section class="facts">
+    <div class="f-grid">
+      <div class="fact">
+        <div class="f-num">90</div>
+        <div class="f-label">咏侠诗</div>
+        <div class="f-sub">从初唐到唐末<br />五类侠义主题</div>
+      </div>
+      <div class="fact">
+        <div class="f-num">56</div>
+        <div class="f-label">位诗人</div>
+        <div class="f-sub">五人写了近三分之一<br />骆宾王 · 王维 · 李白 · 高适 · 杜甫</div>
+      </div>
+      <div class="fact">
+        <div class="f-num">76</div>
+        <div class="f-label">个地点</div>
+        <div class="f-sub">长安出现 50 次<br />边塞与关隘 28 处</div>
+      </div>
+      <div class="fact">
+        <div class="f-num">30<sup>/90</sup></div>
+        <div class="f-label">首可系年</div>
+        <div class="f-sub">四十首由生平推定<br />二十首散作星辰</div>
+      </div>
+    </div>
+    <p class="f-note">侠气从何时起，到何处去；写侠的是谁，心里装的又是什么。<br />六幕长卷，循次展开。</p>
+  </section>
+
+  <!-- 第三屏 · 回目 -->
+  <section class="toc">
+    <p class="toc-title">回 目</p>
+    <p class="toc-sub">六幕 · 序 时 地 人 心 存</p>
+    <div class="toc-list">
+      <a class="toc-item" href="xiayi-scroll.html">
+        <span class="t-char">时</span>
+        <span class="t-name">侠从何来</span>
+        <span class="t-desc">五脉主题沿时间流淌：初唐的意气、盛唐的豪迈、乱世的悲歌。系年可考者为实，推定者为雾。</span>
+        <span class="t-data">90 首 · 时间长卷</span>
+      </a>
+      <a class="toc-item" href="interactive.html">
+        <span class="t-char">地</span>
+        <span class="t-name">侠行何处</span>
+        <span class="t-desc">长安与边塞之间：76 个地点的分布。京城仕途与塞外关山，是侠义书写的两极。</span>
+        <span class="t-data">76 地点 · 疆域分布</span>
+      </a>
+      <a class="toc-item" href="poets.html">
+        <span class="t-char">人</span>
+        <span class="t-name">侠者何人</span>
+        <span class="t-desc">五位诗人的全身像：一人一境，每首诗一块诗牌，牌背是他们的系年证据。</span>
+        <span class="t-data">5 人 · 27 首代表作</span>
+      </a>
+      <a class="toc-item" href="emotions.html">
+        <span class="t-char">心</span>
+        <span class="t-name">侠心何似</span>
+        <span class="t-desc">侠客是诗人的自我投射：八维情志分作两个世界，九十首诗各归其位。</span>
+        <span class="t-data">8 维情志 · 283 词</span>
+      </a>
+      <a class="toc-item" href="keyword-river.html">
+        <span class="t-char">存</span>
+        <span class="t-name">侠韵长存</span>
+        <span class="t-desc">五十六位诗人与五类主题的全景矩阵。</span>
+        <span class="t-data">56 人 × 5 类</span>
+      </a>
+    </div>
+  </section>
+
+  <footer class="colophon-footer">
+    <div>
+      诗风侠影 · 唐代咏侠诗信息可视化<br />
+      语料：90 首咏侠诗 ｜ 编年：作品级系年 + 作者活动期推定 ｜ 计数方法散见各图附注
+    </div>
+    <div class="seal" aria-hidden="true">侠</div>
+  </footer>
+
+  <div class="scroll-rod" aria-hidden="true"></div>
+
+  <script src="assets/js/site.js"></script>
+  <script>
+    (function () {
+      var btn = document.getElementById('evidenceBtn');
+      var box = document.getElementById('evidence');
+      var mystery = document.getElementById('mystery');
+      var steps = box.querySelectorAll('.ev-step');
+      var verdict = document.getElementById('verdict');
+      var unfurlBtn = document.getElementById('unfurlBtn');
+      var toc = document.querySelector('.toc');
+      var done = false;
+
+      btn.addEventListener('click', function () {
+        if (done) return;
+        done = true;
+        btn.style.display = 'none';
+        box.classList.add('open');
+        steps.forEach(function (s, i) {
+          setTimeout(function () { s.classList.add('show'); }, 500 + i * 900);
+        });
+        setTimeout(function () {
+          verdict.classList.add('show');
+          mystery.classList.add('sinking');
+          unfurlBtn.classList.add('show');
+        }, 500 + steps.length * 900 + 400);
+      });
+
+      // 展卷：朱砂卷杆扫过，序章退场，滚至回目
+      unfurlBtn.addEventListener('click', function () {
+        document.body.classList.add('unfurling');
+        setTimeout(function () {
+          toc.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 380);
+        setTimeout(function () {
+          document.body.classList.remove('unfurling');
+        }, 2600);
+      });
+
+      // 回目入视时错落浮现
+      toc.classList.add('revealable');
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) toc.classList.add('in-view');
+        });
+      }, { threshold: .2 }).observe(toc);
+    }());
+  </script>
+</body>
 </html>

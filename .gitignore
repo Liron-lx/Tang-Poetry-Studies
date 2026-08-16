@@ -5,3 +5,6 @@ node_modules/
 *.log
 screenshots/
 generated/
+.verify-shots/
+.superpowers/
+.DS_Store
