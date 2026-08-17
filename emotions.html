@@ -148,8 +148,8 @@
       var SHI_DIMS = ['功名热望', '功名幻灭', '孤愤悲慨', '苍茫孤寂'];
       var CLUSTERS = ['侠义抒怀类', '隐逸怀古类', '豪侠交游类', '边塞报国类', '市井任侠类'];
       var CLUSTER_COLORS = {
-        '侠义抒怀类': '#3D5A6C', '隐逸怀古类': '#8FAE8B', '豪侠交游类': '#5BA4A4',
-        '边塞报国类': '#A67C52', '市井任侠类': '#D9B44A'
+        '侠义抒怀类': '#2B2B28', '隐逸怀古类': '#6E6E66', '豪侠交游类': '#8B6B4F',
+        '边塞报国类': '#6B4A3A', '市井任侠类': '#C9A06C'
       };
       var FIVE = ['骆宾王', '王维', '李白', '高适', '杜甫'];
 
@@ -290,7 +290,7 @@
             ],
             xAxis: {
               name: '侠客的世界 →', nameLocation: 'middle', nameGap: 28,
-              nameTextStyle: { color: '#A67C52', fontSize: 11, fontFamily: 'Noto Serif SC' },
+              nameTextStyle: { color: '#6B4A3A', fontSize: 11, fontFamily: 'Noto Serif SC' },
               min: 0, max: 10,
               axisLine: { lineStyle: { color: '#C9C7BC' } },
               splitLine: { show: false },
@@ -298,7 +298,7 @@
             },
             yAxis: {
               name: '诗人的内心 ↑', nameLocation: 'middle', nameGap: 34,
-              nameTextStyle: { color: '#3D5A6C', fontSize: 11, fontFamily: 'Noto Serif SC' },
+              nameTextStyle: { color: '#2B2B28', fontSize: 11, fontFamily: 'Noto Serif SC' },
               min: 0, max: 10,
               axisLine: { lineStyle: { color: '#C9C7BC' } },
               splitLine: { show: false },
@@ -411,7 +411,7 @@
               data: list.map(function (w, i) {
                 return {
                   value: +w['词频'],
-                  itemStyle: { color: i === 0 ? '#B04A3A' : '#3D5A6C', opacity: i === 0 ? .95 : .55 + .35 * (list.length - i) / list.length }
+                  itemStyle: { color: i === 0 ? '#B04A3A' : '#2B2B28', opacity: i === 0 ? .95 : .55 + .35 * (list.length - i) / list.length }
                 };
               }),
               barWidth: 12,
@@ -433,7 +433,7 @@
         var catOrder = cats.slice().sort(function (a, b) { return catStat[b].sum - catStat[a].sum; });
         /* 白描词格：纸底细线格子，不填实色；词频化入墨色浓淡（墨分五色）。
            侠客是一枚朱文印——朱线朱字，不铺红块；只在"人物形象"圃选中时现身 */
-        var LINE_ON = '#3D5A6C';    // 黛蓝 · 选中圃的格线
+        var LINE_ON = '#2B2B28';    // 松烟墨 · 选中圃的格线
         var LINE_OFF = '#C9C7BC';   // 雾灰 · 未选中圃的格线
         var BAND = '#E9E4D4';       // 绢本 · 圃额底色
         function washOn(f) { return 'rgba(61,90,108,' + (0.05 + 0.2 * Math.min(1, f / 16)).toFixed(3) + ')'; }

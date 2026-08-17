@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>弦图素材 · 全景与五类高亮</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Noto Sans SC', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 40px 0 80px;
+            background: #F5F2EA;
+            color: #2B2B28;
+        }
+        .page-head {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .page-head h1 {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-weight: 500;
+            font-size: 26px;
+            letter-spacing: .3em;
+            margin: 0 0 10px;
+        }
+        .page-head p {
+            color: #8B8578;
+            font-size: 13px;
+            letter-spacing: .1em;
+            margin: 0;
+        }
+        .panel {
+            width: 980px;
+            margin: 0 auto 72px;
+            padding: 32px 40px 36px;
+            background: #FBF9F3;
+            border: 1px solid #E3DED0;
+        }
+        .panel-head {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .panel-head h2 {
+            font-family: 'Noto Serif SC', 'Songti SC', serif;
+            font-weight: 500;
+            font-size: 19px;
+            letter-spacing: .18em;
+            margin: 0;
+        }
+        .panel-head h2 .tag {
+            font-size: 12px;
+            letter-spacing: .25em;
+            color: #A6956E;
+            margin-right: 14px;
+            vertical-align: 2px;
+        }
+        .export-btn {
+            font-family: inherit;
+            font-size: 12px;
+            letter-spacing: .15em;
+            color: #6B5B73;
+            background: transparent;
+            border: 1px solid #C9C2B2;
+            padding: 5px 14px;
+            cursor: pointer;
+        }
+        .export-btn:hover { background: #6B5B73; color: #F5F2EA; border-color: #6B5B73; }
+        .panel-sub {
+            font-size: 12px;
+            color: #8B8578;
+            letter-spacing: .08em;
+            margin: 0 0 8px;
+        }
+        .chart-wrap { display: flex; justify-content: center; }
+        .chart-wrap svg { display: block; }
+
+        /* 弦图元素样式（沿用旧版莫兰迪体系） */
+        .node-label { fill: #6E6E66; }
+        .node-label.hl { fill: #2B2B28; font-weight: 500; }
+    </style>
+</head>
+<body>
+    <div class="page-head">
+        <h1>诗人 × 侠义主题 弦图素材</h1>
+        <p>全景一帧 · 五类高亮各一帧 ｜ 数据：poetry_with_detailed_clusters_sankey.csv（100 条，含异文）</p>
+    </div>
+    <div id="panels"></div>
+
+<script>
+// 当前站点配色（与 keyword-river.html CLUSTER_COLORS / common.css 令牌一致）
+const CLUSTER_COLORS = {
+    '侠义抒怀类': '#2B2B28',  // 松烟墨
+    '隐逸怀古类': '#6E6E66',  // 淡墨
+    '豪侠交游类': '#8B6B4F',  // 驼棕
+    '边塞报国类': '#6B4A3A',  // 绛棕
+    '市井任侠类': '#C9A06C'   // 泥金
+};
+const AUTHOR_COLOR = '#C9C7BC';  // 雾灰：诗人不按类别分组，单色弧带
+
+const W = 900, H = 769;
+
+d3.csv("data/poetry_with_detailed_clusters_sankey.csv").then(function (csvData) {
+
+    /* ---------- 数据处理（与旧版一致） ---------- */
+    const categoryNodes = [], authorNodes = [], nodeMap = {};
+    const authorCounts = {}, categoryCounts = {}, connections = {};
+
+    csvData.forEach(row => {
+        const author = row['作者'], category = row['聚类类别'];
+        authorCounts[author] = (authorCounts[author] || 0) + 1;
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+        const key = author + '-' + category;
+        connections[key] = (connections[key] || 0) + 1;
+    });
+
+    const sortedCategories = Object.keys(categoryCounts).sort((a, b) => categoryCounts[b] - categoryCounts[a]);
+    const sortedAuthors = Object.keys(authorCounts).sort((a, b) => authorCounts[b] - authorCounts[a]);
+
+    const totalCategoryValue = d3.sum(Object.values(categoryCounts));
+    const totalAuthorValue = d3.sum(Object.values(authorCounts));
+
+    // 类别占上半圆
+    let catAngle = -Math.PI / 2;
+    sortedCategories.forEach((category, index) => {
+        const span = (categoryCounts[category] / totalCategoryValue) * Math.PI;
+        const node = {
+            name: category, type: "category", count: categoryCounts[category],
+            color: CLUSTER_COLORS[category] || '#6E6E66',
+            startAngle: catAngle, endAngle: catAngle + span, centerAngle: catAngle + span / 2
+        };
+        categoryNodes.push(node);
+        nodeMap[category] = { type: 'category', index: index, node: node };
+        catAngle += span;
+    });
+
+    // 作者占下半圆
+    let authAngle = Math.PI / 2;
+    sortedAuthors.forEach((author, index) => {
+        const span = (authorCounts[author] / totalAuthorValue) * Math.PI;
+        const node = {
+            name: author, type: "author", count: authorCounts[author],
+            color: AUTHOR_COLOR,
+            startAngle: authAngle, endAngle: authAngle + span, centerAngle: authAngle + span / 2
+        };
+        authorNodes.push(node);
+        nodeMap[author] = { type: 'author', index: index, node: node };
+        authAngle += span;
+    });
+
+    const allNodes = [...categoryNodes, ...authorNodes];
+
+    const linkArray = [];
+    Object.keys(connections).forEach(key => {
+        const [author, category] = key.split('-');
+        const a = nodeMap[author], c = nodeMap[category];
+        if (a && c) {
+            linkArray.push({
+                source: categoryNodes.length + a.index,
+                target: c.index,
+                value: connections[key],
+                authorName: author, categoryName: category
+            });
+        }
+    });
+
+    /* ---------- 面板渲染 ---------- */
+    const radius = Math.min(W, H) / 2 - 80;
+    const arcGen = d3.arc().innerRadius(radius - 30).outerRadius(radius)
+        .startAngle(d => d.startAngle).endAngle(d => d.endAngle);
+
+    function linkPath(d) {
+        const s = allNodes[d.source], t = allNodes[d.target];
+        const sa = ((s.startAngle + s.endAngle) / 2) - Math.PI / 2;
+        const ta = ((t.startAngle + t.endAngle) / 2) - Math.PI / 2;
+        const r = radius - 30;
+        return `M${r * Math.cos(sa)},${r * Math.sin(sa)} Q0,0 ${r * Math.cos(ta)},${r * Math.sin(ta)}`;
+    }
+
+    function renderPanel(container, highlightCategory, svgId) {
+        const svg = container.append("svg")
+            .attr("id", svgId)
+            .attr("width", W).attr("height", H)
+            .attr("xmlns", "http://www.w3.org/2000/svg")
+            .append("g")
+            .attr("transform", `translate(${W / 2},${H / 2})`);
+
+        // 高亮逻辑：该类别 + 与其相连的作者
+        let relatedAuthors = null;
+        if (highlightCategory) {
+            relatedAuthors = new Set(
+                linkArray.filter(l => l.categoryName === highlightCategory).map(l => l.authorName)
+            );
+        }
+        const isHlNode = d => !highlightCategory ||
+            d.name === highlightCategory ||
+            (d.type === 'author' && relatedAuthors.has(d.name));
+
+        // 连线
+        svg.selectAll(".link")
+            .data(linkArray)
+            .enter()
+            .append("path")
+            .attr("class", "link")
+            .attr("d", linkPath)
+            .style("fill", "none")
+            .style("stroke", d => allNodes[d.target].color)  // target 恒为类别
+            .style("stroke-width", d => {
+                const hl = !highlightCategory || d.categoryName === highlightCategory;
+                return Math.sqrt(d.value) * (hl ? (highlightCategory ? 2 : 1.5) : 1);
+            })
+            .style("opacity", d => {
+                if (!highlightCategory) return 0.7;
+                return d.categoryName === highlightCategory ? 0.85 : 0.08;
+            });
+
+        // 节点弧
+        svg.selectAll(".node")
+            .data(allNodes)
+            .enter()
+            .append("path")
+            .attr("class", "node-arc")
+            .attr("d", arcGen)
+            .style("fill", d => d.color)
+            .style("stroke", "none")
+            .style("opacity", d => isHlNode(d) ? (highlightCategory ? 1 : 0.8) : 0.18);
+
+        // 标签
+        svg.append("g")
+            .selectAll("text")
+            .data(allNodes)
+            .enter()
+            .append("text")
+            .attr("dy", ".35em")
+            .attr("transform", d => {
+                const angle = d.centerAngle;
+                const labelAngle = angle - Math.PI / 2;
+                const ro = radius * 1.08;
+                const x = ro * Math.cos(labelAngle), y = ro * Math.sin(labelAngle);
+                let rotate = labelAngle * 180 / Math.PI;
+                if (d.name === '侠义抒怀类') rotate += 180;
+                else if (labelAngle > Math.PI / 2 && labelAngle < 3 * Math.PI / 2) rotate += 180;
+                return `translate(${x},${y}) rotate(${rotate})`;
+            })
+            .style("text-anchor", d => {
+                const labelAngle = d.centerAngle - Math.PI / 2;
+                if (d.name === '侠义抒怀类') return "end";
+                return (labelAngle > Math.PI / 2 && labelAngle < 3 * Math.PI / 2) ? "end" : "start";
+            })
+            .style("font-size", d => d.type === 'category' ? "14px" : "12px")
+            .style("font-weight", d => d.type === 'category' ? "500" : "400")
+            .attr("class", d => "node-label" + (highlightCategory && isHlNode(d) ? " hl" : ""))
+            .style("opacity", d => isHlNode(d) ? 1 : 0.3)
+            .text(d => `${d.name}(${d.count})`);
+    }
+
+    /* ---------- 组装页面：全景 + 五类高亮 ---------- */
+    const panelsRoot = d3.select("#panels");
+    const specs = [{ key: null, tag: "全景", title: "五十六位诗人 × 五类侠义主题" }]
+        .concat(sortedCategories.map(c => ({
+            key: c, tag: "高亮", title: c.replace('类', '') + " · " + categoryCounts[c] + " 首"
+        })));
+
+    specs.forEach((spec, i) => {
+        const panel = panelsRoot.append("div").attr("class", "panel");
+        const head = panel.append("div").attr("class", "panel-head");
+        head.append("h2").html(`<span class="tag">${String(i + 1).padStart(2, '0')} · ${spec.tag}</span>${spec.title}`);
+        const svgId = "chord-" + i;
+        head.append("button")
+            .attr("class", "export-btn")
+            .text("导出 PNG")
+            .on("click", () => exportPNG(svgId, `弦图-${spec.tag}-${spec.title.replace(/[ ·（）()]/g, '')}.png`));
+        if (spec.key) {
+            const related = new Set(linkArray.filter(l => l.categoryName === spec.key).map(l => l.authorName));
+            panel.append("p").attr("class", "panel-sub")
+                .text(`关联诗人 ${related.size} 位，其余元素压暗处理`);
+        } else {
+            panel.append("p").attr("class", "panel-sub")
+                .text("五类主题居上半圆，五十六位诗人居下半圆");
+        }
+        renderPanel(panel.append("div").attr("class", "chart-wrap"), spec.key, svgId);
+    });
+
+    /* ---------- PNG 导出（2x，透明底） ---------- */
+    function exportPNG(svgId, filename) {
+        const svgEl = document.getElementById(svgId);
+        const xml = new XMLSerializer().serializeToString(svgEl);
+        const img = new Image();
+        img.onload = function () {
+            const canvas = document.createElement("canvas");
+            canvas.width = W * 2; canvas.height = H * 2;
+            const ctx = canvas.getContext("2d");
+            ctx.scale(2, 2);
+            ctx.drawImage(img, 0, 0);
+            const a = document.createElement("a");
+            a.download = filename;
+            a.href = canvas.toDataURL("image/png");
+            a.click();
+        };
+        img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(xml);
+    }
+
+}).catch(function (error) {
+    console.error("数据加载失败:", error);
+    d3.select("#panels").html('<p style="text-align:center;color:#8B7D6B;padding:60px;">数据加载失败，请通过 dev server 访问本页（npm run dev）。</p>');
+});
+</script>
+</body>
+</html>

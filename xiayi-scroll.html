@@ -43,7 +43,7 @@
       .key { width: .68rem; height: .68rem; border-radius: 50%; display: inline-block; }
       .key.observed { background: var(--ink); }
       .key.inferred { background: var(--cyan); opacity: .52; filter: blur(.3px); }
-      .key.pending { background: rgba(138, 155, 168, .35); }
+      .key.pending { background: rgba(139, 107, 79, .28); }
       .key.event { background: var(--cinnabar); }
 
       .scroll-stage {
@@ -147,11 +147,11 @@
         "use strict";
 
         const clusters = [
-          { name: "边塞报国类", label: "边塞报国", color: "#A67C52" },
-          { name: "市井任侠类", label: "市井任侠", color: "#D9B44A" },
-          { name: "侠义抒怀类", label: "侠义抒怀", color: "#3D5A6C" },
-          { name: "豪侠交游类", label: "豪侠交游", color: "#5BA4A4" },
-          { name: "隐逸怀古类", label: "隐逸怀古", color: "#8FAE8B" }
+          { name: "边塞报国类", label: "边塞报国", color: "#6B4A3A" },
+          { name: "市井任侠类", label: "市井任侠", color: "#C9A06C" },
+          { name: "侠义抒怀类", label: "侠义抒怀", color: "#2B2B28" },
+          { name: "豪侠交游类", label: "豪侠交游", color: "#8B6B4F" },
+          { name: "隐逸怀古类", label: "隐逸怀古", color: "#6E6E66" }
         ];
         const width = 2400;
         const height = 1060;
@@ -310,14 +310,14 @@
           const sky = svg.append("g").attr("aria-hidden", "true");
           sky.append("path")
             .attr("d", "M120,352 C620,300 1150,268 1560,240 S1980,196 2080,178")
-            .attr("stroke", "#5BA4A4").attr("stroke-width", 64)
+            .attr("stroke", "#8B6B4F").attr("stroke-width", 64)
             .attr("stroke-opacity", .05).attr("filter", "url(#soft-blur)").attr("fill", "none");
           sky.append("path")
             .attr("d", "M140,346 C640,296 1160,262 1570,234 S1990,192 2070,182")
-            .attr("stroke", "#5BA4A4").attr("stroke-width", 22)
+            .attr("stroke", "#8B6B4F").attr("stroke-width", 22)
             .attr("stroke-opacity", .05).attr("filter", "url(#soft-blur)").attr("fill", "none");
           sky.append("circle").attr("cx", 2112).attr("cy", 116).attr("r", 36)
-            .attr("fill", "#D9B44A").attr("fill-opacity", .13);
+            .attr("fill", "#C9A06C").attr("fill-opacity", .2);
           sky.append("path").attr("d", "M2062,112 C2086,105 2132,105 2158,114")
             .attr("stroke", "#F5F2EA").attr("stroke-width", 7).attr("stroke-opacity", .7)
             .attr("filter", "url(#soft-blur)").attr("fill", "none");
@@ -333,7 +333,7 @@
           d3.range(385, 831, 88).forEach((lineY, index) => {
             const points = d3.range(90, 2071, 55).map((px) => [px, lineY + 9 * Math.sin(px / 130 + index * .7)]);
             ripples.append("path").attr("d", d3.line().curve(d3.curveBasis)(points))
-              .attr("fill", "none").attr("stroke", index % 3 === 0 ? "#8A9BA8" : "#5BA4A4")
+              .attr("fill", "none").attr("stroke", index % 3 === 0 ? "#6E6E66" : "#8B6B4F")
               .attr("stroke-width", .55).attr("stroke-dasharray", index % 4 === 0 ? "3 7" : null);
           });
         }
@@ -355,7 +355,7 @@
           svg.append("line")
             .attr("x1", x(YEAR_MAX)).attr("x2", x(YEAR_MAX))
             .attr("y1", CHART_TOP - 20).attr("y2", CHART_BOTTOM + 20)
-            .attr("stroke", "#8A9BA8").attr("stroke-width", .8)
+            .attr("stroke", "#6E6E66").attr("stroke-width", .8)
             .attr("stroke-opacity", .4).attr("stroke-dasharray", "2 8");
         }
 
@@ -372,13 +372,13 @@
           strip.append("line")
             .attr("x1", x(periods[0].from)).attr("x2", x(periods[3].to))
             .attr("y1", lineY).attr("y2", lineY)
-            .attr("stroke", "#8A9BA8").attr("stroke-width", .8).attr("stroke-opacity", .6);
+            .attr("stroke", "#6E6E66").attr("stroke-width", .8).attr("stroke-opacity", .6);
           periods.forEach((p) => {
             [p.from, p.to].forEach((year) => {
               strip.append("line")
                 .attr("x1", x(year)).attr("x2", x(year))
                 .attr("y1", lineY - 5).attr("y2", lineY + 5)
-                .attr("stroke", "#8A9BA8").attr("stroke-width", .8).attr("stroke-opacity", .6);
+                .attr("stroke", "#6E6E66").attr("stroke-width", .8).attr("stroke-opacity", .6);
             });
             strip.append("text")
               .attr("x", (x(p.from) + x(p.to)) / 2)
@@ -494,11 +494,11 @@
               d3.select(this).classed("is-active", true);
               displayDetail(row, starPos.get(row.record_id));
             });
-          starNodes.append("circle").attr("r", 7.5).attr("fill", "#5BA4A4").attr("fill-opacity", .16);
+          starNodes.append("circle").attr("r", 7.5).attr("fill", "#C9A06C").attr("fill-opacity", .16);
           starNodes.append("path")
             .attr("class", "star-shape")
             .attr("d", SPARKLE)
-            .attr("fill", "#8A9BA8")
+            .attr("fill", "#8B6B4F")
             .attr("fill-opacity", (row) => .38 + (seed(row.record_id) % 30) / 100)
             .attr("transform", (row) => {
               const s = seed(row.record_id);
@@ -517,7 +517,7 @@
             key.append("rect")
               .attr("x", bx).attr("width", 46)
               .attr("y", 988 - h).attr("height", h)
-              .attr("fill", "#8A9BA8").attr("fill-opacity", .42);
+              .attr("fill", "#6E6E66").attr("fill-opacity", .42);
             key.append("text")
               .attr("x", bx + 23).attr("y", 1004)
               .attr("text-anchor", "middle")

@@ -1,6 +1,7 @@
 /* ============================================================
    诗风侠影 · 共享设计系统
-   依据《唐代侠义诗可视化 · 视觉规范》§9 落地为全站令牌
+   依据《视觉规范 v2 · 暮色版画》落地为全站令牌（2026-08-17 换代）
+   青绿系退出；旧变量名保留兼容，值已重映射至暮色阶梯
    ============================================================ */
 :root {
   --paper: #F5F2EA;      /* 宣纸白 */
@@ -8,14 +9,20 @@
   --ink:   #2B2B28;      /* 松烟墨 */
   --ink-2: #6E6E66;      /* 淡墨 */
   --mist:  #C9C7BC;      /* 雾灰 */
-  --green: #8FAE8B;      /* 石绿 */
-  --cyan:  #5BA4A4;      /* 天水碧 */
-  --blue:  #3D5A6C;      /* 黛蓝 */
-  --blue-grey: #8A9BA8;  /* 远山蓝灰 */
+  /* 暮色阶梯（v2 新令牌） */
+  --gold-2:  #C9A06C;    /* 泥金（圆日 / 市井任侠） */
+  --camel:   #8B6B4F;    /* 驼棕（大地中景 / 豪侠交游） */
+  --russet:  #6B4A3A;    /* 绛棕（大地近景 / 边塞报国） */
+  --night:   #3A4450;    /* 墨蓝（仅第四幕深底） */
   --cinnabar: #B04A3A;   /* 朱砂（点睛专用） */
-  --ochre: #A67C52;      /* 赭石 */
-  --yellow: #D9B44A;     /* 藤黄 */
-  --gold:  #B5A642;      /* 泥金 */
+  /* 旧变量名 → 暮色阶梯（兼容映射，新代码请用上方令牌） */
+  --green: #6E6E66;      /* 原石绿 → 淡墨（隐逸怀古） */
+  --cyan:  #8B6B4F;      /* 原天水碧 → 驼棕（豪侠交游） */
+  --blue:  #2B2B28;      /* 原黛蓝 → 松烟墨（侠义抒怀） */
+  --blue-grey: #6E6E66;  /* 原远山蓝灰 → 淡墨 */
+  --ochre: #6B4A3A;      /* 原赭石 → 绛棕（边塞报国） */
+  --yellow: #C9A06C;     /* 原藤黄 → 泥金（市井任侠） */
+  --gold:  #C9A06C;      /* 原泥金 → 泥金新值 */
 
   --font-title: "Ma Shan Zheng", "Noto Serif SC", "Songti SC", serif;
   --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
@@ -31,8 +38,8 @@ body {
   margin: 0;
   color: var(--ink);
   background:
-    radial-gradient(circle at 15% 12%, rgba(91, 164, 164, .07), transparent 26rem),
-    radial-gradient(circle at 85% 60%, rgba(166, 124, 82, .05), transparent 30rem),
+    radial-gradient(circle at 15% 12%, rgba(139, 107, 79, .07), transparent 26rem),
+    radial-gradient(circle at 85% 60%, rgba(201, 160, 108, .06), transparent 30rem),
     var(--paper);
   font-family: var(--font-body);
   line-height: 1.7;

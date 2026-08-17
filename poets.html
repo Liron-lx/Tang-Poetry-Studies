@@ -272,11 +272,11 @@
       "use strict";
 
       var CLUSTER_COLORS = {
-        "侠义抒怀类": "#3D5A6C",
-        "隐逸怀古类": "#8FAE8B",
-        "豪侠交游类": "#5BA4A4",
-        "边塞报国类": "#A67C52",
-        "市井任侠类": "#D9B44A"
+        "侠义抒怀类": "#2B2B28",
+        "隐逸怀古类": "#6E6E66",
+        "豪侠交游类": "#8B6B4F",
+        "边塞报国类": "#6B4A3A",
+        "市井任侠类": "#C9A06C"
       };
       var YEAR_MIN = 600, YEAR_MAX = 790;
 
@@ -309,7 +309,7 @@
           bar.setAttribute('x', x(birth)); bar.setAttribute('y', yy);
           bar.setAttribute('width', Math.max(4, x(death) - x(birth))); bar.setAttribute('height', 7);
           bar.setAttribute('rx', 3.5);
-          bar.setAttribute('fill', '#3D5A6C'); bar.setAttribute('opacity', 0.28 + i * 0.1);
+          bar.setAttribute('fill', '#8B6B4F'); bar.setAttribute('opacity', 0.28 + i * 0.1);
           svg.appendChild(bar);
           var t = document.createElementNS(ns, 'text');
           t.setAttribute('x', x(birth) - 8); t.setAttribute('y', yy + 7);

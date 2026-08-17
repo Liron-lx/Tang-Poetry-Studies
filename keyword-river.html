@@ -82,8 +82,8 @@
 
       var CLUSTERS = ['侠义抒怀类', '隐逸怀古类', '豪侠交游类', '边塞报国类', '市井任侠类'];
       var CLUSTER_COLORS = {
-        '侠义抒怀类': '#3D5A6C', '隐逸怀古类': '#8FAE8B', '豪侠交游类': '#5BA4A4',
-        '边塞报国类': '#A67C52', '市井任侠类': '#D9B44A'
+        '侠义抒怀类': '#2B2B28', '隐逸怀古类': '#6E6E66', '豪侠交游类': '#8B6B4F',
+        '边塞报国类': '#6B4A3A', '市井任侠类': '#C9A06C'
       };
 
       XIA.loadCSV('data/poetry_with_detailed_clusters_sankey.csv').then(function (rows) {
@@ -131,7 +131,7 @@
           },
           visualMap: {
             min: 0, max: 8, show: false,
-            inRange: { color: ['#F5F2EA', '#8FAE8B', '#3D5A6C'] }
+            inRange: { color: ['#F5F2EA', '#8B6B4F', '#2B2B28'] }
           },
           tooltip: {
             backgroundColor: 'rgba(237,231,217,.96)', borderColor: 'rgba(43,43,40,.35)',

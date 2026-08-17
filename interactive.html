@@ -294,7 +294,7 @@
 
       <div class="pole frontier" id="poleFrontier">
         <figure class="pole-illus">
-          <img src="image/act2-frontier.png" alt="边塞插画：蓝灰关山中的孤城与沙漠上持矛的骑士" loading="lazy" />
+          <img src="image/act2-frontier.png" alt="边塞插画：蓝色关山间蜿蜒的长城与敌楼，山脚下有持旗骑卒与边关战士" loading="lazy" />
         </figure>
         <div class="p-kicker">侠客的想象空间</div>
         <h3 class="p-title">边 塞</h3>
@@ -322,10 +322,10 @@
       /* ---------- 类型设定：色、释、排序 ---------- */
       var TYPE = {
         "京城":     { fill: "url(#gradCapital)",  solid: "#B04A3A", note: "功名与交游的舞台" },
-        "边塞":     { fill: "url(#gradFrontier)", solid: "#5B7183", note: "报国与想象的边疆" },
-        "关隘":     { fill: "url(#gradPass)",     solid: "#A67C52", note: "出入之间的咽喉" },
-        "内陆城市": { fill: "url(#gradInland)",   solid: "#5BA4A4", note: "江湖与市井之间" },
-        "其他":     { fill: "url(#gradMisc)",     solid: "#98A9AA", note: "山河泛指之地" }
+        "边塞":     { fill: "url(#gradFrontier)", solid: "#6B4A3A", note: "报国与想象的边疆" },
+        "关隘":     { fill: "url(#gradPass)",     solid: "#8B6B4F", note: "出入之间的咽喉" },
+        "内陆城市": { fill: "url(#gradInland)",   solid: "#C9A06C", note: "江湖与市井之间" },
+        "其他":     { fill: "url(#gradMisc)",     solid: "#6E6E66", note: "山河泛指之地" }
       };
       var LEGEND_ORDER = ["京城", "边塞", "关隘", "内陆城市", "其他"];
       function isFrontier(p) { return p.type === "边塞" || p.type === "关隘"; }
@@ -412,10 +412,10 @@
           g.append("stop").attr("offset", "1").attr("stop-color", base).attr("stop-opacity", .06);
         }
         peakGradient("gradCapital",  "#8E3A2E", "#B04A3A", "#D9B0A0");
-        peakGradient("gradFrontier", "#42566A", "#5B7183", "#B8C4CE");
-        peakGradient("gradPass",     "#8A6337", "#A67C52", "#DECAA8");
-        peakGradient("gradInland",   "#3E7C7C", "#5BA4A4", "#BCD8D4");
-        peakGradient("gradMisc",     "#7E8C8E", "#98A9AA", "#D3D8D6");
+        peakGradient("gradFrontier", "#54382A", "#6B4A3A", "#C7AC92");
+        peakGradient("gradPass",     "#6B543F", "#8B6B4F", "#D8C4A4");
+        peakGradient("gradInland",   "#9A7443", "#C9A06C", "#E6D3B4");
+        peakGradient("gradMisc",     "#54544E", "#6E6E66", "#C9C7BC");
 
         /* 疆域点雾 */
         defs.append("pattern").attr("id", "tangDots")
@@ -426,7 +426,7 @@
           ]).join("circle")
           .attr("cx", function (d) { return d.cx; }).attr("cy", function (d) { return d.cy; })
           .attr("r", function (d) { return d.r; })
-          .attr("fill", "#A67C52").attr("opacity", function (d) { return d.o; });
+          .attr("fill", "#6B4A3A").attr("opacity", function (d) { return d.o; });
         var wash = defs.append("linearGradient").attr("id", "tangWash")
           .attr("x1", 0).attr("y1", 0).attr("x2", 0).attr("y2", 1);
         wash.append("stop").attr("offset", "0").attr("stop-color", "#C39B62").attr("stop-opacity", .12);
@@ -447,13 +447,13 @@
           var coords = tang.rivers[name].coordinates;
           gRoot.append("path")
             .attr("d", d3.line().curve(d3.curveBasis)(coords.map(function (c) { return projection(c); })))
-            .attr("fill", "none").attr("stroke", "#5BA4A4")
+            .attr("fill", "none").attr("stroke", "#8B6B4F")
             .attr("stroke-width", 1).attr("stroke-opacity", .42);
         });
         gRoot.append("text")
           .attr("x", projection([112, 36.4])[0]).attr("y", projection([112, 36.4])[1])
           .attr("class", "river-label")
-          .attr("style", "font-size:10px; fill:#5BA4A4; opacity:.65; font-family:'Noto Serif SC',serif; letter-spacing:3px;")
+          .attr("style", "font-size:10px; fill:#8B6B4F; opacity:.65; font-family:'Noto Serif SC',serif; letter-spacing:3px;")
           .text("黄河");
 
         /* 丝绸之路 */
@@ -461,7 +461,7 @@
           var coords = tang.trade_routes[name].coordinates;
           gRoot.append("path")
             .attr("d", d3.line().curve(d3.curveBasis)(coords.map(function (c) { return projection(c); })))
-            .attr("fill", "none").attr("stroke", "#A67C52")
+            .attr("fill", "none").attr("stroke", "#8B6B4F")
             .attr("stroke-width", .7).attr("stroke-dasharray", "3 5").attr("stroke-opacity", .4);
         });
 
@@ -601,8 +601,8 @@
             });
           });
         }
-        bars("capBars", inland.slice(0, 5), "#3D5A6C");
-        bars("frBars", frontier.slice(0, 5), "#B04A3A");
+        bars("capBars", inland.slice(0, 5), "#2B2B28");
+        bars("frBars", frontier.slice(0, 5), "#6B4A3A");
       }
     }());
   </script>
