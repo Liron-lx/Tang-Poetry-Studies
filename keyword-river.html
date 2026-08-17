@@ -76,7 +76,15 @@
     .cp-poem b { display: block; font-family: var(--font-serif); font-weight: 400; font-size: .88rem; color: var(--ink); }
     .cp-poem b span { font-size: .76rem; color: var(--ink-2); margin-left: .5em; }
     .cp-poem p { margin: .12rem 0 0; font-size: .76rem; color: var(--ink-2); line-height: 1.8; }
-    .cp-titles { font-family: var(--font-serif); font-size: .82rem; line-height: 2.2; color: var(--ink); }
+    .cp-list {
+      max-height: 26rem;
+      overflow-y: auto;
+      padding-right: .6rem;
+      scrollbar-width: thin;
+      scrollbar-color: var(--mist) transparent;
+    }
+    .cp-list::-webkit-scrollbar { width: 3px; }
+    .cp-list::-webkit-scrollbar-thumb { background: var(--mist); }
     .cp-more { font-size: .72rem; color: var(--mist); }
     @media (max-width: 920px) {
       .chord-grid { grid-template-columns: 1fr; }
@@ -536,23 +544,29 @@
             '<div class="cp-title">' + c.replace('类', '') +
             '<i>' + (clusterTotals[c] || 0) + ' 首 · ' + Math.round((clusterTotals[c] || 0) / 90 * 100) + '%</i></div>' +
             '<p class="cp-desc">' + CLUSTER_DESC[c] + '</p>' +
-            '<p class="cp-sub">典 型 诗 歌</p>';
-          ps.slice(0, 3).forEach(function (p) {
+            '<p class="cp-sub">收 录 诗 歌</p>' +
+            '<div class="cp-list">';
+          ps.forEach(function (p) {
             html += '<div class="cp-poem"><b>《' + esc(p.title) + '》<span>' + esc(p.author) + '</span></b>' +
               '<p>' + esc(firstCouplet(p.text)) + '</p></div>';
           });
-          if (ps.length > 3) html += '<p class="cp-more">另有 ' + (ps.length - 3) + ' 首 ……</p>';
+          html += '</div>';
           panel.innerHTML = html;
         }
         function showPoet(name) {
           var p = poets[name];
+          var ps = Object.keys(poemInfo).map(function (k) { return poemInfo[k]; })
+            .filter(function (pi) { return pi.author === name; });
           var html = '<div class="cp-kicker">人 · 五十六家之一</div>' +
             '<div class="cp-title">' + esc(name) +
             '<i>' + p.total + ' 首 · 归于' + dominantCluster(p).replace('类', '') + '</i></div>' +
             '<p class="cp-sub">全 部 侠 诗</p>' +
-            '<div class="cp-titles">' +
-            p.titles.map(function (t) { return '《' + esc(t) + '》'; }).join('　') +
-            '</div>';
+            '<div class="cp-list">';
+          ps.forEach(function (pi) {
+            html += '<div class="cp-poem"><b>《' + esc(pi.title) + '》<span>' + esc(pi.cluster.replace('类', '')) + '</span></b>' +
+              '<p>' + esc(firstCouplet(pi.text)) + '</p></div>';
+          });
+          html += '</div>';
           panel.innerHTML = html;
         }
 
