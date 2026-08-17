@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="侠韵长存：画障二屏、八情群谱与五十六家共弦一圈——唐代咏侠诗的收卷处。" />
+  <meta name="description" content="侠韵长存：八情群谱点阵与五十六家共弦一圈——唐代咏侠诗的收卷处。" />
   <title>诗风侠影 · 终幕｜侠韵长存</title>
   <link rel="stylesheet" href="assets/css/common.css" />
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
@@ -91,58 +91,6 @@
     }
     .m-note { font-size: .72rem; color: var(--mist); line-height: 1.9; margin: 1rem 0 0; max-width: 56em; }
 
-    /* ---------- 画障 · 侠骨柔情 / 侠韵流殇 ---------- */
-    .byob {
-      display: grid;
-      grid-template-columns: 320px 1fr;
-      gap: clamp(2.5rem, 7vw, 6rem);
-      align-items: center;
-      margin: 6rem 0;
-    }
-    .byob.flip .byob-ink { order: 2; }
-    .byob-ink img {
-      display: block;
-      width: 100%;
-      max-height: 70vh;
-      object-fit: cover;
-      mix-blend-mode: multiply;
-    }
-    .byob-vertical {
-      display: flex;
-      flex-direction: column;
-      writing-mode: vertical-rl;
-      align-items: flex-start;
-      gap: 1.8rem;
-      height: 19rem;
-    }
-    .byob-calli { height: 12.5rem; width: auto; }
-    .byob-verse {
-      display: flex;
-      flex-direction: column;
-      gap: .9rem;
-      margin: 0;
-      font-family: var(--font-serif);
-      font-size: 1.12rem;
-      letter-spacing: .3em;
-      line-height: 2.2;
-      color: var(--ink);
-    }
-    .byob-src {
-      margin: 0;
-      font-size: .66rem;
-      letter-spacing: .2em;
-      color: var(--ink-2);
-    }
-    .byob-note {
-      margin: 1.6rem 0 0;
-      font-family: var(--font-serif);
-      font-size: .84rem;
-      line-height: 2.1;
-      color: var(--ink-2);
-      max-width: 24em;
-    }
-    .byob-note em { font-style: normal; color: var(--cinnabar); }
-
     /* ---------- 叁 · 数据与方法 ---------- */
     .method-grid {
       display: grid;
@@ -213,39 +161,15 @@
 
   <main class="stage">
 
-    <section class="byob" aria-label="画障 · 侠骨柔情">
-      <div class="byob-ink"><img src="image/侠骨柔情.jpg" alt="水墨画障：墨渍如岛，等高线如涟漪层层荡开" /></div>
-      <div>
-        <div class="byob-vertical">
-          <img class="byob-calli" src="image/侠骨柔情.svg" alt="侠骨柔情" />
-          <p class="byob-verse"><span>纵死侠骨香</span><span>不惭世上英</span></p>
-          <p class="byob-src">李白《侠客行》句</p>
-        </div>
-        <p class="byob-note">侠骨是对世道的硬，柔情是对人的软。五脉之中<em>抒怀最盛，三十二篇</em>——侠先有情，后有剑。</p>
-      </div>
-    </section>
-
     <section class="scene">
       <div class="scene-head"><span class="no">壹</span><h2>群情谱</h2></div>
-      <p class="scene-desc">九十首诗一列，八种心绪一行，点随情浓而涨。列顶色签记着每首诗所属的一脉；全谱最涨的那一点染朱——那是唐人提笔写侠时，心里最先涌起的东西。悬停任一点，可读其诗与其分。</p>
+      <p class="scene-desc">九十首诗一列，八种心绪一行，点随情浓而涨，一情一色。列顶色签记着每首诗所属的一脉；全谱最涨的那一点染朱——那是唐人提笔写侠时，心里最先涌起的东西。悬停任一点，可读其诗与其分。</p>
       <svg id="emotionSvg" role="img" aria-label="九十首诗与八种情感的点阵谱"></svg>
-    </section>
-
-    <section class="byob flip" aria-label="画障 · 侠韵流觞">
-      <div class="byob-ink"><img src="image/侠韵流殇.jpg" alt="水墨画障：年轮般的墨纹，如树桩横截面层层生长" /></div>
-      <div>
-        <div class="byob-vertical">
-          <img class="byob-calli" src="image/侠韵流殇.svg" alt="侠韵流觞" />
-          <p class="byob-verse"><span>四海重然诺</span><span>吾尝闻白眉</span></p>
-          <p class="byob-src">孟浩然《醉后赠马四》句</p>
-        </div>
-        <p class="byob-note">曲水流觞，杯到谁前谁赋诗。侠韵亦然——自初唐至晚唐，<em>五十六人递相传杯，一百三十年未曾断流</em>。韵，在流动中长存。</p>
-      </div>
     </section>
 
     <section class="scene">
       <div class="scene-head"><span class="no">贰</span><h2>弦歌不辍</h2></div>
-      <p class="scene-desc">左弦右册：环之一侧为五脉重彩，另一侧环列五十六位诗人，绢带自诗人横贯流入其脉，带宽即篇数。悬停任一弧线或名字，右册即展开——脉见其释义与典型诗，人见其全部侠诗。九十首，尽在此圈可读。</p>
+      <p class="scene-desc">左弦右册：环之一侧为五脉重彩，另一侧环列五十六位诗人，绢带自诗人横贯流入其脉，带宽即篇数。悬停任一弧线或名字，右册即展开——脉见其释义与所收诗，人见其全部侠诗。九十首，尽在此圈可读。</p>
       <div class="chord-grid">
         <div class="chord-wrap"><svg id="chordSvg" role="img" aria-label="五十六位诗人与五类侠义主题的弦图"></svg></div>
         <aside class="chord-panel" id="chordPanel" aria-live="polite"></aside>
@@ -359,6 +283,11 @@
 
         /* ---------- 壹 · 群情谱 ---------- */
         var DIMS = ['壮怀逸兴', '孤愤悲慨', '死生超然', '同袍之谊', '家国义愤', '功名热望', '功名幻灭', '苍茫孤寂'];
+        /* 一情一色：自河流图五脉色（松烟墨/淡墨/驼棕/绛棕/泥金）派生的暮色明度阶梯，朱砂仍只给全谱最高点 */
+        var DIM_COLORS = {
+          '壮怀逸兴': '#C9A06C', '孤愤悲慨': '#6B4A3A', '死生超然': '#6E6E66', '同袍之谊': '#8B6B4F',
+          '家国义愤': '#8C4A3C', '功名热望': '#B08D57', '功名幻灭': '#4E4A42', '苍茫孤寂': '#2B2B28'
+        };
 
         /* 诗 → 脉 / 原文 映射（去重口径与全站一致），供列顶色签与弦图右册取句 */
         var poemInfo = {};
@@ -430,8 +359,8 @@
           .attr('cx', function (d) { return EL + d.i * ECOL + ECOL / 2; })
           .attr('cy', function (d) { return ET + d.j * EROW + EROW / 2; })
           .attr('r', function (d) { return 1 + d.v * 1.05; })
-          .attr('fill', function (d) { return d.v >= maxScore ? '#B04A3A' : '#2B2B28'; })
-          .attr('fill-opacity', function (d) { return d.v >= maxScore ? .9 : .12 + d.v / 10 * .58; })
+          .attr('fill', function (d) { return d.v >= maxScore ? '#B04A3A' : DIM_COLORS[d.dim]; })
+          .attr('fill-opacity', function (d) { return d.v >= maxScore ? .9 : .16 + d.v / 10 * .6; })
           .on('mousemove', function (event, d) {
             d3.select(this).attr('stroke', '#B04A3A').attr('stroke-width', 1);
             var t = d.p.info ? d.p.info.title : d.p.row.title_cn;
@@ -455,7 +384,7 @@
           .attr('font-size', 13)
           .attr('letter-spacing', 3)
           .attr('font-family', FONT_SERIF)
-          .attr('fill', '#2B2B28')
+          .attr('fill', function (d) { return DIM_COLORS[d]; })
           .text(function (d) { return d; });
 
         /* ---------- 贰 · 弦歌不辍 ---------- */
