@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="侠韵长存：五十六位诗人与五类侠义主题的全景诗谱。" />
+  <meta name="description" content="侠韵长存：画障二屏、八情群谱与五十六家共弦一圈——唐代咏侠诗的收卷处。" />
   <title>诗风侠影 · 终幕｜侠韵长存</title>
   <link rel="stylesheet" href="assets/css/common.css" />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <style>
     .stage { width: min(1060px, calc(100% - 3rem)); margin: 0 auto; }
     .scene { margin-bottom: 4.5rem; }
@@ -46,9 +47,40 @@
       padding-top: 1.2em;
     }
 
-    /* ---------- 壹 · 五十六家诗谱 ---------- */
-    #rosterSvg { display: block; width: 100%; height: auto; overflow: visible; }
-    #rosterSvg text { user-select: none; }
+    /* ---------- 壹 · 群情谱 ---------- */
+    #emotionSvg { display: block; width: 100%; height: auto; overflow: visible; }
+    #emotionSvg circle { cursor: pointer; }
+
+    /* ---------- 贰 · 弦歌不辍 ---------- */
+    .chord-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: clamp(1.5rem, 4vw, 3rem);
+      align-items: start;
+    }
+    .chord-wrap { display: flex; justify-content: center; }
+    #chordSvg { width: 100%; max-width: 700px; height: auto; overflow: visible; }
+    #chordSvg text { user-select: none; }
+    .chord-poet, .chord-cluster { cursor: pointer; }
+    .chord-panel {
+      border-top: 2px solid var(--ink);
+      padding-top: .9rem;
+      min-height: 22rem;
+    }
+    .cp-kicker { font-family: var(--font-label); font-size: .62rem; letter-spacing: .3em; color: var(--ochre); }
+    .cp-title { font-family: var(--font-serif); font-size: 1.3rem; letter-spacing: .16em; color: var(--ink); margin: .45rem 0 .15rem; }
+    .cp-title i { font-style: normal; font-family: var(--font-label); font-size: .7rem; letter-spacing: .1em; color: var(--ink-2); margin-left: .7em; }
+    .cp-desc { font-size: .8rem; color: var(--ink-2); line-height: 1.9; margin: .35rem 0 .9rem; }
+    .cp-sub { font-size: .7rem; letter-spacing: .24em; color: var(--mist); margin: 0 0 .55rem; }
+    .cp-poem { border-left: 2px solid var(--mist); padding: .05rem 0 .05rem .75rem; margin-bottom: .75rem; }
+    .cp-poem b { display: block; font-family: var(--font-serif); font-weight: 400; font-size: .88rem; color: var(--ink); }
+    .cp-poem b span { font-size: .76rem; color: var(--ink-2); margin-left: .5em; }
+    .cp-poem p { margin: .12rem 0 0; font-size: .76rem; color: var(--ink-2); line-height: 1.8; }
+    .cp-titles { font-family: var(--font-serif); font-size: .82rem; line-height: 2.2; color: var(--ink); }
+    .cp-more { font-size: .72rem; color: var(--mist); }
+    @media (max-width: 920px) {
+      .chord-grid { grid-template-columns: 1fr; }
+    }
     .m-note { font-size: .72rem; color: var(--mist); line-height: 1.9; margin: 1rem 0 0; max-width: 56em; }
 
     /* ---------- 画障 · 侠骨柔情 / 侠韵流殇 ---------- */
@@ -76,13 +108,6 @@
       height: 19rem;
     }
     .byob-calli { height: 12.5rem; width: auto; }
-    .byob-title {
-      margin: 0;
-      font-family: var(--font-title);
-      font-size: 2.5rem;
-      letter-spacing: .18em;
-      color: var(--ink);
-    }
     .byob-verse {
       display: flex;
       flex-direction: column;
@@ -180,13 +205,6 @@
 
   <main class="stage">
 
-    <section class="scene">
-      <div class="scene-head"><span class="no">壹</span><h2>五十六家诗谱</h2></div>
-      <p class="scene-desc">五十六位书写者，按作品数排定座次。每一横列是一位诗人，色段即五脉——条长者兼跨数脉，格小者一生只留一首。榜单尽头的印谱方阵，是侠义书写的长尾。</p>
-      <svg id="rosterSvg" role="img" aria-label="五十六位诗人的咏侠诗数量与主题构成谱"></svg>
-      <p class="m-note">语料 · 以《全唐诗》系统收录的咏侠/侠义题材作品为样本，共 90 首主记录。另有 10 条异文重复收录已在审计中标记（duplicate），本页统计只计主记录。</p>
-    </section>
-
     <section class="byob" aria-label="画障 · 侠骨柔情">
       <div class="byob-ink"><img src="image/侠骨柔情.jpg" alt="水墨画障：墨渍如岛，等高线如涟漪层层荡开" /></div>
       <div>
@@ -199,21 +217,36 @@
       </div>
     </section>
 
-    <section class="byob flip" aria-label="画障 · 侠韵流殇">
+    <section class="scene">
+      <div class="scene-head"><span class="no">壹</span><h2>群情谱</h2></div>
+      <p class="scene-desc">九十首诗一列，八种心绪一行，点随情浓而涨。列顶色签记着每首诗所属的一脉；全谱最涨的那一点染朱——那是唐人提笔写侠时，心里最先涌起的东西。悬停任一点，可读其诗与其分。</p>
+      <svg id="emotionSvg" role="img" aria-label="九十首诗与八种情感的点阵谱"></svg>
+    </section>
+
+    <section class="byob flip" aria-label="画障 · 侠韵流觞">
       <div class="byob-ink"><img src="image/侠韵流殇.jpg" alt="水墨画障：年轮般的墨纹，如树桩横截面层层生长" /></div>
       <div>
         <div class="byob-vertical">
-          <!-- 旧版「侠韵流殇.svg」字形实为"流觞"，与本文"流殇"义不合，改排美术字 -->
-          <p class="byob-title">侠韵流殇</p>
-          <p class="byob-verse"><span>古城莽苍饶荆榛</span><span>驱马荒城愁杀人</span></p>
-          <p class="byob-src">高适《古大梁行》句</p>
+          <img class="byob-calli" src="image/侠韵流殇.svg" alt="侠韵流觞" />
+          <p class="byob-verse"><span>四海重然诺</span><span>吾尝闻白眉</span></p>
+          <p class="byob-src">孟浩然《醉后赠马四》句</p>
         </div>
-        <p class="byob-note">韵在纸上流传，殇在水中沉失。九十首之外，还有多少侠句连名字都没能留下——<em>流传与散佚，各是这卷书的一半</em>。</p>
+        <p class="byob-note">曲水流觞，杯到谁前谁赋诗。侠韵亦然——自初唐至晚唐，<em>五十六人递相传杯，一百三十年未曾断流</em>。韵，在流动中长存。</p>
       </div>
     </section>
 
     <section class="scene">
-      <div class="scene-head"><span class="no">贰</span><h2>数据与方法</h2></div>
+      <div class="scene-head"><span class="no">贰</span><h2>弦歌不辍</h2></div>
+      <p class="scene-desc">左弦右册：环之一侧为五脉重彩，另一侧环列五十六位诗人，绢带自诗人横贯流入其脉，带宽即篇数。悬停任一弧线或名字，右册即展开——脉见其释义与典型诗，人见其全部侠诗。九十首，尽在此圈可读。</p>
+      <div class="chord-grid">
+        <div class="chord-wrap"><svg id="chordSvg" role="img" aria-label="五十六位诗人与五类侠义主题的弦图"></svg></div>
+        <aside class="chord-panel" id="chordPanel" aria-live="polite"></aside>
+      </div>
+      <p class="m-note">语料 · 以《全唐诗》系统收录的咏侠/侠义题材作品为样本，共 90 首主记录。另有 10 条异文重复收录已在审计中标记（duplicate），弦宽只计主记录。</p>
+    </section>
+
+    <section class="scene">
+      <div class="scene-head"><span class="no">叁</span><h2>数据与方法</h2></div>
       <div class="method-grid">
         <div class="method">
           <h4>语 料</h4>
@@ -256,20 +289,7 @@
         '边塞报国类': '#6B4A3A', '市井任侠类': '#C9A06C'
       };
 
-      var NS = 'http://www.w3.org/2000/svg';
       var FONT_SERIF = '"Noto Serif SC","Songti SC",serif';
-      var FONT_LABEL = '"EB Garamond","Noto Serif SC",serif';
-
-      function el(tag, attrs, parent) {
-        var node = document.createElementNS(NS, tag);
-        Object.keys(attrs || {}).forEach(function (k) { node.setAttribute(k, attrs[k]); });
-        if (parent) parent.appendChild(node);
-        return node;
-      }
-      function tipOn(node, html) {
-        node.addEventListener('mousemove', function (e) { XIA.tip.show(html, e.clientX, e.clientY); });
-        node.addEventListener('mouseleave', function () { XIA.tip.hide(); });
-      }
 
       /* 引号感知的 CSV 解析（诗歌原文含逗号，简易切分不可用） */
       function parseCSVSafe(text) {
@@ -300,10 +320,17 @@
         });
       }
 
-      fetch('data/poetry_with_detailed_clusters_sankey.csv')
-        .then(function (r) { if (!r.ok) throw new Error('CSV 加载失败'); return r.text(); })
-        .then(function (text) {
-        var rows = parseCSVSafe(text);
+      function fetchText(url) {
+        return fetch(url).then(function (r) { if (!r.ok) throw new Error(url + ' 加载失败'); return r.text(); });
+      }
+
+      Promise.all([
+        fetchText('data/poetry_with_detailed_clusters_sankey.csv'),
+        fetchText('data/emotion_scores.csv')
+      ]).then(function (texts) {
+        var rows = parseCSVSafe(texts[0]);
+        var emotionRows = parseCSVSafe(texts[1]);
+
         /* 去重：同一作者同一诗名（含异文）只计一次 */
         var seen = {};
         var poets = {};
@@ -313,109 +340,289 @@
           var key = r['作者'] + '|' + title;
           if (seen[key]) return;
           seen[key] = true;
-          var a = r['作者'];
-          poets[a] = poets[a] || { total: 0, first: title };
-          poets[a][r['聚类类别']] = (poets[a][r['聚类类别']] || 0) + 1;
+          var a = r['作者'], c = r['聚类类别'];
+          if (!poets[a]) poets[a] = { total: 0, titles: [] };
+          poets[a][c] = (poets[a][c] || 0) + 1;
           poets[a].total += 1;
-          clusterTotals[r['聚类类别']] = (clusterTotals[r['聚类类别']] || 0) + 1;
+          poets[a].titles.push(title);
+          clusterTotals[c] = (clusterTotals[c] || 0) + 1;
+        });
+        var names = Object.keys(poets);
+
+        /* ---------- 壹 · 群情谱 ---------- */
+        var DIMS = ['壮怀逸兴', '孤愤悲慨', '死生超然', '同袍之谊', '家国义愤', '功名热望', '功名幻灭', '苍茫孤寂'];
+
+        /* 诗 → 脉 / 原文 映射（去重口径与全站一致），供列顶色签与弦图右册取句 */
+        var poemInfo = {};
+        rows.forEach(function (r) {
+          var t = r['诗歌名'].replace(/^\S*(?:歌辞|曲辞|古题序)\s/, '');
+          var k = r['作者'] + '|' + t;
+          if (!poemInfo[k]) poemInfo[k] = { author: r['作者'], title: t, cluster: r['聚类类别'], text: r['诗歌原文'] || '' };
         });
 
-        var names = Object.keys(poets).sort(function (a, b) {
-          return poets[b].total - poets[a].total || (a < b ? -1 : 1);
-        });
-        var mains = names.filter(function (n) { return poets[n].total >= 2; });
-        var tails = names.filter(function (n) { return poets[n].total === 1; });
-
-        /* ---------- 壹 · 诗谱 ---------- */
-        var W = 1000, X0 = 132, PXW = 44, ROW_H = 32, BAR_H = 11;
-        var legendY = 22, rowsY = 58;
-        var dividerY = rowsY + mains.length * ROW_H + 34;
-        var SQ = 13, GAP = 8, PITCH = SQ + GAP;
-        var tailX0 = X0, tailY0 = dividerY + 40;
-        var perRow = Math.max(8, Math.floor((W - tailX0 - 8) / PITCH));
-        var tailRows = Math.ceil(tails.length / perRow);
-        var H = tailY0 + tailRows * PITCH + 16;
-
-        var svg = document.getElementById('rosterSvg');
-        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
-
-        /* 题跋式图例：五脉色块 + 篇数 */
-        var lx = X0;
-        CLUSTERS.forEach(function (c) {
-          el('rect', { x: lx, y: legendY - 9, width: 10, height: 10, rx: 2, fill: CLUSTER_COLORS[c] }, svg);
-          var t = el('text', {
-            x: lx + 16, y: legendY,
-            'font-size': 11.5, 'font-family': FONT_SERIF,
-            fill: '#6E6E66', 'letter-spacing': 1
-          }, svg);
-          t.textContent = c.replace('类', '') + ' · ' + (clusterTotals[c] || 0);
-          lx += 16 + (c.length - 1) * 12.5 + 34 + 34;
+        /* 列序：五脉为经，脉内诗人以作品数降序，诗随其人 */
+        var rank = {};
+        names.slice().sort(function (a, b) { return poets[b].total - poets[a].total; })
+          .forEach(function (n, i) { rank[n] = i; });
+        function eKey(r) {
+          return r.author + '|' + r.title_cn.replace(/^\S*(?:歌辞|曲辞|古题序)\s/, '');
+        }
+        var ePoems = emotionRows.map(function (r) {
+          return { row: r, info: poemInfo[eKey(r)] || null };
+        }).sort(function (a, b) {
+          var ca = a.info ? CLUSTERS.indexOf(a.info.cluster) : CLUSTERS.length;
+          var cb = b.info ? CLUSTERS.indexOf(b.info.cluster) : CLUSTERS.length;
+          if (ca !== cb) return ca - cb;
+          var ra = a.info && rank[a.info.author] != null ? rank[a.info.author] : 999;
+          var rb = b.info && rank[b.info.author] != null ? rank[b.info.author] : 999;
+          return ra - rb;
         });
 
-        /* 主榜：二首及以上的诗人，横列堆叠 */
-        var maxTotal = poets[mains[0]].total;
-        mains.forEach(function (name, i) {
-          var p = poets[name];
-          var y = rowsY + i * ROW_H;
-          var isTop = p.total === maxTotal;
-          var nt = el('text', {
-            x: X0 - 14, y: y + BAR_H - 1, 'text-anchor': 'end',
-            'font-size': p.total >= 5 ? 14 : 12.5,
-            'font-family': FONT_SERIF,
-            'font-weight': p.total >= 5 ? 500 : 400,
-            fill: isTop ? '#B04A3A' : '#2B2B28',
-            'letter-spacing': 2
-          }, svg);
-          nt.textContent = name;
+        /* 全谱最高分染朱 */
+        var maxScore = 0;
+        ePoems.forEach(function (p) {
+          DIMS.forEach(function (d) {
+            var v = parseFloat(p.row[d]) || 0;
+            if (v > maxScore) maxScore = v;
+          });
+        });
 
-          var bx = X0;
-          CLUSTERS.forEach(function (c) {
-            var n = p[c] || 0;
-            if (!n) return;
-            var rect = el('rect', {
-              x: bx, y: y, width: n * PXW - 1.5, height: BAR_H,
-              fill: CLUSTER_COLORS[c]
-            }, svg);
-            tipOn(rect, '<div class="tip-title">' + name + '</div><div class="tip-meta">' +
-              c.replace('类', '') + ' · ' + n + ' 首 ｜ 共 ' + p.total + ' 首</div>');
-            bx += n * PXW;
+        var EW = 1060, EL = 8, ER = 132, ET = 26, EROW = 34;
+        var ECOL = (EW - EL - ER) / ePoems.length;
+        var EH = ET + DIMS.length * EROW + 6;
+        var esvg = d3.select('#emotionSvg').attr('viewBox', '0 0 ' + EW + ' ' + EH);
+
+        /* 列顶脉色小签 */
+        esvg.append('g').selectAll('rect')
+          .data(ePoems).join('rect')
+          .attr('x', function (d, i) { return EL + i * ECOL + ECOL * .2; })
+          .attr('y', 8)
+          .attr('width', ECOL * .6)
+          .attr('height', 4)
+          .attr('fill', function (d) { return d.info ? CLUSTER_COLORS[d.info.cluster] : '#C9C7BC'; });
+
+        /* 行距轻线 */
+        esvg.append('g').selectAll('line')
+          .data(DIMS).join('line')
+          .attr('x1', EL).attr('x2', EW - ER)
+          .attr('y1', function (d, j) { return ET + (j + 1) * EROW; })
+          .attr('y2', function (d, j) { return ET + (j + 1) * EROW; })
+          .attr('stroke', 'rgba(43,43,40,.07)');
+
+        /* 点阵：点随情浓而涨 */
+        var dots = [];
+        ePoems.forEach(function (p, i) {
+          DIMS.forEach(function (dim, j) {
+            var v = parseFloat(p.row[dim]) || 0;
+            if (v > 0) dots.push({ p: p, i: i, j: j, dim: dim, v: v });
+          });
+        });
+        esvg.append('g').selectAll('circle')
+          .data(dots).join('circle')
+          .attr('cx', function (d) { return EL + d.i * ECOL + ECOL / 2; })
+          .attr('cy', function (d) { return ET + d.j * EROW + EROW / 2; })
+          .attr('r', function (d) { return 1 + d.v * 1.05; })
+          .attr('fill', function (d) { return d.v >= maxScore ? '#B04A3A' : '#2B2B28'; })
+          .attr('fill-opacity', function (d) { return d.v >= maxScore ? .9 : .12 + d.v / 10 * .58; })
+          .on('mousemove', function (event, d) {
+            d3.select(this).attr('stroke', '#B04A3A').attr('stroke-width', 1);
+            var t = d.p.info ? d.p.info.title : d.p.row.title_cn;
+            var a = d.p.info ? d.p.info.author : d.p.row.author;
+            XIA.tip.show(
+              '<div class="tip-title">' + a + '《' + t + '》</div>' +
+              '<div class="tip-meta">' + d.dim + ' · ' + d.v + ' 分</div>',
+              event.clientX, event.clientY);
+          })
+          .on('mouseleave', function () {
+            d3.select(this).attr('stroke', null);
+            XIA.tip.hide();
           });
 
-          var ct = el('text', {
-            x: bx + 10, y: y + BAR_H - 1,
-            'font-size': 12.5, 'font-family': FONT_LABEL,
-            fill: isTop ? '#B04A3A' : '#6E6E66'
-          }, svg);
-          ct.textContent = p.total;
+        /* 行名居右 */
+        esvg.append('g').selectAll('text')
+          .data(DIMS).join('text')
+          .attr('x', EW - ER + 16)
+          .attr('y', function (d, j) { return ET + j * EROW + EROW / 2; })
+          .attr('dy', '.35em')
+          .attr('font-size', 13)
+          .attr('letter-spacing', 3)
+          .attr('font-family', FONT_SERIF)
+          .attr('fill', '#2B2B28')
+          .text(function (d) { return d; });
+
+        /* ---------- 贰 · 弦歌不辍 ---------- */
+        /* 环分两界：五脉据一侧，五十六家据另一侧，绢带横贯如弦 */
+        function dominantCluster(p) {
+          var best = CLUSTERS[0], bn = -1;
+          CLUSTERS.forEach(function (c) { if ((p[c] || 0) > bn) { bn = p[c]; best = c; } });
+          return best;
+        }
+        var entities = CLUSTERS.map(function (c) { return { kind: 'cluster', name: c }; });
+        CLUSTERS.forEach(function (c) {
+          names
+            .filter(function (n) { return dominantCluster(poets[n]) === c; })
+            .sort(function (a, b) { return poets[b].total - poets[a].total; })
+            .forEach(function (n) { entities.push({ kind: 'poet', name: n }); });
+        });
+        var idx = {};
+        entities.forEach(function (e, i) { idx[e.kind + '|' + e.name] = i; });
+        var N = entities.length;
+        var matrix = [];
+        for (var mi = 0; mi < N; mi++) matrix.push(new Array(N).fill(0));
+        names.forEach(function (n) {
+          var pi = idx['poet|' + n];
+          CLUSTERS.forEach(function (c) {
+            var v = poets[n][c] || 0;
+            if (!v) return;
+            var ci = idx['cluster|' + c];
+            matrix[pi][ci] = v;
+            matrix[ci][pi] = v;
+          });
         });
 
-        /* 分卷线 */
-        el('line', {
-          x1: 0, x2: W, y1: dividerY, y2: dividerY,
-          stroke: '#C9C7BC', 'stroke-width': .8, 'stroke-dasharray': '2 7'
-        }, svg);
-        var dt = el('text', {
-          x: X0, y: dividerY + 22,
-          'font-size': 11.5, 'font-family': FONT_SERIF,
-          fill: '#6E6E66', 'letter-spacing': 3
-        }, svg);
-        dt.textContent = '其后 ' + tails.length + ' 家 · 各留一首 · 一人一印';
+        var chords = d3.chord()
+          .padAngle(0.006)
+          .sortGroups(null).sortSubgroups(null).sortChords(null)(matrix);
+        chords.forEach(function (ch) {
+          var ea = entities[ch.source.index];
+          ch.poetIdx = ea.kind === 'poet' ? ch.source.index : ch.target.index;
+          ch.clusterIdx = ea.kind === 'cluster' ? ch.source.index : ch.target.index;
+        });
+        chords.groups.forEach(function (gr) { gr.entity = entities[gr.index]; });
 
-        /* 印谱长尾：一人一格，色即其脉 */
-        tails.forEach(function (name, i) {
+        var SIZE = 1000, C = SIZE / 2, RIB = 320;
+        var svg = d3.select('#chordSvg').attr('viewBox', '0 0 ' + SIZE + ' ' + SIZE);
+        var g = svg.append('g').attr('transform', 'translate(' + C + ',' + C + ')');
+
+        /* 绢带：色随其脉 */
+        var ribbons = g.append('g').selectAll('path')
+          .data(chords).join('path')
+          .attr('d', d3.ribbon().radius(RIB))
+          .attr('fill', function (d) { return CLUSTER_COLORS[entities[d.clusterIdx].name]; })
+          .attr('fill-opacity', .22);
+
+        /* 外环：诗人细弧 + 五脉重彩 */
+        var poetGroups = g.append('g').selectAll('path')
+          .data(chords.groups.filter(function (gr) { return gr.entity.kind === 'poet'; }))
+          .join('path')
+          .attr('class', 'chord-poet')
+          .attr('d', d3.arc().innerRadius(328).outerRadius(337))
+          .attr('fill', '#C9C7BC');
+        var clusterGroups = g.append('g').selectAll('path')
+          .data(chords.groups.filter(function (gr) { return gr.entity.kind === 'cluster'; }))
+          .join('path')
+          .attr('class', 'chord-cluster')
+          .attr('d', d3.arc().innerRadius(326).outerRadius(348))
+          .attr('fill', function (gr) { return CLUSTER_COLORS[gr.entity.name]; });
+
+        /* 右册：脉见其义与典型诗，人见其全部侠诗 */
+        var panel = document.getElementById('chordPanel');
+        var CLUSTER_DESC = {
+          '侠义抒怀类': '表达侠义精神和个人情怀，体现诗人对侠客品格的向往和赞美。',
+          '隐逸怀古类': '表达隐逸思想和怀古情怀，体现诗人对古代贤士的追慕。',
+          '豪侠交游类': '描写豪侠人物的交游活动，展现侠客精神和友谊情怀的诗歌。',
+          '边塞报国类': '以边塞为幕、以报国为志，写投笔从戎与建功立业的壮怀。',
+          '市井任侠类': '描写市井中的侠客生活，反映民间侠义文化和社会风貌。'
+        };
+        function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+        function firstCouplet(text) {
+          var parts = text.split(/[。！？]/).filter(function (s) { return s.trim(); });
+          return parts.length ? parts.slice(0, 2).join('，') + '。' : '';
+        }
+        function showCluster(c) {
+          var ps = Object.keys(poemInfo).map(function (k) { return poemInfo[k]; })
+            .filter(function (p) { return p.cluster === c; });
+          var html = '<div class="cp-kicker">脉 · 五脉之一</div>' +
+            '<div class="cp-title">' + c.replace('类', '') +
+            '<i>' + (clusterTotals[c] || 0) + ' 首 · ' + Math.round((clusterTotals[c] || 0) / 90 * 100) + '%</i></div>' +
+            '<p class="cp-desc">' + CLUSTER_DESC[c] + '</p>' +
+            '<p class="cp-sub">典 型 诗 歌</p>';
+          ps.slice(0, 3).forEach(function (p) {
+            html += '<div class="cp-poem"><b>《' + esc(p.title) + '》<span>' + esc(p.author) + '</span></b>' +
+              '<p>' + esc(firstCouplet(p.text)) + '</p></div>';
+          });
+          if (ps.length > 3) html += '<p class="cp-more">另有 ' + (ps.length - 3) + ' 首 ……</p>';
+          panel.innerHTML = html;
+        }
+        function showPoet(name) {
           var p = poets[name];
-          var cluster = CLUSTERS.filter(function (c) { return p[c]; })[0] || CLUSTERS[0];
-          var gx = tailX0 + (i % perRow) * PITCH;
-          var gy = tailY0 + Math.floor(i / perRow) * PITCH;
-          var sq = el('rect', {
-            x: gx, y: gy, width: SQ, height: SQ, rx: 2,
-            fill: CLUSTER_COLORS[cluster], 'fill-opacity': .82
-          }, svg);
-          var title = el('title', {}, sq);
-          title.textContent = name + '《' + p.first + '》 · ' + cluster.replace('类', '');
-          tipOn(sq, '<div class="tip-title">' + name + '</div><div class="tip-meta">《' +
-            p.first + '》 · ' + cluster.replace('类', '') + '</div>');
+          var html = '<div class="cp-kicker">人 · 五十六家之一</div>' +
+            '<div class="cp-title">' + esc(name) +
+            '<i>' + p.total + ' 首 · 归于' + dominantCluster(p).replace('类', '') + '</i></div>' +
+            '<p class="cp-sub">全 部 侠 诗</p>' +
+            '<div class="cp-titles">' +
+            p.titles.map(function (t) { return '《' + esc(t) + '》'; }).join('　') +
+            '</div>';
+          panel.innerHTML = html;
+        }
+
+        function resetChord() {
+          ribbons.attr('fill-opacity', .22);
+          poetGroups.attr('fill', '#C9C7BC');
+        }
+        function hoverPoet(event, gr) {
+          ribbons.attr('fill-opacity', function (d) { return d.poetIdx === gr.index ? .8 : .05; });
+          poetGroups.attr('fill', function (g2) { return g2.index === gr.index ? '#B04A3A' : '#C9C7BC'; });
+          showPoet(gr.entity.name);
+        }
+        function hoverCluster(event, gr) {
+          ribbons.attr('fill-opacity', function (d) { return d.clusterIdx === gr.index ? .65 : .05; });
+          showCluster(gr.entity.name);
+        }
+        poetGroups.on('mousemove', hoverPoet).on('mouseleave', resetChord);
+        clusterGroups.on('mousemove', hoverCluster).on('mouseleave', resetChord);
+        showCluster('侠义抒怀类');
+
+        /* 放射标注：脉名在外，二首以上的诗人具名 */
+        function radialTransform(d, r) {
+          var a = (d.startAngle + d.endAngle) / 2;
+          var deg = a * 180 / Math.PI - 90;
+          return 'rotate(' + deg + ')translate(' + r + ',0)' + (a > Math.PI ? 'rotate(180)' : '');
+        }
+        function radialAnchor(d) {
+          return ((d.startAngle + d.endAngle) / 2) > Math.PI ? 'end' : 'start';
+        }
+        var poetLabelData = chords.groups.filter(function (gr) {
+          return gr.entity.kind === 'poet' && poets[gr.entity.name].total >= 2;
         });
+        g.append('g').selectAll('text')
+          .data(poetLabelData).join('text')
+          .attr('class', 'chord-poet')
+          .attr('transform', function (d) { return radialTransform(d, 356); })
+          .attr('text-anchor', radialAnchor)
+          .attr('dx', function (d) { return radialAnchor(d) === 'end' ? -6 : 6; })
+          .attr('dy', '.32em')
+          .attr('font-size', 12)
+          .attr('font-family', FONT_SERIF)
+          .attr('fill', '#2B2B28')
+          .text(function (d) { return d.entity.name; })
+          .on('mousemove', hoverPoet).on('mouseleave', resetChord);
+        g.append('g').selectAll('text')
+          .data(chords.groups.filter(function (gr) { return gr.entity.kind === 'cluster'; }))
+          .join('text')
+          .attr('transform', function (d) { return radialTransform(d, 380); })
+          .attr('text-anchor', radialAnchor)
+          .attr('dx', function (d) { return radialAnchor(d) === 'end' ? -8 : 8; })
+          .attr('dy', '.32em')
+          .attr('font-size', 14)
+          .attr('letter-spacing', 2)
+          .attr('font-family', FONT_SERIF)
+          .attr('fill', '#2B2B28')
+          .attr('pointer-events', 'none')
+          .text(function (d) { return d.entity.name.replace('类', '') + ' · ' + (clusterTotals[d.entity.name] || 0); });
+
+        /* 圆心：纸色团扇压住绢带，泥金描边 */
+        g.append('circle').attr('r', 92).attr('fill', '#F5F2EA').attr('fill-opacity', .88);
+        g.append('circle').attr('r', 92).attr('fill', 'none')
+          .attr('stroke', '#C9A06C').attr('stroke-opacity', .55).attr('stroke-width', 1.2);
+        g.append('text').attr('y', -6).attr('text-anchor', 'middle')
+          .attr('font-size', 30).attr('font-family', FONT_SERIF).attr('fill', '#2B2B28')
+          .attr('letter-spacing', 4)
+          .text('九十首');
+        g.append('text').attr('y', 26).attr('text-anchor', 'middle')
+          .attr('font-size', 12).attr('font-family', FONT_SERIF).attr('fill', '#6E6E66')
+          .attr('letter-spacing', 3)
+          .text('五十六家 · 五脉');
       }).catch(function (e) {
         document.querySelector('.stage').innerHTML = '<p class="shared-error">数据未能展开：' + e.message + '</p>';
       });
