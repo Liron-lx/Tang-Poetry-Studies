@@ -3,26 +3,134 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="侠韵长存：五十六位诗人与五类侠义主题的全景矩阵。" />
+  <meta name="description" content="侠韵长存：五十六位诗人与五类侠义主题的全景诗谱。" />
   <title>诗风侠影 · 终幕｜侠韵长存</title>
   <link rel="stylesheet" href="assets/css/common.css" />
-  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
   <style>
     .stage { width: min(1060px, calc(100% - 3rem)); margin: 0 auto; }
     .scene { margin-bottom: 4.5rem; }
     .scene-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: .4rem; }
     .scene-head .no { font-family: var(--font-label); font-size: .7rem; letter-spacing: .3em; color: var(--ochre); }
     .scene-head h2 { font-family: var(--font-title); font-weight: 400; font-size: 1.7rem; letter-spacing: .2em; margin: 0; }
-    .scene-desc { color: var(--ink-2); font-size: .85rem; max-width: 46em; margin: .3rem 0 1.6rem; line-height: 1.9; }
+    .scene-desc { color: var(--ink-2); font-size: .85rem; max-width: 46em; margin: .3rem 0 1.8rem; line-height: 1.9; }
 
-    #matrixChart { width: 100%; height: 980px; }
-    #stackChart { width: 100%; height: 420px; }
+    /* ---------- 收卷图 · 戏眼 ---------- */
+    .hero {
+      position: relative;
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto 4.5rem;
+    }
+    .hero img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid rgba(43, 43, 40, .14);
+    }
+    .hero figcaption {
+      position: absolute;
+      top: 8%;
+      left: 5%;
+      display: flex;
+      flex-direction: column;
+      writing-mode: vertical-rl;
+      font-family: var(--font-serif);
+      font-size: clamp(.95rem, 1.5vw, 1.2rem);
+      letter-spacing: .32em;
+      line-height: 2.3;
+      color: var(--ink);
+    }
+    .hero figcaption .h-src {
+      font-size: .62em;
+      letter-spacing: .18em;
+      color: var(--ink-2);
+      padding-top: 1.2em;
+    }
 
-    /* 图注 · 方法说明（小字淡色） */
+    /* ---------- 壹 · 五十六家诗谱 ---------- */
+    #rosterSvg { display: block; width: 100%; height: auto; overflow: visible; }
+    #rosterSvg text { user-select: none; }
     .m-note { font-size: .72rem; color: var(--mist); line-height: 1.9; margin: 1rem 0 0; max-width: 56em; }
 
-    /* 尾声 */
-    .finale { text-align: center; padding: 4rem 0 5rem; }
+    /* ---------- 画障 · 侠骨柔情 / 侠韵流殇 ---------- */
+    .byob {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: clamp(2.5rem, 7vw, 6rem);
+      align-items: center;
+      margin: 6rem 0;
+    }
+    .byob.flip .byob-ink { order: 2; }
+    .byob-ink img {
+      display: block;
+      width: 100%;
+      max-height: 70vh;
+      object-fit: cover;
+      mix-blend-mode: multiply;
+    }
+    .byob-vertical {
+      display: flex;
+      flex-direction: column;
+      writing-mode: vertical-rl;
+      align-items: flex-start;
+      gap: 1.8rem;
+      height: 19rem;
+    }
+    .byob-calli { height: 12.5rem; width: auto; }
+    .byob-title {
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: 2.5rem;
+      letter-spacing: .18em;
+      color: var(--ink);
+    }
+    .byob-verse {
+      display: flex;
+      flex-direction: column;
+      gap: .9rem;
+      margin: 0;
+      font-family: var(--font-serif);
+      font-size: 1.12rem;
+      letter-spacing: .3em;
+      line-height: 2.2;
+      color: var(--ink);
+    }
+    .byob-src {
+      margin: 0;
+      font-size: .66rem;
+      letter-spacing: .2em;
+      color: var(--ink-2);
+    }
+    .byob-note {
+      margin: 1.6rem 0 0;
+      font-family: var(--font-serif);
+      font-size: .84rem;
+      line-height: 2.1;
+      color: var(--ink-2);
+      max-width: 24em;
+    }
+    .byob-note em { font-style: normal; color: var(--cinnabar); }
+
+    /* ---------- 叁 · 数据与方法 ---------- */
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.8rem;
+      border-top: 1px solid rgba(43, 43, 40, .16);
+      padding-top: 1.6rem;
+    }
+    .method h4 {
+      font-family: var(--font-label); font-weight: 400;
+      font-size: .68rem; letter-spacing: .3em; color: var(--ochre);
+      margin: 0 0 .6rem;
+    }
+    .method p {
+      font-family: var(--font-serif); font-size: .8rem; line-height: 1.95;
+      color: var(--ink-2); margin: 0;
+    }
+    .method p b { color: var(--ink); font-weight: 500; }
+
+    /* ---------- 尾声 ---------- */
+    .finale { text-align: center; padding: 4rem 0 5rem; border-top: 1px solid rgba(43, 43, 40, .15); }
     .finale .f-poem {
       font-family: var(--font-serif); font-size: 1.05rem; letter-spacing: .15em;
       line-height: 2.4; color: var(--ink-2); margin-bottom: 1.6rem;
@@ -36,7 +144,22 @@
     }
     .finale .f-back:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
 
-    @media (max-width: 760px) { #matrixChart { height: 860px; } }
+    @media (max-width: 900px) {
+      .method-grid { grid-template-columns: repeat(2, 1fr); }
+      .byob { grid-template-columns: 240px 1fr; gap: 2.5rem; }
+    }
+    @media (max-width: 640px) {
+      .hero figcaption {
+        position: static; display: block; writing-mode: horizontal-tb;
+        margin-top: .8rem; letter-spacing: .12em;
+      }
+      .hero figcaption .h-src { display: block; margin-top: .2rem; padding-top: 0; }
+      .method-grid { grid-template-columns: 1fr; }
+      .byob { grid-template-columns: 1fr; margin: 4rem 0; }
+      .byob.flip .byob-ink { order: 0; }
+      .byob-ink img { max-height: 34vh; }
+      .byob-vertical { height: 16rem; }
+    }
   </style>
 </head>
 <body data-chapter="cun" data-seal="存">
@@ -50,19 +173,65 @@
     <p class="act-question">九十首诗，五种侠气，五十六位书写者——它们如何构成一个整体？</p>
   </header>
 
+  <figure class="hero">
+    <img src="image/finale-shoujuan.png" alt="收卷图：泥金落日半隐于远山，负剑侠客独立于长河之畔，雁阵南飞" />
+    <figcaption><span>事了拂衣去</span><span>深藏身与名</span><span class="h-src">李白《侠客行》句</span></figcaption>
+  </figure>
+
   <main class="stage">
 
     <section class="scene">
-      <div class="scene-head"><span class="no">壹</span><h2>诗人 × 主题 矩阵</h2></div>
-      <p class="scene-desc">行是五十六位诗人（按作品数排序），列是五类侠义主题。色阶由宣纸白入石绿再入黛蓝，越深作品越集中。王维十首、李白六首，是矩阵中最深的两格。</p>
-      <div id="matrixChart"></div>
-      <p class="m-note">语料 · 以《全唐诗》系统收录的咏侠/侠义题材作品为样本，共 90 首主记录，含五类主题：侠义抒怀 32、隐逸怀古 27、豪侠交游 19、边塞报国 8、市井任侠 4。另有 10 条异文重复收录已在审计中标记（duplicate），本页统计只计主记录。</p>
+      <div class="scene-head"><span class="no">壹</span><h2>五十六家诗谱</h2></div>
+      <p class="scene-desc">五十六位书写者，按作品数排定座次。每一横列是一位诗人，色段即五脉——条长者兼跨数脉，格小者一生只留一首。榜单尽头的印谱方阵，是侠义书写的长尾。</p>
+      <svg id="rosterSvg" role="img" aria-label="五十六位诗人的咏侠诗数量与主题构成谱"></svg>
+      <p class="m-note">语料 · 以《全唐诗》系统收录的咏侠/侠义题材作品为样本，共 90 首主记录。另有 10 条异文重复收录已在审计中标记（duplicate），本页统计只计主记录。</p>
+    </section>
+
+    <section class="byob" aria-label="画障 · 侠骨柔情">
+      <div class="byob-ink"><img src="image/侠骨柔情.jpg" alt="水墨画障：墨渍如岛，等高线如涟漪层层荡开" /></div>
+      <div>
+        <div class="byob-vertical">
+          <img class="byob-calli" src="image/侠骨柔情.svg" alt="侠骨柔情" />
+          <p class="byob-verse"><span>纵死侠骨香</span><span>不惭世上英</span></p>
+          <p class="byob-src">李白《侠客行》句</p>
+        </div>
+        <p class="byob-note">侠骨是对世道的硬，柔情是对人的软。五脉之中<em>抒怀最盛，三十二篇</em>——侠先有情，后有剑。</p>
+      </div>
+    </section>
+
+    <section class="byob flip" aria-label="画障 · 侠韵流殇">
+      <div class="byob-ink"><img src="image/侠韵流殇.jpg" alt="水墨画障：年轮般的墨纹，如树桩横截面层层生长" /></div>
+      <div>
+        <div class="byob-vertical">
+          <!-- 旧版「侠韵流殇.svg」字形实为"流觞"，与本文"流殇"义不合，改排美术字 -->
+          <p class="byob-title">侠韵流殇</p>
+          <p class="byob-verse"><span>古城莽苍饶荆榛</span><span>驱马荒城愁杀人</span></p>
+          <p class="byob-src">高适《古大梁行》句</p>
+        </div>
+        <p class="byob-note">韵在纸上流传，殇在水中沉失。九十首之外，还有多少侠句连名字都没能留下——<em>流传与散佚，各是这卷书的一半</em>。</p>
+      </div>
     </section>
 
     <section class="scene">
-      <div class="scene-head"><span class="no">贰</span><h2>十二家主笔</h2></div>
-      <p class="scene-desc">作品数最多的十二位诗人，及其笔下的主题构成。堆叠的长度即作品数，色块即五脉。</p>
-      <div id="stackChart"></div>
+      <div class="scene-head"><span class="no">贰</span><h2>数据与方法</h2></div>
+      <div class="method-grid">
+        <div class="method">
+          <h4>语 料</h4>
+          <p>《全唐诗》系统所收咏侠、侠义题材作品，主记录 <b>90 首</b>，出自 <b>56 位</b>诗人。</p>
+        </div>
+        <div class="method">
+          <h4>去 重</h4>
+          <p>异文重复收录 <b>10 条</b>，已在审计中标记；全站统计只计主记录，不重复计数。</p>
+        </div>
+        <div class="method">
+          <h4>系 年</h4>
+          <p><b>30 首</b>为作品级系年，<b>40 首</b>依作者行年推定，<b>20 首</b>待考——不虚构年份。</p>
+        </div>
+        <div class="method">
+          <h4>归 类</h4>
+          <p>五脉主题按题材语义聚类归并；一诗一脉，取其主要气息，边界篇目人工复核。</p>
+        </div>
+      </div>
     </section>
 
     <div class="finale">
@@ -80,110 +249,172 @@
     (function () {
       "use strict";
 
+      /* 五脉固定配色（视觉规范 v2 · 暮色版画），按篇数降序排列 */
       var CLUSTERS = ['侠义抒怀类', '隐逸怀古类', '豪侠交游类', '边塞报国类', '市井任侠类'];
       var CLUSTER_COLORS = {
         '侠义抒怀类': '#2B2B28', '隐逸怀古类': '#6E6E66', '豪侠交游类': '#8B6B4F',
         '边塞报国类': '#6B4A3A', '市井任侠类': '#C9A06C'
       };
 
-      XIA.loadCSV('data/poetry_with_detailed_clusters_sankey.csv').then(function (rows) {
-        // 去重：同一作者同一诗名（含异文）只计一次
+      var NS = 'http://www.w3.org/2000/svg';
+      var FONT_SERIF = '"Noto Serif SC","Songti SC",serif';
+      var FONT_LABEL = '"EB Garamond","Noto Serif SC",serif';
+
+      function el(tag, attrs, parent) {
+        var node = document.createElementNS(NS, tag);
+        Object.keys(attrs || {}).forEach(function (k) { node.setAttribute(k, attrs[k]); });
+        if (parent) parent.appendChild(node);
+        return node;
+      }
+      function tipOn(node, html) {
+        node.addEventListener('mousemove', function (e) { XIA.tip.show(html, e.clientX, e.clientY); });
+        node.addEventListener('mouseleave', function () { XIA.tip.hide(); });
+      }
+
+      /* 引号感知的 CSV 解析（诗歌原文含逗号，简易切分不可用） */
+      function parseCSVSafe(text) {
+        var rows = [];
+        var field = '', row = [], inQ = false;
+        for (var i = 0; i < text.length; i++) {
+          var ch = text[i];
+          if (inQ) {
+            if (ch === '"') {
+              if (text[i + 1] === '"') { field += '"'; i++; }
+              else inQ = false;
+            } else field += ch;
+          } else if (ch === '"') inQ = true;
+          else if (ch === ',') { row.push(field); field = ''; }
+          else if (ch === '\n' || ch === '\r') {
+            if (ch === '\r' && text[i + 1] === '\n') i++;
+            row.push(field); field = '';
+            if (row.some(function (c) { return c !== ''; })) rows.push(row);
+            row = [];
+          } else field += ch;
+        }
+        if (field !== '' || row.length) { row.push(field); rows.push(row); }
+        var headers = rows.shift().map(function (h, i) { return i === 0 ? h.replace(/^﻿/, '') : h; });
+        return rows.map(function (cols) {
+          var obj = {};
+          headers.forEach(function (h, i) { obj[h] = cols[i]; });
+          return obj;
+        });
+      }
+
+      fetch('data/poetry_with_detailed_clusters_sankey.csv')
+        .then(function (r) { if (!r.ok) throw new Error('CSV 加载失败'); return r.text(); })
+        .then(function (text) {
+        var rows = parseCSVSafe(text);
+        /* 去重：同一作者同一诗名（含异文）只计一次 */
         var seen = {};
         var poets = {};
+        var clusterTotals = {};
         rows.forEach(function (r) {
-          var key = r['作者'] + '|' + r['诗歌名'].replace(/^\S*(?:歌辞|曲辞|古题序)\s/, '');
+          var title = r['诗歌名'].replace(/^\S*(?:歌辞|曲辞|古题序)\s/, '');
+          var key = r['作者'] + '|' + title;
           if (seen[key]) return;
           seen[key] = true;
           var a = r['作者'];
-          poets[a] = poets[a] || { total: 0 };
+          poets[a] = poets[a] || { total: 0, first: title };
           poets[a][r['聚类类别']] = (poets[a][r['聚类类别']] || 0) + 1;
           poets[a].total += 1;
+          clusterTotals[r['聚类类别']] = (clusterTotals[r['聚类类别']] || 0) + 1;
         });
 
-        var names = Object.keys(poets).sort(function (a, b) { return poets[b].total - poets[a].total; });
+        var names = Object.keys(poets).sort(function (a, b) {
+          return poets[b].total - poets[a].total || (a < b ? -1 : 1);
+        });
+        var mains = names.filter(function (n) { return poets[n].total >= 2; });
+        var tails = names.filter(function (n) { return poets[n].total === 1; });
 
-        /* ---------- 矩阵热力图 ---------- */
-        var matrixData = [];
-        names.forEach(function (name, yi) {
-          CLUSTERS.forEach(function (c, xi) {
-            var v = poets[name][c] || 0;
-            if (v > 0) matrixData.push([xi, yi, v]);
+        /* ---------- 壹 · 诗谱 ---------- */
+        var W = 1000, X0 = 132, PXW = 44, ROW_H = 32, BAR_H = 11;
+        var legendY = 22, rowsY = 58;
+        var dividerY = rowsY + mains.length * ROW_H + 34;
+        var SQ = 13, GAP = 8, PITCH = SQ + GAP;
+        var tailX0 = X0, tailY0 = dividerY + 40;
+        var perRow = Math.max(8, Math.floor((W - tailX0 - 8) / PITCH));
+        var tailRows = Math.ceil(tails.length / perRow);
+        var H = tailY0 + tailRows * PITCH + 16;
+
+        var svg = document.getElementById('rosterSvg');
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+        /* 题跋式图例：五脉色块 + 篇数 */
+        var lx = X0;
+        CLUSTERS.forEach(function (c) {
+          el('rect', { x: lx, y: legendY - 9, width: 10, height: 10, rx: 2, fill: CLUSTER_COLORS[c] }, svg);
+          var t = el('text', {
+            x: lx + 16, y: legendY,
+            'font-size': 11.5, 'font-family': FONT_SERIF,
+            fill: '#6E6E66', 'letter-spacing': 1
+          }, svg);
+          t.textContent = c.replace('类', '') + ' · ' + (clusterTotals[c] || 0);
+          lx += 16 + (c.length - 1) * 12.5 + 34 + 34;
+        });
+
+        /* 主榜：二首及以上的诗人，横列堆叠 */
+        var maxTotal = poets[mains[0]].total;
+        mains.forEach(function (name, i) {
+          var p = poets[name];
+          var y = rowsY + i * ROW_H;
+          var isTop = p.total === maxTotal;
+          var nt = el('text', {
+            x: X0 - 14, y: y + BAR_H - 1, 'text-anchor': 'end',
+            'font-size': p.total >= 5 ? 14 : 12.5,
+            'font-family': FONT_SERIF,
+            'font-weight': p.total >= 5 ? 500 : 400,
+            fill: isTop ? '#B04A3A' : '#2B2B28',
+            'letter-spacing': 2
+          }, svg);
+          nt.textContent = name;
+
+          var bx = X0;
+          CLUSTERS.forEach(function (c) {
+            var n = p[c] || 0;
+            if (!n) return;
+            var rect = el('rect', {
+              x: bx, y: y, width: n * PXW - 1.5, height: BAR_H,
+              fill: CLUSTER_COLORS[c]
+            }, svg);
+            tipOn(rect, '<div class="tip-title">' + name + '</div><div class="tip-meta">' +
+              c.replace('类', '') + ' · ' + n + ' 首 ｜ 共 ' + p.total + ' 首</div>');
+            bx += n * PXW;
           });
+
+          var ct = el('text', {
+            x: bx + 10, y: y + BAR_H - 1,
+            'font-size': 12.5, 'font-family': FONT_LABEL,
+            fill: isTop ? '#B04A3A' : '#6E6E66'
+          }, svg);
+          ct.textContent = p.total;
         });
 
-        var matrix = echarts.init(document.getElementById('matrixChart'));
-        matrix.setOption({
-          grid: { left: 8, right: 20, top: 10, bottom: 8, containLabel: true },
-          xAxis: {
-            type: 'category',
-            data: CLUSTERS.map(function (c) { return c.replace('类', ''); }),
-            axisLine: { show: false }, axisTick: { show: false },
-            axisLabel: { color: '#2B2B28', fontSize: 12, fontFamily: 'Noto Serif SC', interval: 0 }
-          },
-          yAxis: {
-            type: 'category', inverse: true, data: names,
-            axisLine: { show: false }, axisTick: { show: false },
-            axisLabel: {
-              color: '#6E6E66', fontSize: 10, fontFamily: 'Noto Serif SC',
-              formatter: function (v) { return poets[v].total >= 3 ? '{b|' + v + '}' : v; },
-              rich: { b: { color: '#2B2B28', fontSize: 11, fontWeight: 500 } }
-            }
-          },
-          visualMap: {
-            min: 0, max: 8, show: false,
-            inRange: { color: ['#F5F2EA', '#8B6B4F', '#2B2B28'] }
-          },
-          tooltip: {
-            backgroundColor: 'rgba(237,231,217,.96)', borderColor: 'rgba(43,43,40,.35)',
-            textStyle: { color: '#2B2B28', fontSize: 12 },
-            formatter: function (pr) {
-              return names[pr.value[1]] + ' · ' + CLUSTERS[pr.value[0]].replace('类', '') + '：' + pr.value[2] + ' 首';
-            }
-          },
-          series: [{
-            type: 'heatmap',
-            data: matrixData,
-            label: { show: true, fontSize: 9, color: '#F5F2EA', formatter: function (pr) { return pr.value[2] > 1 ? pr.value[2] : ''; } },
-            itemStyle: { borderColor: '#F5F2EA', borderWidth: 2 },
-            emphasis: { itemStyle: { shadowBlur: 8, shadowColor: 'rgba(43,43,40,.3)' } }
-          }]
-        });
+        /* 分卷线 */
+        el('line', {
+          x1: 0, x2: W, y1: dividerY, y2: dividerY,
+          stroke: '#C9C7BC', 'stroke-width': .8, 'stroke-dasharray': '2 7'
+        }, svg);
+        var dt = el('text', {
+          x: X0, y: dividerY + 22,
+          'font-size': 11.5, 'font-family': FONT_SERIF,
+          fill: '#6E6E66', 'letter-spacing': 3
+        }, svg);
+        dt.textContent = '其后 ' + tails.length + ' 家 · 各留一首 · 一人一印';
 
-        /* ---------- 十二家堆叠 ---------- */
-        var top = names.slice(0, 12);
-        var stack = echarts.init(document.getElementById('stackChart'));
-        stack.setOption({
-          grid: { left: 8, right: 20, top: 34, bottom: 8, containLabel: true },
-          legend: {
-            top: 0, icon: 'rect', itemWidth: 10, itemHeight: 10,
-            textStyle: { fontSize: 10, color: '#6E6E66', fontFamily: 'Noto Sans SC' }
-          },
-          xAxis: {
-            type: 'category', data: top,
-            axisLine: { lineStyle: { color: '#C9C7BC' } }, axisTick: { show: false },
-            axisLabel: { color: '#2B2B28', fontSize: 11, fontFamily: 'Noto Serif SC', interval: 0 }
-          },
-          yAxis: {
-            type: 'value',
-            splitLine: { lineStyle: { color: '#C9C7BC', type: 'dashed', width: .5 } },
-            axisLabel: { color: '#6E6E66', fontSize: 10 }
-          },
-          tooltip: {
-            trigger: 'axis',
-            backgroundColor: 'rgba(237,231,217,.96)', borderColor: 'rgba(43,43,40,.35)',
-            textStyle: { color: '#2B2B28', fontSize: 12 }
-          },
-          series: CLUSTERS.map(function (c) {
-            return {
-              name: c.replace('类', ''), type: 'bar', stack: 'poems', barWidth: 18,
-              itemStyle: { color: CLUSTER_COLORS[c] },
-              data: top.map(function (n) { return poets[n][c] || 0; })
-            };
-          })
-        });
-
-        window.addEventListener('resize', function () {
-          matrix.resize(); stack.resize();
+        /* 印谱长尾：一人一格，色即其脉 */
+        tails.forEach(function (name, i) {
+          var p = poets[name];
+          var cluster = CLUSTERS.filter(function (c) { return p[c]; })[0] || CLUSTERS[0];
+          var gx = tailX0 + (i % perRow) * PITCH;
+          var gy = tailY0 + Math.floor(i / perRow) * PITCH;
+          var sq = el('rect', {
+            x: gx, y: gy, width: SQ, height: SQ, rx: 2,
+            fill: CLUSTER_COLORS[cluster], 'fill-opacity': .82
+          }, svg);
+          var title = el('title', {}, sq);
+          title.textContent = name + '《' + p.first + '》 · ' + cluster.replace('类', '');
+          tipOn(sq, '<div class="tip-title">' + name + '</div><div class="tip-meta">《' +
+            p.first + '》 · ' + cluster.replace('类', '') + '</div>');
         });
       }).catch(function (e) {
         document.querySelector('.stage').innerHTML = '<p class="shared-error">数据未能展开：' + e.message + '</p>';
