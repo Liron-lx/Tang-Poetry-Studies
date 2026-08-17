@@ -61,13 +61,61 @@
       .poem-node:focus-visible .star-shape { fill: var(--cinnabar); }
 
       .river { cursor: pointer; transition: opacity .3s ease; }
-      .cat-legend { cursor: pointer; outline: none; transition: opacity .3s ease; }
-      .cat-name { fill: var(--ink); font-size: 13px; letter-spacing: 3px; }
-      .cat-legend:hover .cat-name, .cat-legend.isolated .cat-name, .cat-legend:focus-visible .cat-name { fill: var(--cinnabar); }
+
+      /* 悬浮图注轨 + 类别说明：横向滚动时钉在视口左侧 */
+      .overlay-sticky { position: sticky; left: 1.1rem; width: 16rem; height: 0; z-index: 4; }
+      .cat-rail-inner {
+        position: absolute; top: 432px; left: 0;
+        display: flex; flex-direction: column; gap: .5rem;
+        padding: .75rem .9rem;
+        background: rgba(245, 242, 234, .86);
+        backdrop-filter: blur(6px);
+      }
+      .cat-rail-inner .rail-title {
+        font-family: var(--font-label); font-size: .58rem;
+        letter-spacing: .3em; color: var(--ochre);
+      }
+      .cat-rail-inner button {
+        display: flex; align-items: center; gap: .5rem;
+        padding: 0; border: none; background: none; cursor: pointer;
+        font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", sans-serif;
+        font-size: .78rem; letter-spacing: .18em; color: var(--ink);
+        text-align: left;
+        transition: opacity .3s ease;
+      }
+      .cat-rail-inner button .sw { width: .68rem; height: .68rem; border-radius: 2px; flex: none; }
+      .cat-rail-inner button .cnt { color: var(--ink-2); font-size: .64rem; letter-spacing: .1em; }
+      .cat-rail-inner button:hover { color: var(--cinnabar); }
+      .cat-rail-inner button.dim { opacity: .3; }
+      .cat-rail-inner button.on { color: var(--cinnabar); }
+      .cat-intro-inner {
+        position: absolute; top: 56px; left: 0;
+        width: 15.5rem;
+        padding: .85rem 1rem .9rem;
+        background: rgba(245, 242, 234, .9);
+        backdrop-filter: blur(6px);
+        border-left: 2px solid var(--ink);
+        opacity: 0; transition: opacity .3s ease;
+        pointer-events: none;
+      }
+      .cat-intro-inner.show { opacity: 1; }
+      .cat-intro-inner .ci-title { font-family: var(--font-serif); font-size: 1rem; letter-spacing: .12em; margin: 0 0 .15rem; }
+      .cat-intro-inner .ci-meta { font-family: ui-sans-serif, system-ui, "PingFang SC", sans-serif; font-size: .62rem; letter-spacing: .18em; color: var(--ink-2); margin: 0 0 .5rem; }
+      .cat-intro-inner .ci-desc { font-family: var(--font-serif); font-size: .8rem; line-height: 1.95; color: var(--ink); margin: 0; }
+      .cat-intro-inner .ci-poem { margin: .7rem 0 0; }
+      .cat-intro-inner .ci-poem-link {
+        font-family: var(--font-serif); font-size: .8rem; letter-spacing: .1em;
+        color: var(--cinnabar); background: none; border: none; padding: 0;
+        cursor: pointer; pointer-events: auto;
+      }
+      .cat-intro-inner .ci-poem-link:hover { text-decoration: underline; text-underline-offset: 4px; }
 
       .period-label { fill: rgba(43, 43, 40, .5); font-size: 13px; letter-spacing: 5px; }
       .period-range { fill: rgba(43, 43, 40, .35); font: 10px ui-sans-serif, system-ui, sans-serif; letter-spacing: 1px; }
       .event-label { fill: var(--cinnabar); font-size: 12px; letter-spacing: 2px; }
+      .event-note { fill: var(--ink-2); font-size: 11px; letter-spacing: 2px; }
+      .anno-peak { fill: var(--ink); font-family: "Noto Serif SC", "Songti SC", serif; font-size: 12.5px; letter-spacing: 3px; }
+      .anno-line { stroke: var(--ink-2); stroke-width: .7; stroke-opacity: .55; }
       .year-label { fill: rgba(43, 43, 40, .55); font-size: 11px; }
       .chart-caption { fill: var(--ink-2); font-size: 12px; letter-spacing: 3px; }
       .scale-key-title { fill: var(--ink-2); font-size: 11px; letter-spacing: 2px; }
@@ -102,9 +150,76 @@
         font-size: .62rem;
         line-height: 1.8;
       }
+
+      /* ---------- 卷后解读 · 独立一屏 ---------- */
+      .reading {
+        min-height: 96vh;
+        display: flex;
+        align-items: center;
+        border-top: 1px solid rgba(43, 43, 40, .15);
+      }
+      .reading-inner {
+        width: min(960px, calc(100% - 3rem));
+        min-width: 780px;
+        margin: 0 auto;
+        padding: 4rem 0;
+      }
+      .reading .scene-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: .4rem; }
+      .reading .scene-head .no {
+        font-family: var(--font-label);
+        font-size: .7rem; letter-spacing: .3em; color: var(--ochre);
+      }
+      .reading .scene-head h2 {
+        font-family: var(--font-title); font-weight: 400;
+        font-size: 1.7rem; letter-spacing: .2em; margin: 0;
+      }
+      .reading-lede {
+        color: var(--ink-2); font-size: .85rem; max-width: 46em;
+        margin: .3rem 0 2.4rem; line-height: 1.9;
+        font-family: var(--font-body);
+      }
+      .reading-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2.2rem;
+      }
+      .r-block { border-top: 2px solid var(--ink); padding-top: 1.1rem; }
+      .r-block.peak   { border-top-color: var(--gold-2); }
+      .r-block.divide { border-top-color: var(--cinnabar); }
+      .r-block.stars  { border-top-color: var(--mist); }
+      .r-block .r-no {
+        font-family: var(--font-label);
+        font-size: .66rem; letter-spacing: .3em; color: var(--ochre);
+      }
+      .r-block h3 {
+        font-family: var(--font-serif); font-weight: 400;
+        font-size: 1.18rem; letter-spacing: .14em;
+        margin: .3rem 0 .9rem;
+      }
+      .r-stat { display: flex; align-items: baseline; gap: .7rem; margin-bottom: .8rem; }
+      .r-stat b {
+        font-family: var(--font-label); font-weight: 400;
+        font-size: 2.1rem; line-height: 1; color: var(--ink);
+      }
+      .r-stat span {
+        font-family: var(--font-body); font-size: .68rem;
+        letter-spacing: .14em; color: var(--ink-2);
+      }
+      .r-block p {
+        font-family: var(--font-serif);
+        font-size: .84rem; line-height: 2; color: var(--ink);
+        margin: 0;
+      }
+      .r-block p em {
+        font-style: normal;
+        color: var(--cinnabar);
+      }
+      @media (max-width: 900px) {
+        .reading-grid { grid-template-columns: 1fr; }
+      }
       .error { padding: 3rem; text-align: center; color: var(--cinnabar); }
       @media (prefers-reduced-motion: reduce) {
-        .poem-node circle, .poem-node .star-shape, .river, .cat-legend { transition: none; }
+        .poem-node circle, .poem-node .star-shape, .river, .cat-rail-inner button, .cat-intro-inner { transition: none; }
       }
     </style>
   </head>
@@ -120,6 +235,8 @@
       </header>
 
       <section class="scroll-stage" aria-labelledby="scroll-title">
+        <div class="overlay-sticky"><div class="cat-intro-inner" id="catIntro" aria-live="polite"></div></div>
+        <div class="overlay-sticky"><div class="cat-rail-inner" id="catRail" role="group" aria-label="五脉图注，点击独观一脉"></div></div>
         <svg id="scroll-chart" role="img" aria-label="九十首唐代咏侠诗的五脉汇流河流图"></svg>
         <aside id="poem-detail" class="poem-detail" aria-live="polite">
           <div class="detail-label">川中一叶</div>
@@ -134,6 +251,32 @@
         <span><i class="key event"></i>朱砂点 · 史事标记</span>
         <span>河宽 ∝ 十年诗作密度（标尺见卷尾）</span>
         <span>悬停读诗 · 点击河流独观一脉</span>
+      </section>
+      <section class="reading" aria-label="卷后解读">
+        <div class="reading-inner">
+          <div class="scene-head"><span class="no">读</span><h2>卷后解读</h2></div>
+          <p class="reading-lede">九十首诗，三条时间线：河面最宽处在盛唐，一道朱砂线把诗坛截成两半，二十首无年之作化作星辰。以下三段，各说一处。</p>
+          <div class="reading-grid">
+            <article class="r-block peak">
+              <span class="r-no">壹</span>
+              <h3>河面最宽处 · 开元</h3>
+              <div class="r-stat"><b>720s</b><span>九首 · 全卷最密的十年</span></div>
+              <p>720 年代九首、750 年代八首，全卷诗密度最高的两个十年都落在盛唐。前半程是王维、王昌龄、孟浩然的少年游侠与边塞壮游，后半程是李白、杜甫、高适的猎猎风尘。侠义诗的盛世，几乎与诗的盛世完全重合。</p>
+            </article>
+            <article class="r-block divide">
+              <span class="r-no">贰</span>
+              <h3>755 · 分水岭</h3>
+              <div class="r-stat"><b>43｜27</b><span>乱前有年之作 ｜ 乱后</span></div>
+              <p>安史之乱前，有年之作四十三首；之后，二十七首。河面收窄了，水色却变了——交游宴饮的侠渐渐退去，<em>侠义抒怀一脉反而在乱后涨到全脉最密</em>：李白《猛虎行》、杜甫《后出塞》《鹿头山》皆写于烽火之中。盛世之侠是游出来的，乱世之侠是逼出来的。</p>
+            </article>
+            <article class="r-block stars">
+              <span class="r-no">叁</span>
+              <h3>二十首 · 散于天汉</h3>
+              <div class="r-stat"><b>20</b><span>无年待考 · 不入河川</span></div>
+              <p>九十首里，二十首至今无法系年——不虚构一个年份，于是散作星辰，悬在河川之上。入河的七十首中，也仅三十首有据可考的作品级系年，其余四十首依作者行年推定。这份不确定，本就是唐代侠义书写的一部分。</p>
+            </article>
+          </div>
+        </div>
       </section>
       <footer class="footer">
         河流图（streamgraph）：横轴为年序 608—904；河宽 = 该脉诗作在十年窗口内的高斯平滑密度，五河共用河床、同此涨落；重复收录的 10 条不计入河宽。圆点为诗作，朱砂点为史事；待考诗作化作星辰散于天汉，不被虚构到某一年份。
@@ -269,7 +412,7 @@
         function displayDetail(row, pos) {
           const timeText = row.timeline_status === "unavailable"
             ? "待考之星 · 未取得可用展示年份，散于天汉"
-            : `${row.timeline_year} 年 · ${row.timeline_note || row.timeline_status}`;
+            : `${Math.round(Number(row.timeline_year))} 年 · ${row.timeline_note || row.timeline_status}`;
           detail.html(`
             <div class="detail-label">${row.record_id} · ${row.cluster}</div>
             <h2 class="detail-title">${row.author}《${row.title_original}》</h2>
@@ -324,7 +467,7 @@
           svg.append("text").attr("x", 2045).attr("y", 214).attr("text-anchor", "end")
             .attr("class", "sky-title").text("待考之星");
           svg.append("text").attr("x", 2045).attr("y", 238).attr("text-anchor", "end")
-            .attr("class", "sky-note").text("二十首无年诗 · 散于天汉，不入河川");
+            .attr("class", "sky-note").text("二十首无年诗 · 不入河川，不虚构年份");
         }
 
         // 水底暗纹：横向涟漪
@@ -415,7 +558,7 @@
         // 朱砂史事：落在河川上沿，如水中矶石
         function drawEvents() {
           const events = [
-            { year: 755, label: "755–763 · 安史之乱" },
+            { year: 755, label: "755–763 · 安史之乱", note: "此后抒怀反涨 · 乱世之侠", side: "right" },
             { year: 875, label: "875 · 黄巢起义" }
           ];
           const group = svg.append("g");
@@ -425,34 +568,92 @@
             group.append("circle")
               .attr("cx", px).attr("cy", py - 7).attr("r", 4.2)
               .attr("fill", "#B04A3A").attr("stroke", "#F5F2EA").attr("stroke-width", 1.2);
-            group.append("text")
-              .attr("x", px).attr("y", py - 22)
-              .attr("text-anchor", "middle")
-              .attr("class", "event-label")
-              .text(ev.label);
+            if (ev.side === "right") {
+              group.append("text")
+                .attr("x", px + 16).attr("y", py - 34)
+                .attr("class", "event-label")
+                .text(ev.label);
+              group.append("text")
+                .attr("x", px + 16).attr("y", py - 17)
+                .attr("class", "event-note")
+                .text(ev.note);
+            } else {
+              group.append("text")
+                .attr("x", px).attr("y", py - 22)
+                .attr("text-anchor", "middle")
+                .attr("class", "event-label")
+                .text(ev.label);
+            }
           });
         }
 
-        // 类别图例：左侧竖排，小色块 + 小字
-        function drawCatLegend(rows) {
-          const legend = svg.append("g").attr("aria-label", "五脉图例");
-          clusters.forEach((cluster, i) => {
+        // 卷上注记：开元峰顶一处，与卷后解读互证
+        function drawAnnotations() {
+          const peakYear = 744;
+          const top = bundleTop(peakYear);
+          const note = svg.append("g").attr("aria-hidden", "true");
+          note.append("line")
+            .attr("x1", x(peakYear)).attr("x2", x(peakYear))
+            .attr("y1", top - 8).attr("y2", top - 26)
+            .attr("class", "anno-line");
+          note.append("text")
+            .attr("x", x(peakYear) - 10).attr("y", top - 38)
+            .attr("text-anchor", "end")
+            .attr("class", "anno-peak")
+            .text("河面最宽处 · 开元");
+        }
+
+        // 诗签显隐：悬停展开，移开片刻或点空白处收起
+        let hideTimer = null;
+        function hideDetail() {
+          detail.classed("show", false);
+          svg.selectAll(".poem-node").classed("is-active", false);
+        }
+        function scheduleHide() {
+          clearTimeout(hideTimer);
+          hideTimer = setTimeout(hideDetail, 2600);
+        }
+
+        // 五脉小传：独观一脉时，卷首左侧浮现；pick 为该脉代表诗（须有系年、落在河中）
+        const CATEGORY_INFO = {
+          "侠义抒怀类": { meta: "五脉之最 · 乱后反涨，直贯晚唐", desc: "借侠写怀——壮语之下，是诗人自况的孤愤。三十二首为五脉之最；安史乱后此脉反涨到全卷最密，杜甫、李商隐皆在其中。", pick: { id: "P060", label: "杜甫《鹿头山》" } },
+          "隐逸怀古类": { meta: "纵贯全唐 · 开天之际最密", desc: "侠入山水与古人——终南、陇头之间的追慕与自遣。二十七首从初唐写到唐末，开元、天宝之际最密。", pick: { id: "P014", label: "王维《少年行》" } },
+          "豪侠交游类": { meta: "兴起最早 · 泰半作于初唐", desc: "侠在宴游赠答之间——少年场、结客行。十九首中泰半作于初唐，是五脉里兴起最早的一支。", pick: { id: "P001", label: "王维《陇头吟》" } },
+          "边塞报国类": { meta: "仅八首 · 散于初唐至中唐", desc: "从军的侠——陇头塞下，以身许国。从 672 年零星写到 812 年，河细而流长。", pick: { id: "P058", label: "高适《送浑将军出塞》" } },
+          "市井任侠类": { meta: "仅四首 · 三首聚于开天盛世", desc: "街衢之侠——斗鸡走马，快意恩仇。仅四首，其中三首聚于开元、天宝盛世。", pick: { id: "P020", label: "李白《侠客行》" } }
+        };
+
+        const rowById = new Map();
+        // 展卷寻诗：横卷滑至诗点，展开诗签
+        function jumpToPoem(id) {
+          const row = rowById.get(id);
+          if (!row || !row.timeline_year) return;
+          const pos = poemPosition(row);
+          const scroller = document.querySelector(".page");
+          scroller.scrollTo({ left: Math.max(0, pos.x - scroller.clientWidth / 2), behavior: "smooth" });
+          clearTimeout(hideTimer);
+          svg.selectAll(".poem-node").classed("is-active", false);
+          svg.selectAll(".poem-node").each(function (d) {
+            if (d && d.record_id === id) d3.select(this).classed("is-active", true);
+          });
+          displayDetail(row, pos);
+        }
+
+        // 悬浮图注轨：横向滚动时钉在视口左侧
+        function buildRail(rows) {
+          const rail = document.getElementById("catRail");
+          rail.innerHTML = '<div class="rail-title">五脉 · 点击独观</div>';
+          clusters.forEach((cluster) => {
             const distinct = rows.filter((row) => row.cluster === cluster.name && !row.duplicate_of).length;
-            const item = legend.append("g")
-              .attr("class", "cat-legend")
-              .attr("data-title", cluster.name)
-              .attr("transform", `translate(34,${448 + i * 36})`)
-              .attr("tabindex", 0).attr("role", "button")
-              .attr("aria-label", `${cluster.label}，${distinct}首，点击独观此脉`)
-              .on("click", () => toggleIsolation(cluster.name))
-              .on("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggleIsolation(cluster.name); } });
-            item.append("rect")
-              .attr("x", 0).attr("y", -10).attr("width", 11).attr("height", 11).attr("rx", 2)
-              .attr("fill", cluster.color);
-            item.append("text")
-              .attr("x", 20).attr("y", 0)
-              .attr("class", "cat-name")
-              .text(`${cluster.label} · ${distinct} 首`);
+            CATEGORY_INFO[cluster.name].count = distinct;
+            const button = document.createElement("button");
+            button.type = "button";
+            button.dataset.cluster = cluster.name;
+            button.setAttribute("aria-pressed", "false");
+            button.setAttribute("aria-label", `${cluster.label}，${distinct}首，点击独观此脉`);
+            button.innerHTML = `<span class="sw" style="background:${cluster.color}"></span><span>${cluster.label}</span><span class="cnt">${distinct} 首</span>`;
+            button.addEventListener("click", () => toggleIsolation(cluster.name));
+            rail.appendChild(button);
           });
         }
 
@@ -464,12 +665,14 @@
             .attr("class", (row) => `poem-node ${row.timeline_status}`)
             .attr("transform", (row) => { const p = poemPosition(row); return `translate(${p.x},${p.y})`; })
             .attr("tabindex", 0).attr("role", "button")
-            .attr("aria-label", (row) => `${row.author}${row.title_original}，${row.timeline_year}年，${row.cluster}`)
+            .attr("aria-label", (row) => `${row.author}${row.title_original}，${Math.round(Number(row.timeline_year))}年，${row.cluster}`)
             .on("mouseenter focus click", function (event, row) {
+              clearTimeout(hideTimer);
               nodeLayer.selectAll(".poem-node").classed("is-active", false);
               d3.select(this).classed("is-active", true);
               displayDetail(row, poemPosition(row));
-            });
+            })
+            .on("mouseleave blur", scheduleHide);
           // 浮叶：宣纸色圆点落在河面上
           nodes.append("circle")
             .attr("r", (row) => row.timeline_status === "duplicate_inherited" ? 2.2 : row.timeline_status.startsWith("observed") ? 4.1 : 3.4)
@@ -490,10 +693,12 @@
             .attr("tabindex", 0).attr("role", "button")
             .attr("aria-label", (row) => `${row.author}${row.title_original}，待考，${row.cluster}`)
             .on("mouseenter focus click", function (event, row) {
+              clearTimeout(hideTimer);
               nodeLayer.selectAll(".poem-node").classed("is-active", false);
               d3.select(this).classed("is-active", true);
               displayDetail(row, starPos.get(row.record_id));
-            });
+            })
+            .on("mouseleave blur", scheduleHide);
           starNodes.append("circle").attr("r", 7.5).attr("fill", "#C9A06C").attr("fill-opacity", .16);
           starNodes.append("path")
             .attr("class", "star-shape")
@@ -526,7 +731,7 @@
           });
         }
 
-        // 独观一脉：河流、图例、诗点、星辰联动
+        // 独观一脉：河流、图注轨、诗点、星辰、卷首小传联动
         let isolatedCluster = null;
         function toggleIsolation(name) {
           isolatedCluster = isolatedCluster === name ? null : name;
@@ -534,12 +739,22 @@
             if (!isolatedCluster) return 1;
             return d3.select(this).attr("data-cluster") === isolatedCluster ? 1 : 0.1;
           });
-          svg.selectAll(".cat-legend")
-            .classed("isolated", function () { return d3.select(this).attr("data-title") === isolatedCluster; })
-            .attr("opacity", function () {
-              if (!isolatedCluster) return 1;
-              return d3.select(this).attr("data-title") === isolatedCluster ? 1 : 0.3;
-            });
+          document.querySelectorAll("#catRail button").forEach((button) => {
+            const on = button.dataset.cluster === isolatedCluster;
+            button.classList.toggle("on", on);
+            button.classList.toggle("dim", !!isolatedCluster && !on);
+            button.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+          const intro = document.getElementById("catIntro");
+          if (isolatedCluster) {
+            const cluster = clusters.find((item) => item.name === isolatedCluster);
+            const info = CATEGORY_INFO[isolatedCluster];
+            intro.style.borderLeftColor = cluster.color;
+            intro.innerHTML = `<p class="ci-title">${cluster.label} · ${info.count} 首</p><p class="ci-meta">${info.meta}</p><p class="ci-desc">${info.desc}</p><p class="ci-poem"><button type="button" class="ci-poem-link" data-poem="${info.pick.id}">代表诗 · ${info.pick.label} →</button></p>`;
+            intro.classList.add("show");
+          } else {
+            intro.classList.remove("show");
+          }
           svg.selectAll(".poem-node").transition().duration(350).style("opacity", function (row) {
             if (!isolatedCluster) return 1;
             return row && row.cluster === isolatedCluster ? 1 : 0.07;
@@ -557,8 +772,19 @@
           drawRivers();
           drawEvents();
           drawPoems(rows);
-          drawCatLegend(rows);
+          rows.forEach((row) => rowById.set(row.record_id, row));
+          buildRail(rows);
+          drawAnnotations();
           drawScaleKey();
+          // 点空白处收起诗签
+          svg.on("click", (event) => {
+            if (!event.target.closest(".poem-node")) hideDetail();
+          });
+          // 小传里的代表诗链接 → 展卷寻诗
+          document.getElementById("catIntro").addEventListener("click", (event) => {
+            const link = event.target.closest(".ci-poem-link");
+            if (link) jumpToPoem(link.dataset.poem);
+          });
           svg.append("text").attr("x", 1180).attr("y", 1032).attr("text-anchor", "middle").attr("class", "chart-caption")
             .text("唐代咏侠诗 · 五脉汇流 · 河宽为十年诗作密度，点位为证据分层坐标");
           // 颗粒宣纸肌理，最后罩上
