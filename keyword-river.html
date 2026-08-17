@@ -126,7 +126,7 @@
 
     <section class="scene">
       <div class="scene-head"><span class="no">壹</span><h2>群情谱</h2></div>
-      <p class="scene-desc">九十首诗一列，八种心绪一行，点随情浓而涨，一情一色。列顶色签记着每首诗所属的一脉；全谱最涨的那一点染朱——那是唐人提笔写侠时，心里最先涌起的东西。悬停任一点，可读其诗与其分。</p>
+      <p class="scene-desc">九十首诗一列，八种心绪一行，点随情浓而涨，一情一色。列顶色签记着每首诗所属的一脉——悬停色签，即见诗名、该诗八情齐亮；悬停任一点，可读其分。全谱最涨的那一点染朱，那是唐人提笔写侠时，心里最先涌起的东西。</p>
       <svg id="emotionSvg" role="img" aria-label="九十首诗与八种情感的点阵谱"></svg>
     </section>
 
@@ -287,7 +287,7 @@
           });
         });
 
-        var EW = 1060, EL = 8, ER = 132, ET = 26, EROW = 34;
+        var EW = 1060, EL = 8, ER = 132, ET = 30, EROW = 44;
         var ECOL = (EW - EL - ER) / ePoems.length;
         var EH = ET + DIMS.length * EROW + 6;
         var esvg = d3.select('#emotionSvg').attr('viewBox', '0 0 ' + EW + ' ' + EH);
@@ -317,15 +317,17 @@
             if (v > 0) dots.push({ p: p, i: i, j: j, dim: dim, v: v });
           });
         });
-        esvg.append('g').selectAll('circle')
+        function dotOpacity(d) { return d.v >= maxScore ? .9 : .16 + d.v / 10 * .6; }
+        var dotSel = esvg.append('g').selectAll('circle')
           .data(dots).join('circle')
           .attr('cx', function (d) { return EL + d.i * ECOL + ECOL / 2; })
           .attr('cy', function (d) { return ET + d.j * EROW + EROW / 2; })
           .attr('r', function (d) { return 1 + d.v * 1.05; })
           .attr('fill', function (d) { return d.v >= maxScore ? '#B04A3A' : DIM_COLORS[d.dim]; })
-          .attr('fill-opacity', function (d) { return d.v >= maxScore ? .9 : .16 + d.v / 10 * .6; })
+          .attr('fill-opacity', dotOpacity)
           .on('mousemove', function (event, d) {
             d3.select(this).attr('stroke', '#B04A3A').attr('stroke-width', 1);
+            dotSel.attr('fill-opacity', function (dd) { return dd.i === d.i ? .95 : .06; });
             var t = d.p.info ? d.p.info.title : d.p.row.title_cn;
             var a = d.p.info ? d.p.info.author : d.p.row.author;
             XIA.tip.show(
@@ -335,8 +337,35 @@
           })
           .on('mouseleave', function () {
             d3.select(this).attr('stroke', null);
+            dotSel.attr('fill-opacity', dotOpacity);
             XIA.tip.hide();
           });
+
+        /* 列顶色签悬停：见诗名，并亮起该诗八情 */
+        function colEnter(event, d) {
+          var i = ePoems.indexOf(d);
+          dotSel.attr('fill-opacity', function (dd) { return dd.i === i ? .95 : .06; });
+          var t = d.info ? d.info.title : d.row.title_cn;
+          var a = d.info ? d.info.author : d.row.author;
+          var c = d.info ? d.info.cluster.replace('类', '') : '未归类';
+          XIA.tip.show(
+            '<div class="tip-title">' + a + '《' + t + '》</div>' +
+            '<div class="tip-meta">' + c + '</div>',
+            event.clientX, event.clientY);
+        }
+        function colLeave() {
+          dotSel.attr('fill-opacity', dotOpacity);
+          XIA.tip.hide();
+        }
+        esvg.append('g').selectAll('rect')
+          .data(ePoems).join('rect')
+          .attr('x', function (d, i) { return EL + i * ECOL; })
+          .attr('y', 2)
+          .attr('width', ECOL)
+          .attr('height', 18)
+          .attr('fill', 'transparent')
+          .on('mousemove', colEnter)
+          .on('mouseleave', colLeave);
 
         /* 行名居右 */
         esvg.append('g').selectAll('text')
