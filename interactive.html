@@ -68,6 +68,41 @@
     .scroll-cue:hover { color: var(--cinnabar); }
     .scroll-cue .cue-line { width: 2.6rem; height: 1px; background: currentColor; opacity: .5; }
 
+    /* 顶部浮动提示（未选中山峰时） */
+    .map-hint-wrap {
+      position: absolute;
+      top: .9rem;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      z-index: 5;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity .35s ease;
+    }
+    .map-hint-wrap.is-hidden { opacity: 0; }
+    .map-hint {
+      padding: .4rem 1.1rem;
+      background: rgba(245, 242, 234, .86);
+      border-radius: 2px;
+      font-family: var(--font-serif);
+      font-size: .76rem;
+      letter-spacing: .1em;
+      color: var(--ink-2);
+      animation: hintFloat 2.6s ease-in-out infinite;
+    }
+    @keyframes hintFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3.5px); }
+    }
+
+    /* 其他交互引导也带浅浅浮动 */
+    .float-hint { animation: hintFloat 2.8s ease-in-out infinite; }
+    .float-hint-delay { animation: hintFloat 2.8s ease-in-out .9s infinite; }
+
+    .scroll-cue .cue-line { width: 2.6rem; height: 1px; background: currentColor; opacity: .5; }
+
     /* 地点详情浮卡（与第一幕信息卡同族） */
     .place-detail {
       position: fixed;
@@ -93,8 +128,69 @@
     .place-detail .pd-name { margin: .4rem 0 .2rem; font-family: var(--font-serif); font-size: 1.1rem; }
     .place-detail .pd-meta { margin: 0; color: var(--ink-2); font-size: .74rem; line-height: 1.85; }
     .place-detail .pd-note { margin: .4rem 0 0; font-size: .74rem; color: var(--ink); }
+    .place-detail .pd-poems-title {
+      margin: .7rem 0 .4rem;
+      padding-top: .55rem;
+      border-top: 1px solid rgba(43, 43, 40, .14);
+      font-family: var(--font-label);
+      font-size: .58rem;
+      letter-spacing: .26em;
+      color: var(--ochre);
+    }
+    .place-detail .pd-poem { margin: 0 0 .55rem; }
+    .place-detail .pd-poem:last-child { margin-bottom: 0; }
+    .place-detail .pd-poem-line {
+      display: block;
+      font-family: var(--font-serif);
+      font-size: .82rem;
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    .place-detail .pd-poem-src {
+      display: block;
+      margin-top: .1rem;
+      font-size: .66rem;
+      color: var(--ink-2);
+      letter-spacing: .08em;
+    }
 
-    /* ============ 第二屏 · 长安与边塞 ============ */
+    /* ============ 第二屏 · 十峰榜 ============ */
+    .screen-rank {
+      width: min(960px, calc(100% - 2.5rem));
+      margin: 0 auto;
+      padding: 5rem 0 4.5rem;
+    }
+    .screen-rank .scene-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: .4rem; }
+    .screen-rank .scene-head .no {
+      font-family: var(--font-label);
+      font-size: .7rem; letter-spacing: .3em; color: var(--ochre);
+    }
+    .screen-rank .scene-head h2 {
+      font-family: var(--font-title); font-weight: 400;
+      font-size: 1.7rem; letter-spacing: .2em; margin: 0;
+    }
+    .rank-desc { color: var(--ink-2); font-size: .85rem; max-width: 46em; margin: .3rem 0 2.2rem; line-height: 1.9; }
+    .rank-list { display: flex; flex-direction: column; gap: .45rem; }
+    .rk-row {
+      display: grid;
+      grid-template-columns: 1.6rem 6.2rem 1fr 2.4rem;
+      align-items: center;
+      gap: .9rem;
+      padding: .18rem .25rem;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .rk-row:hover { background: rgba(237, 231, 217, .8); }
+    .rk-row .rk-no { font-family: var(--font-label); font-size: .72rem; color: var(--ink-2); text-align: right; }
+    .rk-row .rk-name { font-family: var(--font-serif); font-size: .95rem; letter-spacing: .1em; white-space: nowrap; }
+    .rk-row .rk-type { font-size: .6rem; color: var(--ink-2); letter-spacing: .12em; margin-left: .55rem; }
+    .rk-row .rk-track { height: 10px; background: rgba(43, 43, 40, .05); border-radius: 5px; overflow: hidden; }
+    .rk-row .rk-fill { display: block; height: 100%; width: 0; border-radius: 5px; transition: width 1s cubic-bezier(.4, 0, .2, 1); }
+    .rk-row .rk-num { font-family: var(--font-label); font-size: .95rem; color: var(--ink); }
+    .rk-row.top .rk-name, .rk-row.top .rk-num { color: var(--cinnabar); }
+    .rank-note { margin-top: 1.4rem; font-size: .68rem; color: var(--ink-2); letter-spacing: .12em; }
+
+    /* ============ 第三屏 · 长安与边塞 ============ */
     .screen-poles {
       min-height: 100vh;
       width: min(1120px, calc(100% - 2.5rem));
@@ -247,21 +343,32 @@
     </header>
 
     <div class="map-stage">
+      <div class="map-hint-wrap" id="mapHint">
+        <div class="map-hint">点任一座山峰 · 峰高即诗中提及频次</div>
+      </div>
       <svg id="mapSvg" role="img" aria-label="盛唐疆域上，七十六处咏侠诗地点以山形峰值呈现"></svg>
       <div class="map-foot">
         <div class="map-legend" id="mapLegend" aria-label="地点类型图例"></div>
-        <a class="scroll-cue" href="#screenPoles">下卷 · 长安与边塞 <i class="cue-line"></i> ↓</a>
+        <a class="scroll-cue float-hint" href="#screenRank">下卷 · 十峰榜 <i class="cue-line"></i> ↓</a>
       </div>
     </div>
   </section>
 
-  <aside id="placeDetail" class="place-detail" aria-live="polite">
+  <aside id="placeDetail" class="place-detail is-hidden" aria-live="polite">
     <div class="pd-label">山间一峰</div>
     <div class="pd-name">点任一座山峰</div>
     <p class="pd-meta">峰高即诗中提及频次；此处展开其历史地名与归属。</p>
   </aside>
 
-  <!-- ============ 第二屏 · 长安与边塞 ============ -->
+  <!-- ============ 第二屏 · 十峰榜 ============ -->
+  <section class="screen-rank" id="screenRank">
+    <div class="scene-head"><span class="no">榜</span><h2>十峰榜</h2></div>
+    <p class="rank-desc">七十六处地点，一百八十八次提及。前十位占去半数有余；长安一城五十次，几抵榜上其余九处之和。条长即次数，差距不修饰。</p>
+    <div class="rank-list" id="rankList" role="list"></div>
+    <p class="rank-note float-hint-delay">点击任一条目，回到山河图上指认那座峰。</p>
+  </section>
+
+  <!-- ============ 第三屏 · 长安与边塞 ============ -->
   <section class="screen-poles" id="screenPoles">
     <header class="poles-head">
       <span class="data-tag">TWO POLES · 侠义书写的两极</span>
@@ -365,6 +472,10 @@
         fetch("data/地方名称及经纬度.csv").then(function (r) {
           if (!r.ok) throw new Error("地点数据加载失败");
           return r.text();
+        }).then(parseCSV),
+        fetch("data/poetry_with_detailed_clusters_sankey.csv").then(function (r) {
+          if (!r.ok) throw new Error("诗歌全文数据加载失败");
+          return r.text();
         }).then(parseCSV)
       ]).then(function (res) {
         var tang = res[0];
@@ -379,19 +490,99 @@
         }).filter(function (p) { return p.coord; });
         places.sort(function (a, b) { return b.freq - a.freq; });
 
+        poemList = res[2].map(function (r) {
+          return { author: r["作者"], title: r["诗歌名"], text: r["诗歌原文"] || "" };
+        });
+
         drawMap(tang, places);
+        buildRank(places);
         buildPoles(places);
+
+        /* 点地图空白处收起浮卡；Esc 亦可 */
+        d3.select("#mapSvg").on("click", function (event) {
+          if (!event.target.closest(".peak")) clearPlace();
+        });
+        document.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") clearPlace();
+        });
       }).catch(function (e) {
         document.querySelector(".map-stage").innerHTML =
           '<p class="shared-error">山河图未能展开：' + e.message + "</p>";
       });
 
+      /* ---------- 诗中踪迹：历史地名 → 原文检出 ---------- */
+      var poemList = [];
+
+      function placeNames(p) {
+        return p.oldNames.split("、").map(function (s) {
+          return s.split("(")[0].trim();
+        }).filter(Boolean);
+      }
+
+      function shortTitle(t) {
+        return t.replace(/^\S*(?:歌辞|曲辞|古题序)\s+/, "");
+      }
+
+      /* 检出全文中提及该地名的诗，取含地名的那句 */
+      function poemsFor(p) {
+        var names = placeNames(p);
+        var hits = [];
+        poemList.forEach(function (pm) {
+          for (var i = 0; i < names.length; i++) {
+            if (pm.text.indexOf(names[i]) < 0) continue;
+            var segs = pm.text.split(/(?<=[。！？；])/);
+            var line = null;
+            for (var j = 0; j < segs.length; j++) {
+              if (segs[j].indexOf(names[i]) >= 0) { line = segs[j]; break; }
+            }
+            hits.push({
+              author: pm.author,
+              title: shortTitle(pm.title),
+              line: (line || pm.text).replace(/[。！？；，、\s]+$/, "")
+            });
+            break;
+          }
+        });
+        return hits;
+      }
+
       /* ============ 第一屏 · 地图 ============ */
       var selected = null;
       var peakNodes = null;
       var detailEl = document.getElementById("placeDetail");
+      var hintEl = document.getElementById("mapHint");
+      var PLACEHOLDER_HTML = detailEl.innerHTML;
 
-      /* 浮卡只在地图屏可见 */
+      /* 点空白处或按 Esc：收起浮卡，回到默认提示 */
+      function clearPlace() {
+        selected = null;
+        if (peakNodes) peakNodes.classed("is-active", false);
+        detailEl.innerHTML = PLACEHOLDER_HTML;
+        detailEl.classList.add("is-hidden");
+        hintEl.classList.remove("is-hidden");
+      }
+
+      /* 浮卡只在地图屏可见，且仅在选中地点时显示 */
+      new IntersectionObserver(function (entries) {
+        var inView = entries[0].isIntersecting;
+        if (!inView) {
+          detailEl.classList.add("is-hidden");
+          hintEl.classList.add("is-hidden");
+        } else if (selected) {
+          detailEl.classList.remove("is-hidden");
+        }
+      }, { threshold: .1 }).observe(document.getElementById("screenMap"));
+
+      function drawMap(tang, places) {
+      new IntersectionObserver(function (entries) {
+        var inView = entries[0].isIntersecting;
+        if (!inView) {
+          detailEl.classList.add("is-hidden");
+          hintEl.classList.add("is-hidden");
+        } else if (selected) {
+          detailEl.classList.remove("is-hidden");
+        }
+      }, { threshold: .1 }).observe(document.getElementById("screenMap"));
       new IntersectionObserver(function (entries) {
         detailEl.classList.toggle("is-hidden", !entries[0].isIntersecting);
       }, { threshold: .1 }).observe(document.getElementById("screenMap"));
@@ -548,15 +739,59 @@
         if (peakNodes) {
           peakNodes.classed("is-active", function (d) { return d.name === p.name; });
         }
+        hintEl.classList.add("is-hidden");
+        detailEl.classList.remove("is-hidden");
         var info = TYPE[p.type];
+        var hits = poemsFor(p);
+        var poemsHtml = hits.length
+          ? '<p class="pd-poems-title">诗中踪迹 · ' + hits.length + ' 首</p>' +
+            hits.slice(0, 3).map(function (h) {
+              return '<div class="pd-poem"><span class="pd-poem-line">「' + h.line + '」</span>' +
+                '<span class="pd-poem-src">' + h.author + "《" + h.title + "》</span></div>";
+            }).join("")
+          : '<p class="pd-poems-title">诗中踪迹 · 原文未检出直接提及</p>';
         detailEl.innerHTML =
           '<div class="pd-label">' + p.type + " · 提及 " + p.freq + ' 次</div>' +
           '<div class="pd-name">' + p.oldNames.split("(")[0] + "</div>" +
           '<p class="pd-meta">现今：' + p.name + "<br/>历史地名：" + p.oldNames + "</p>" +
-          '<p class="pd-note">' + info.note + "</p>";
+          '<p class="pd-note">' + info.note + "</p>" +
+          poemsHtml;
       }
 
-      /* ============ 第二屏 · 长安与边塞 ============ */
+      /* ============ 第二屏 · 十峰榜 ============ */
+      function buildRank(places) {
+        var box = document.getElementById("rankList");
+        var top10 = places.slice(0, 10);
+        var max = top10[0] ? top10[0].freq : 1;
+        top10.forEach(function (p, i) {
+          var row = document.createElement("div");
+          row.className = "rk-row" + (i === 0 ? " top" : "");
+          row.setAttribute("role", "listitem");
+          row.setAttribute("tabindex", "0");
+          row.setAttribute("aria-label", p.oldNames.split("(")[0] + "，" + p.type + "，提及" + p.freq + "次，点击回到地图");
+          row.innerHTML =
+            '<span class="rk-no">' + (i + 1) + "</span>" +
+            '<span class="rk-name">' + p.oldNames.split("(")[0] + '<span class="rk-type">' + p.type + "</span></span>" +
+            '<span class="rk-track"><span class="rk-fill" style="background:' + TYPE[p.type].solid + ';opacity:.85"></span></span>' +
+            '<span class="rk-num">' + p.freq + "</span>";
+          function go() {
+            document.getElementById("screenMap").scrollIntoView({ behavior: "smooth" });
+            selectPlace(p);
+          }
+          row.addEventListener("click", go);
+          row.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
+          });
+          box.appendChild(row);
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+              row.querySelector(".rk-fill").style.width = (p.freq / max * 100) + "%";
+            });
+          });
+        });
+      }
+
+      /* ============ 第三屏 · 长安与边塞 ============ */
       function buildPoles(places) {
         var frontier = places.filter(isFrontier);
         var inland = places.filter(function (p) { return !isFrontier(p); });
