@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "python3 scripts/dev_server.py",
     "validate": "python3 scripts/validate_project.py",
-    "test": "python3 scripts/validate_project.py && python3 scripts/smoke_test.py --base-url http://127.0.0.1:8000"
+    "test": "python3 -m unittest discover -s scripts -p 'test_*.py' && python3 scripts/validate_project.py && python3 scripts/smoke_test.py --base-url http://127.0.0.1:8000"
   },
   "dependencies": {
     "playwright-core": "^1.62.1"
