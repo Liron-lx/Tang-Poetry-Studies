@@ -3,514 +3,555 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="诗风侠影：九十首唐代咏侠诗的信息可视化长卷。侠气从何时起，到何处去。" />
-  <title>诗风侠影 · 序｜何谓侠</title>
+  <meta name="description" content="诗风侠影：唐代咏侠诗的信息可视化长卷。侠气从何时起，到何处去。" />
+  <title>诗风侠影 · 序</title>
   <link rel="stylesheet" href="assets/css/common.css" />
+  <link rel="icon" href="image/home.svg" type="image/svg+xml" />
   <style>
-    /* ---------- 序章专用 ---------- */
-    .hero {
-      position: relative;
-      min-height: 92vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    :root {
+      --prologue-shadow: rgba(43, 43, 40, .16);
+      --prologue-line: rgba(43, 43, 40, .18);
+    }
+
+    body.prologue-page {
+      background: var(--paper);
+      transition: background .7s ease, color .7s ease;
+    }
+
+    body.prologue-page.is-splash {
+      background: #282826;
+      color: #f5f2ea;
+    }
+
+    body.prologue-page.is-splash .site-nav,
+    body.prologue-page.is-splash .page-seal { opacity: 0; pointer-events: none; }
+
+    body.prologue-page.is-splash .site-nav { transform: translateY(-100%); }
+
+    .prologue {
+      min-height: 100vh;
       overflow: hidden;
     }
-    /* 层叠远山（路线 B） */
-    .mountains {
-      position: absolute;
-      inset: auto 0 0 0;
-      height: 46vh;
-      pointer-events: none;
-    }
-    .mountains svg { display: block; width: 100%; height: 100%; }
 
-    .hero-inner {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      padding: 2rem 1.5rem 16vh;
-      max-width: 720px;
-      transition: opacity .9s ease, transform .9s ease;
-    }
-    .hero-eyebrow {
-      font-family: var(--font-label);
-      font-size: .68rem;
-      letter-spacing: .5em;
-      color: var(--ochre);
-      text-transform: uppercase;
-      margin-bottom: 1.6rem;
-    }
-    .hero h1 {
-      font-family: var(--font-title);
-      font-weight: 400;
-      font-size: clamp(3.4rem, 9vw, 6.5rem);
-      letter-spacing: .22em;
-      margin: 0 0 1.4rem;
-      text-indent: .22em;
-    }
-    .hero .thesis {
-      font-family: var(--font-serif);
-      font-size: clamp(.98rem, 2vw, 1.15rem);
-      color: var(--ink-2);
-      letter-spacing: .1em;
-      line-height: 2.1;
-      margin: 0 auto 2.6rem;
-      max-width: 30em;
+    .prologue-state[hidden] { display: none; }
+
+    .prologue-state {
+      min-height: calc(100vh - 58px);
+      animation: prologue-in .7s ease both;
     }
 
-    /* 雾中诗 · 考据悬念 */
-    .mystery {
-      position: relative;
-      margin: 0 auto;
-      max-width: 560px;
-      padding: 2.2rem 2rem 2rem;
-      background: rgba(237, 231, 217, .55);
-      border: 1px solid rgba(43, 43, 40, .14);
-      border-radius: 3px;
-      backdrop-filter: blur(4px);
-      transition: opacity 1.2s ease, transform 1.2s ease;
+    @keyframes prologue-in {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: none; }
     }
-    .mystery .m-label, .mystery .m-poem, .mystery .m-question {
-      transition: opacity 1.2s ease, transform 1.2s ease, filter 1.2s ease;
-    }
-    .mystery.sinking .m-label,
-    .mystery.sinking .m-poem,
-    .mystery.sinking .m-question { opacity: .3; transform: translateY(6px); filter: blur(1px); }
-    .mystery .m-label {
-      font-size: .68rem;
-      letter-spacing: .3em;
-      color: var(--ink-2);
-      margin-bottom: 1rem;
-    }
-    .mystery .m-poem {
-      font-family: var(--font-serif);
-      font-size: 1.12rem;
-      letter-spacing: .12em;
-      line-height: 2;
-      color: var(--ink);
-    }
-    .mystery .m-poem .m-title { color: var(--ink-2); font-size: .85rem; }
-    .mystery .m-question {
-      margin-top: 1.2rem;
-      font-family: var(--font-serif);
-      font-size: 1.02rem;
-      color: var(--cinnabar);
-      letter-spacing: .14em;
-      line-height: 2.1;
-    }
-    .mystery .m-question strong { color: var(--ink); font-weight: 500; }
-    .mystery .m-action {
-      margin-top: 1.4rem;
-      display: inline-block;
-      font-family: var(--font-serif);
-      font-size: .9rem;
-      letter-spacing: .3em;
-      color: var(--ink);
-      border: 1px solid var(--ink);
-      padding: .55rem 1.6rem .55rem 1.9rem;
+
+    .prologue button {
+      font: inherit;
       cursor: pointer;
-      background: transparent;
-      transition: background .3s ease, color .3s ease;
     }
-    .mystery .m-action:hover { background: var(--ink); color: var(--paper); }
 
-    /* 证据链 */
-    .evidence {
-      display: none;
-      margin-top: 1.6rem;
-      text-align: left;
+    .prologue-action {
+      border: 1px solid currentColor;
+      background: transparent;
+      color: inherit;
+      padding: .72rem 1.6rem .72rem 1.85rem;
+      letter-spacing: .3em;
+      line-height: 1;
+      transition: background .25s ease, color .25s ease, transform .25s ease;
     }
-    .evidence.open { display: block; }
-    .ev-step {
-      display: flex;
-      align-items: baseline;
-      gap: .9rem;
-      padding: .65rem 0;
-      border-top: 1px dashed rgba(43, 43, 40, .2);
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity .8s ease, transform .8s ease;
+
+    .prologue-action:hover,
+    .prologue-action:focus-visible {
+      background: var(--cinnabar);
+      border-color: var(--cinnabar);
+      color: var(--paper);
+      transform: translateY(-2px);
     }
-    .ev-step.show { opacity: 1; transform: none; }
-    .ev-step .ev-name {
+
+    /* Figma 00: dark opening */
+    .prologue-splash {
+      position: relative;
+      display: grid;
+      place-items: center;
+      isolation: isolate;
+      background: #282826;
+      color: #f5f2ea;
+    }
+
+    .prologue-splash::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: url("../image/title-brush-诗风侠影.png") center / cover no-repeat;
+      filter: grayscale(1) invert(1) contrast(1.25);
+      opacity: .18;
+      mix-blend-mode: screen;
+    }
+
+    .prologue-splash::after {
+      content: "侠";
+      position: absolute;
+      left: 50%;
+      bottom: 3.2rem;
+      transform: translateX(-50%);
+      display: grid;
+      place-items: center;
+      width: 2.8rem;
+      height: 2.8rem;
+      border: 1px solid rgba(245, 242, 234, .7);
+      border-radius: 50%;
+      font-family: var(--font-title);
+      font-size: 1.55rem;
+    }
+
+    .splash-copy {
+      display: grid;
+      justify-items: center;
+      width: min(720px, calc(100% - 3rem));
+      text-align: center;
+    }
+
+    .splash-copy .eyebrow {
+      margin: 0 0 1.5rem;
+      color: #c9a06c;
+      font-family: var(--font-label);
+      font-size: .72rem;
+      letter-spacing: .48em;
+    }
+
+    .splash-copy h1 {
+      margin: 0;
+      color: #f5f2ea;
+      font-family: var(--font-title);
+      font-size: clamp(4.6rem, 13vw, 9rem);
+      font-weight: 400;
+      letter-spacing: .18em;
+      line-height: 1.1;
+      text-indent: .18em;
+    }
+
+    .splash-copy .english-title {
+      margin: -.2rem 0 1.1rem;
+      color: #c9a06c;
+      font-family: var(--font-label);
+      font-size: clamp(1.35rem, 4vw, 2.8rem);
+      letter-spacing: .14em;
+    }
+
+    .splash-copy .intro {
+      margin: 0 0 2.8rem;
+      color: rgba(245, 242, 234, .78);
       font-family: var(--font-serif);
       font-size: .92rem;
-      white-space: nowrap;
+      letter-spacing: .14em;
     }
-    .ev-step .ev-result {
-      margin-left: auto;
-      flex: 1;
-      min-width: 0;
-      font-size: .8rem;
-      letter-spacing: .06em;
-      line-height: 1.8;
-      text-align: right;
-      color: var(--ink-2);
-    }
-    .ev-step .ev-result.none { color: var(--cinnabar); }
-    .ev-verdict {
-      margin-top: 1.2rem;
-      font-family: var(--font-serif);
-      font-size: .95rem;
-      line-height: 2;
-      color: var(--ink-2);
-      opacity: 0;
-      transition: opacity 1.2s ease;
-    }
-    .ev-verdict.show { opacity: 1; }
-    .ev-verdict strong { color: var(--ink); font-weight: 500; }
 
-    /* 展卷 · 序章与正文之间的门槛 */
-    .m-unfurl { display: none; margin-top: 1.6rem; }
-    .m-unfurl.show {
-      display: inline-block;
-      opacity: 0;
-      animation: unfurlIn 1.2s ease .2s forwards, unfurlBreathe 3.4s ease-in-out 1.6s infinite;
-    }
-    @keyframes unfurlIn { to { opacity: 1; } }
-    @keyframes unfurlBreathe {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(154, 43, 42, 0); }
-      50% { box-shadow: 0 0 20px 2px rgba(154, 43, 42, .16); }
-    }
-    .scroll-rod {
-      position: fixed;
-      left: 0; right: 0; top: -4px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--cinnabar) 30%, var(--cinnabar) 70%, transparent);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 60;
-    }
-    body.unfurling .scroll-rod {
-      opacity: 1;
-      top: 100vh;
-      transition: top 1.15s cubic-bezier(.6, .05, .3, 1), opacity .4s ease 1.2s;
-    }
-    body.unfurling .hero-inner {
-      opacity: 0;
-      transform: translateY(-28px);
-      transition: opacity .9s ease, transform .9s ease;
-    }
-    .toc.revealable .toc-item {
-      opacity: 0;
-      transform: translateY(14px);
-      transition: opacity .8s ease, transform .8s ease;
-    }
-    .toc.revealable.in-view .toc-item { opacity: 1; transform: none; }
-    .toc.revealable.in-view .toc-item:nth-child(2) { transition-delay: .1s; }
-    .toc.revealable.in-view .toc-item:nth-child(3) { transition-delay: .2s; }
-    .toc.revealable.in-view .toc-item:nth-child(4) { transition-delay: .3s; }
-    .toc.revealable.in-view .toc-item:nth-child(5) { transition-delay: .4s; }
+    .splash-copy .prologue-action { color: #f5f2ea; }
 
-    .scroll-hint {
-      position: absolute;
-      bottom: 5vh;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 3;
-      font-size: .68rem;
-      letter-spacing: .4em;
-      color: var(--ink-2);
-      writing-mode: vertical-rl;
-      opacity: .7;
+    /* Figma 01-1: closed book */
+    .prologue-book-stage {
+      display: grid;
+      place-items: center;
+      min-height: calc(100vh - 58px);
+      padding: 4rem 1.5rem;
+      background:
+        linear-gradient(rgba(255, 255, 255, .66), rgba(255, 255, 255, .66)),
+        url("../image/title-brush-诗风侠影.png") center / cover no-repeat;
     }
-    .scroll-hint::after {
+
+    .book-wrap { display: grid; justify-items: center; gap: 3rem; }
+
+    .book {
+      position: relative;
+      width: min(17rem, 72vw);
+      aspect-ratio: .72;
+      padding: .9rem;
+      background: #fbfaf5;
+      border: 1px solid var(--prologue-line);
+      box-shadow: 18px 22px 30px var(--prologue-shadow);
+      transform: rotate(1deg);
+    }
+
+    .book::before,
+    .book::after {
       content: "";
-      display: block;
-      width: 1px;
-      height: 3.2rem;
-      margin: .8rem auto 0;
-      background: linear-gradient(var(--ink-2), transparent);
+      position: absolute;
+      inset: .55rem;
+      border: 1px solid rgba(43, 43, 40, .14);
+      pointer-events: none;
     }
 
-    /* ---------- 事实带 ---------- */
-    .facts {
-      width: min(1060px, calc(100% - 3rem));
-      margin: 0 auto;
-      padding: 6rem 0 4rem;
-    }
-    .facts .f-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 2.5rem;
-      text-align: center;
-    }
-    .fact .f-num {
-      font-family: var(--font-serif);
-      font-size: clamp(2.6rem, 6vw, 4rem);
-      line-height: 1;
-      color: var(--ink);
-    }
-    .fact .f-num sup { font-size: .35em; color: var(--cinnabar); }
-    .fact .f-label {
-      margin-top: .8rem;
-      font-size: .78rem;
-      letter-spacing: .3em;
-      color: var(--ink-2);
-    }
-    .fact .f-sub {
-      margin-top: .35rem;
-      font-size: .68rem;
-      color: var(--ink-2);
-      opacity: .8;
-      line-height: 1.8;
-    }
-    .facts .f-note {
-      margin-top: 3rem;
-      text-align: center;
-      font-family: var(--font-serif);
-      color: var(--ink-2);
-      font-size: .9rem;
-      letter-spacing: .12em;
-      line-height: 2.1;
+    .book::after {
+      inset: auto .9rem .9rem;
+      height: 2px;
+      border: 0;
+      background: var(--cinnabar);
+      opacity: .55;
     }
 
-    /* ---------- 回目 ---------- */
-    .toc {
-      width: min(1060px, calc(100% - 3rem));
-      margin: 0 auto;
-      padding: 3rem 0 5rem;
-    }
-    .toc .toc-title {
-      text-align: center;
-      font-family: var(--font-title);
-      font-size: 1.7rem;
-      letter-spacing: .4em;
-      text-indent: .4em;
-      margin-bottom: .8rem;
-    }
-    .toc .toc-sub {
-      text-align: center;
-      font-size: .72rem;
-      letter-spacing: .3em;
-      color: var(--ink-2);
-      margin-bottom: 3rem;
-    }
-    .toc-list { display: flex; flex-direction: column; }
-    .toc-item {
+    .book-title {
       display: grid;
-      grid-template-columns: 4.5rem 8.5rem 1fr auto;
-      align-items: baseline;
-      gap: 1.4rem;
-      padding: 1.35rem .8rem;
-      border-top: 1px solid rgba(43, 43, 40, .14);
-      cursor: pointer;
-      transition: background .3s ease;
+      place-items: center;
+      height: 100%;
       color: var(--ink);
-    }
-    .toc-item:last-child { border-bottom: 1px solid rgba(43, 43, 40, .14); }
-    .toc-item:hover { background: rgba(237, 231, 217, .6); }
-    .toc-item .t-char {
       font-family: var(--font-title);
-      font-size: 2rem;
-      color: var(--ink-2);
-      transition: color .3s ease;
-    }
-    .toc-item:hover .t-char { color: var(--cinnabar); }
-    .toc-item .t-name {
-      font-family: var(--font-serif);
-      font-size: 1.25rem;
-      letter-spacing: .2em;
-    }
-    .toc-item .t-desc { font-size: .82rem; color: var(--ink-2); line-height: 1.8; }
-    .toc-item .t-data {
-      font-family: var(--font-label);
-      font-size: .62rem;
+      font-size: clamp(1.8rem, 7vw, 3.2rem);
       letter-spacing: .22em;
-      color: var(--ochre);
-      text-transform: uppercase;
-      white-space: nowrap;
+      writing-mode: vertical-rl;
     }
 
-    .colophon-footer {
+    .book-author {
+      position: absolute;
+      right: 1.5rem;
+      bottom: 2.2rem;
+      color: var(--ink-2);
+      font-family: var(--font-serif);
+      font-size: .75rem;
+      writing-mode: vertical-rl;
+    }
+
+    .book-caption {
+      margin: 0;
+      color: var(--ink-2);
+      font-family: var(--font-label);
+      font-size: .7rem;
+      letter-spacing: .34em;
+    }
+
+    /* Figma 01-2: open pages */
+    .open-book-stage {
+      display: grid;
+      place-items: center;
+      min-height: calc(100vh - 58px);
+      padding: 4rem 1.5rem;
+      background: #fdfcf8;
+    }
+
+    .open-book-wrap { display: grid; justify-items: center; gap: 3rem; width: min(56rem, 100%); }
+
+    .open-book {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      width: min(42rem, 94vw);
+      min-height: 20rem;
+      background: #faf8ef;
+      box-shadow: 18px 22px 30px var(--prologue-shadow);
+      transform: rotate(-.5deg);
+    }
+
+    .book-page {
+      position: relative;
+      padding: 3rem 2.3rem;
+      border: 1px solid var(--prologue-line);
+      background: repeating-linear-gradient(90deg, transparent 0 2.9rem, rgba(43, 43, 40, .1) 2.95rem, transparent 3rem);
+      writing-mode: vertical-rl;
+    }
+
+    .book-page::before {
+      content: "";
+      position: absolute;
+      inset: 1rem;
+      border: 1px solid rgba(43, 43, 40, .12);
+      pointer-events: none;
+    }
+
+    .book-page p {
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font-serif);
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      letter-spacing: .22em;
+      line-height: 2.25;
+    }
+
+    .book-page .poem-credit {
+      margin-top: auto;
+      color: var(--ink-2);
+      font-size: .72rem;
+    }
+
+    .book-page .poem-line { animation: poem-line-in .8s ease both; }
+    .book-page .poem-line:nth-child(2) { animation-delay: .18s; }
+    .book-page .poem-line:nth-child(3) { animation-delay: .36s; }
+
+    @keyframes poem-line-in {
+      from { opacity: 0; transform: translateX(1rem); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* Figma 01-3: blurred preface */
+    .preface-stage {
+      display: grid;
+      place-items: center;
+      min-height: calc(100vh - 58px);
+      padding: 4rem 1.5rem;
+      background:
+        linear-gradient(rgba(255, 255, 255, .76), rgba(255, 255, 255, .76)),
+        url("../image/title-brush-诗风侠影.png") center / cover no-repeat;
+    }
+
+    .preface-wrap { display: grid; justify-items: center; gap: 2.5rem; }
+
+    .preface-book {
+      width: min(42rem, 92vw);
+      min-height: 19rem;
+      padding: clamp(2.2rem, 7vw, 4.5rem);
+      background: rgba(245, 242, 234, .78);
+      box-shadow: 18px 22px 30px var(--prologue-shadow);
+      filter: blur(1.6px);
+      opacity: .84;
+    }
+
+    .preface-book p {
+      margin: 0;
+      color: var(--cinnabar);
+      font-family: var(--font-serif);
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      letter-spacing: .15em;
+      line-height: 2.2;
+    }
+
+    .preface-book p:last-child {
+      margin-top: 2.5rem;
+      color: var(--ink);
+    }
+
+    /* Figma 01-4/01-5: the long scroll and chapter directory */
+    .unfurled-stage {
+      min-height: calc(100vh - 58px);
+      padding-bottom: 4rem;
+      background: var(--paper);
+    }
+
+    .scroll-hero {
+      position: relative;
+      min-height: min(46rem, 88vh);
+      overflow: hidden;
+      padding: clamp(4rem, 10vw, 8rem) max(1.5rem, 7vw) 3rem;
+      color: #f5f2ea;
+      background: linear-gradient(180deg, #241e1b 0%, #4b342b 62%, #8b6b4f 100%);
+    }
+
+    .scroll-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(36, 30, 27, .12), rgba(36, 30, 27, .66)),
+        url("../image/act2-frontier.png") center / cover no-repeat;
+      opacity: .55;
+      mix-blend-mode: screen;
+      transform: scale(1.04);
+    }
+
+    .scroll-hero::after {
+      content: "";
+      position: absolute;
+      left: -5%;
+      right: -5%;
+      bottom: -2rem;
+      height: 8rem;
+      border-radius: 50% 50% 0 0;
+      background: var(--paper);
+      transform: rotate(-2deg);
+    }
+
+    .scroll-hero > * { position: relative; z-index: 1; }
+
+    .scroll-kicker {
+      margin: 0 0 1.5rem;
+      color: #c9a06c;
+      font-family: var(--font-label);
+      font-size: .72rem;
+      letter-spacing: .42em;
+    }
+
+    .scroll-hero h2 {
+      max-width: 16rem;
+      margin: 0;
+      font-family: var(--font-title);
+      font-size: clamp(3rem, 8vw, 6rem);
+      font-weight: 400;
+      letter-spacing: .2em;
+      line-height: 1.1;
+    }
+
+    .scroll-hero .scroll-question {
+      max-width: 22rem;
+      margin: 1.4rem 0 0;
+      color: rgba(245, 242, 234, .8);
+      font-family: var(--font-serif);
+      line-height: 2;
+    }
+
+    .scroll-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+      max-width: 44rem;
+      margin: 5rem 0 0;
+    }
+
+    .scroll-stat { border-top: 1px solid rgba(245, 242, 234, .35); padding-top: .6rem; }
+    .scroll-stat strong { display: block; font-family: var(--font-serif); font-size: 2.2rem; font-weight: 400; }
+    .scroll-stat span { color: rgba(245, 242, 234, .7); font-size: .7rem; letter-spacing: .14em; }
+
+    .chapter-directory {
       width: min(1060px, calc(100% - 3rem));
       margin: 0 auto;
-      padding: 2.5rem 0 5rem;
-      border-top: 1px solid rgba(43, 43, 40, .12);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 2rem;
-      flex-wrap: wrap;
-      font-size: .7rem;
+      padding: 5rem 0 2rem;
+    }
+
+    .chapter-directory header { text-align: center; }
+    .chapter-directory h2 { margin: 0; font-family: var(--font-title); font-size: 2rem; font-weight: 400; letter-spacing: .42em; text-indent: .42em; }
+    .chapter-directory p { margin: .8rem 0 3rem; color: var(--ink-2); font-size: .72rem; letter-spacing: .28em; }
+
+    .chapter-list { display: grid; }
+
+    .chapter-link {
+      display: grid;
+      grid-template-columns: 4.5rem 10rem 1fr auto;
+      align-items: center;
+      gap: 1.2rem;
+      padding: 1.25rem .4rem;
+      border-top: 1px solid var(--prologue-line);
+      color: var(--ink);
+      transition: background .25s ease, padding .25s ease;
+    }
+
+    .chapter-link:last-child { border-bottom: 1px solid var(--prologue-line); }
+    .chapter-link:hover, .chapter-link:focus-visible { padding-left: 1rem; background: var(--silk); }
+    .chapter-link .chapter-char { color: var(--ink-2); font-family: var(--font-title); font-size: 2.1rem; }
+    .chapter-link .chapter-name { font-family: var(--font-serif); font-size: 1.2rem; letter-spacing: .16em; }
+    .chapter-link .chapter-desc { color: var(--ink-2); font-size: .78rem; line-height: 1.8; }
+    .chapter-link .chapter-data { color: var(--ochre); font-family: var(--font-label); font-size: .64rem; letter-spacing: .15em; white-space: nowrap; }
+
+    .prologue-footer {
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding: 2rem 0 4rem;
       color: var(--ink-2);
+      font-size: .7rem;
       line-height: 2;
     }
 
     @media (max-width: 720px) {
-      .toc-item { grid-template-columns: 3rem 1fr; }
-      .toc-item .t-desc, .toc-item .t-data { grid-column: 2; }
+      .splash-copy .intro { max-width: 16rem; line-height: 1.9; }
+      .open-book { width: min(31rem, 94vw); min-height: 15rem; }
+      .book-page { padding: 2rem 1.3rem; }
+      .scroll-stats { margin-top: 3rem; }
+      .chapter-link { grid-template-columns: 3rem 1fr; gap: .4rem 1rem; }
+      .chapter-link .chapter-desc, .chapter-link .chapter-data { grid-column: 2; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .prologue-state,
+      .book-page .poem-line,
+      .prologue-action,
+      .chapter-link { animation: none; transition: none; }
     }
   </style>
 </head>
-<body data-chapter="xu" data-seal="侠">
+<body class="prologue-page" data-chapter="xu" data-seal="侠">
+  <main class="prologue" data-prologue-root data-current-phase="splash">
+    <section class="prologue-state prologue-splash" data-prologue-phase="splash" aria-labelledby="splash-title">
+      <div class="splash-copy">
+        <p class="eyebrow">TANG DYNASTY · CHIVALRIC POETRY</p>
+        <h1 id="splash-title">诗风侠影</h1>
+        <p class="english-title">CHIVALRIC POETRY</p>
+        <p class="intro">唐代侠义诗信息可视化网页</p>
+        <button class="prologue-action" id="beginBtn" type="button">开始探索</button>
+      </div>
+    </section>
 
-  <!-- 第一屏 · 雾中诗 -->
-  <section class="hero" id="hero">
-    <div class="mountains" aria-hidden="true">
-      <svg viewBox="0 0 1440 460" preserveAspectRatio="none">
-        <path d="M0,360 C180,300 260,220 420,260 C560,295 640,180 800,215 C960,250 1040,160 1200,200 C1330,232 1400,210 1440,225 L1440,460 L0,460 Z" fill="#6E6E66" opacity=".14"/>
-        <path d="M0,395 C200,350 320,280 480,310 C640,340 720,250 880,280 C1040,310 1120,235 1280,265 C1370,282 1420,270 1440,278 L1440,460 L0,460 Z" fill="#8B6B4F" opacity=".12"/>
-        <path d="M0,425 C220,395 360,340 540,362 C700,382 800,320 960,345 C1120,370 1240,320 1440,352 L1440,460 L0,460 Z" fill="#2B2B28" opacity=".10"/>
-      </svg>
-    </div>
+    <section class="prologue-state prologue-book-stage" data-prologue-phase="cover" aria-labelledby="cover-title" hidden>
+      <div class="book-wrap">
+        <div class="book" aria-label="《横吹曲辞·出塞》诗卷封面">
+          <div class="book-title" id="cover-title">横吹曲辞·出塞</div>
+          <div class="book-author">张易之</div>
+        </div>
+        <p class="book-caption">卷外一首 · 问侠</p>
+        <button class="prologue-action" id="openBookBtn" type="button">打开诗卷</button>
+      </div>
+    </section>
 
-    <div class="hero-inner">
-      <p class="hero-eyebrow">TANG DYNASTY · CHIVALRIC POETRY</p>
-      <h1>诗风侠影</h1>
-      <p class="thesis">九十首唐代咏侠诗，如何在天下、人物、意象与情志之间，<br />塑造"侠"的共同想象？</p>
+    <section class="prologue-state open-book-stage" data-prologue-phase="poem" aria-labelledby="poem-title" hidden>
+      <div class="open-book-wrap">
+        <div class="open-book" id="poem-title">
+          <div class="book-page" aria-label="诗卷左页"></div>
+          <div class="book-page" aria-label="诗卷右页">
+            <p>
+              <span class="poem-line">侠客重恩光，骢马饰金装。</span><br />
+              <span class="poem-line">瞥闻传羽檄，驰突救边荒。</span><br />
+              <span class="poem-line poem-credit">——张易之《横吹曲辞·出塞》</span>
+            </p>
+          </div>
+        </div>
+        <button class="prologue-action" id="prefaceBtn" type="button">继续</button>
+      </div>
+    </section>
 
-      <div class="mystery" id="mystery">
-        <p class="m-label">卷外一首 · 问侠</p>
-        <p class="m-poem">
-          侠客重恩光，骢马饰金装。<br />
-          瞥闻传羽檄，驰突救边荒。<br />
-          <span class="m-title">——张易之《横吹曲辞 出塞》</span>
-        </p>
-        <p class="m-question">
-          写它的人，是武周朝的宠臣，<br />
-          一生未曾到过边荒——<br />
-          <strong>他为什么需要想象一个侠客？</strong>
-        </p>
-        <button class="m-action" id="evidenceBtn">展 卷 寻 侠</button>
+    <section class="prologue-state preface-stage" data-prologue-phase="preface" aria-labelledby="preface-title" hidden>
+      <div class="preface-wrap">
+        <div class="preface-book">
+          <p id="preface-title">写它的人，是武周朝的宠臣，<br />一生未曾到过边荒——</p>
+          <p>他为什么需要想象一个侠客？</p>
+        </div>
+        <button class="prologue-action" id="unfurlBtn" type="button">展卷寻侠</button>
+      </div>
+    </section>
 
-        <div class="evidence" id="evidence">
-          <div class="ev-step"><span class="ev-name">其 人</span><span class="ev-result">武周宠臣，以姿容音律侍于左右，未履边塞一步</span></div>
-          <div class="ev-step"><span class="ev-name">其 诗</span><span class="ev-result">拟乐府旧题：四句侠客开场，八句思妇收尾，侠是借来的衣冠</span></div>
-          <div class="ev-step"><span class="ev-name">其 年</span><span class="ev-result none">写作年份无考：它在时间里没有锚点，几乎只作为想象存在</span></div>
-          <p class="ev-verdict" id="verdict">
-            侠的想象，强大到<strong>连未曾仗剑的人，也需要借它说话</strong>。<br />
-            这九十首诗，就是这场共同想象的证词。
-          </p>
-          <button class="m-action m-unfurl" id="unfurlBtn">展 卷</button>
+    <section class="prologue-state unfurled-stage" data-prologue-phase="unfurled" aria-labelledby="scroll-title" hidden>
+      <div class="scroll-hero">
+        <p class="scroll-kicker">展卷 · 序</p>
+        <h2 id="scroll-title">侠踪<br />天下</h2>
+        <p class="scroll-question">从长安到边塞，从想象到证词，九十首诗把侠义写成一条穿越山河的路。</p>
+        <div class="scroll-stats" aria-label="语料概览">
+          <div class="scroll-stat"><strong>100</strong><span>首咏侠诗</span></div>
+          <div class="scroll-stat"><strong>56</strong><span>位诗人</span></div>
+          <div class="scroll-stat"><strong>76</strong><span>个地点</span></div>
         </div>
       </div>
-    </div>
-    <div class="scroll-hint">展卷</div>
-  </section>
 
-  <!-- 第二屏 · 事实带 -->
-  <section class="facts">
-    <div class="f-grid">
-      <div class="fact">
-        <div class="f-num">90</div>
-        <div class="f-label">咏侠诗</div>
-        <div class="f-sub">从初唐到唐末<br />五类侠义主题</div>
-      </div>
-      <div class="fact">
-        <div class="f-num">56</div>
-        <div class="f-label">位诗人</div>
-        <div class="f-sub">五人写了近三分之一<br />骆宾王 · 王维 · 李白 · 高适 · 杜甫</div>
-      </div>
-      <div class="fact">
-        <div class="f-num">76</div>
-        <div class="f-label">个地点</div>
-        <div class="f-sub">长安出现 50 次<br />边塞与关隘 28 处</div>
-      </div>
-      <div class="fact">
-        <div class="f-num">30<sup>/90</sup></div>
-        <div class="f-label">首可系年</div>
-        <div class="f-sub">四十首由生平推定<br />二十首散作星辰</div>
-      </div>
-    </div>
-    <p class="f-note">侠气从何时起，到何处去；写侠的是谁，心里装的又是什么。<br />六幕长卷，循次展开。</p>
-  </section>
+      <section class="chapter-directory" aria-labelledby="directory-title">
+        <header>
+          <h2 id="directory-title">回 目</h2>
+          <p>六幕 · 序 时 地 人 心 存</p>
+        </header>
+        <nav class="chapter-list" aria-label="六幕章节">
+          <a class="chapter-link" href="xiayi-scroll.html">
+            <span class="chapter-char">时</span><span class="chapter-name">侠从何来</span>
+            <span class="chapter-desc">五脉主题沿时间流淌：系年可考者为实，推定者为雾。</span><span class="chapter-data">100 首 · 时间长卷</span>
+          </a>
+          <a class="chapter-link" href="interactive.html">
+            <span class="chapter-char">地</span><span class="chapter-name">侠行何处</span>
+            <span class="chapter-desc">长安与边塞之间，76 个地点留下侠义书写的踪迹。</span><span class="chapter-data">76 地点 · 疆域分布</span>
+          </a>
+          <a class="chapter-link" href="poets.html">
+            <span class="chapter-char">人</span><span class="chapter-name">侠者何人</span>
+            <span class="chapter-desc">五位诗人的全身像，每首诗是一块等待翻面的诗牌。</span><span class="chapter-data">5 人 · 代表作</span>
+          </a>
+          <a class="chapter-link" href="emotions.html">
+            <span class="chapter-char">心</span><span class="chapter-name">侠心何似</span>
+            <span class="chapter-desc">八维情志分作两个世界，观察侠客与诗人的两副面孔。</span><span class="chapter-data">8 维情志 · 283 词</span>
+          </a>
+          <a class="chapter-link" href="keyword-river.html">
+            <span class="chapter-char">存</span><span class="chapter-name">侠韵长存</span>
+            <span class="chapter-desc">诗人与主题汇成全景矩阵，数据与方法在此收束。</span><span class="chapter-data">诗人 × 主题</span>
+          </a>
+        </nav>
+      </section>
 
-  <!-- 第三屏 · 回目 -->
-  <section class="toc">
-    <p class="toc-title">回 目</p>
-    <p class="toc-sub">六幕 · 序 时 地 人 心 存</p>
-    <div class="toc-list">
-      <a class="toc-item" href="xiayi-scroll.html">
-        <span class="t-char">时</span>
-        <span class="t-name">侠从何来</span>
-        <span class="t-desc">五脉主题沿时间流淌：初唐的意气、盛唐的豪迈、乱世的悲歌。系年可考者为实，推定者为雾。</span>
-        <span class="t-data">90 首 · 时间长卷</span>
-      </a>
-      <a class="toc-item" href="interactive.html">
-        <span class="t-char">地</span>
-        <span class="t-name">侠行何处</span>
-        <span class="t-desc">长安与边塞之间：76 个地点的分布。京城仕途与塞外关山，是侠义书写的两极。</span>
-        <span class="t-data">76 地点 · 疆域分布</span>
-      </a>
-      <a class="toc-item" href="poets.html">
-        <span class="t-char">人</span>
-        <span class="t-name">侠者何人</span>
-        <span class="t-desc">五位诗人的全身像：一人一境，每首诗一块诗牌，牌背是他们的系年证据。</span>
-        <span class="t-data">5 人 · 27 首代表作</span>
-      </a>
-      <a class="toc-item" href="emotions.html">
-        <span class="t-char">心</span>
-        <span class="t-name">侠心何似</span>
-        <span class="t-desc">侠客是诗人的自我投射：八维情志分作两个世界，九十首诗各归其位。</span>
-        <span class="t-data">8 维情志 · 283 词</span>
-      </a>
-      <a class="toc-item" href="keyword-river.html">
-        <span class="t-char">存</span>
-        <span class="t-name">侠韵长存</span>
-        <span class="t-desc">五十六位诗人与五类主题的全景矩阵。</span>
-        <span class="t-data">56 人 × 5 类</span>
-      </a>
-    </div>
-  </section>
-
-  <footer class="colophon-footer">
-    <div>
-      诗风侠影 · 唐代咏侠诗信息可视化<br />
-      语料：90 首咏侠诗 ｜ 编年：作品级系年 + 作者活动期推定 ｜ 计数方法散见各图附注
-    </div>
-    <div class="seal" aria-hidden="true">侠</div>
-  </footer>
-
-  <div class="scroll-rod" aria-hidden="true"></div>
+      <footer class="prologue-footer">
+        诗风侠影 · 唐代咏侠诗信息可视化<br />
+        语料：100 首咏侠诗 ｜ 编年：作品级系年 + 作者活动期推定
+      </footer>
+    </section>
+  </main>
 
   <script src="assets/js/site.js"></script>
-  <script>
-    (function () {
-      var btn = document.getElementById('evidenceBtn');
-      var box = document.getElementById('evidence');
-      var mystery = document.getElementById('mystery');
-      var steps = box.querySelectorAll('.ev-step');
-      var verdict = document.getElementById('verdict');
-      var unfurlBtn = document.getElementById('unfurlBtn');
-      var toc = document.querySelector('.toc');
-      var done = false;
-
-      btn.addEventListener('click', function () {
-        if (done) return;
-        done = true;
-        btn.style.display = 'none';
-        box.classList.add('open');
-        steps.forEach(function (s, i) {
-          setTimeout(function () { s.classList.add('show'); }, 500 + i * 900);
-        });
-        setTimeout(function () {
-          verdict.classList.add('show');
-          mystery.classList.add('sinking');
-          unfurlBtn.classList.add('show');
-        }, 500 + steps.length * 900 + 400);
-      });
-
-      // 展卷：朱砂卷杆扫过，序章退场，滚至回目
-      unfurlBtn.addEventListener('click', function () {
-        document.body.classList.add('unfurling');
-        setTimeout(function () {
-          toc.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 380);
-        setTimeout(function () {
-          document.body.classList.remove('unfurling');
-        }, 2600);
-      });
-
-      // 回目入视时错落浮现
-      toc.classList.add('revealable');
-      new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting) toc.classList.add('in-view');
-        });
-      }, { threshold: .2 }).observe(toc);
-    }());
-  </script>
+  <script src="assets/js/prologue-state.js"></script>
+  <script src="assets/js/prologue.js"></script>
 </body>
 </html>
