@@ -26,7 +26,7 @@
     .two-worlds { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
     .world {
       border-top: 2px solid var(--ink);
-      padding-top: 1rem;
+      padding-top: 1rem; position: relative; cursor: pointer;
     }
     .world.xia { border-top-color: var(--ochre); }
     .world.shi { border-top-color: var(--blue); }
@@ -36,7 +36,8 @@
     }
     .world .w-title .w-en { font-family: var(--font-label); font-size: .6rem; letter-spacing: .25em; color: var(--ink-2); }
     .world .w-dims { font-size: .78rem; color: var(--ink-2); margin: .35rem 0 .8rem; letter-spacing: .06em; }
-    .world .w-chart { width: 100%; height: 300px; }
+    .world-art { width: 100%; height: 300px; object-fit: contain; display: block; }
+    .world .w-chart { width: 100%; height: 300px; display: none; }
     .world-vs {
       text-align: center; margin: 1.2rem 0 0;
       font-family: var(--font-serif); color: var(--ink-2); font-size: .88rem; letter-spacing: .1em;
@@ -45,15 +46,10 @@
     /* 投射散点 */
     .scatter-wrap { position: relative; }
     #scatterChart { width: 100%; height: 560px; }
-    .poet-filter { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .poet-filter button {
-      font-family: var(--font-serif); font-size: .82rem; letter-spacing: .12em;
-      padding: .3rem .9rem; border: 1px solid rgba(43,43,40,.3); border-radius: 2px;
-      background: transparent; color: var(--ink-2); cursor: pointer;
-      transition: all .25s ease;
-    }
-    .poet-filter button:hover { border-color: var(--ink); color: var(--ink); }
-    .poet-filter button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .poet-stage { min-height: 150px; position: relative; display: flex; justify-content: center; align-items: end; gap: .65rem; overflow: hidden; }
+    .poet-stage::after { content: ''; position: absolute; inset: auto 0 0; height: 40px; background: url('image/emotions/projection/地面.png') center bottom / 100% 100% no-repeat; z-index: 0; }
+    .poet-figure { appearance: none; border: 0; background: transparent; padding: 0; cursor: pointer; position: relative; z-index: 1; }
+    .poet-figure img { height: 132px; max-width: 100px; display: block; }
     .scatter-note { font-size: .72rem; color: var(--ink-2); margin-top: .5rem; }
     /* 图注 · 方法说明（小字淡色） */
     .m-note { font-size: .72rem; color: var(--mist); line-height: 1.9; margin: 1rem 0 0; max-width: 56em; }
@@ -68,13 +64,32 @@
     }
     .cat-chips button.active { background: var(--blue); border-color: var(--blue); color: var(--paper); }
     #wordBar { width: 100%; height: 340px; }
-    .lex-field-box { position: relative; }
-    #lexField { width: 100%; height: 480px; }
-    .lex-caption { font-size: .7rem; color: var(--ink-2); margin-top: .4rem; }
+    .lex-scene { min-height: 520px; position: relative; overflow: hidden; }
+    .lex-layer { position: absolute; pointer-events: none; }
+    .lex-window { width: 53%; left: 24%; top: 2%; }
+    .lex-desk { width: 82%; left: 9%; bottom: 11%; }
+    .lex-semi { width: 30%; left: 35%; bottom: 23%; }
+    .lex-ground { width: 82%; left: 9%; bottom: 6%; }
+    .lex-object { position: absolute; appearance: none; border: 0; background: transparent; padding: 0; cursor: pointer; z-index: 2; }
+    .lex-object img { max-width: 100%; max-height: 100%; display: block; }
+    .obj-jian { width: 23%; height: 38%; left: 34%; top: 49%; }
+    .obj-hulu { width: 15%; height: 26%; left: 16%; top: 45%; }
+    .obj-zhu { width: 9%; height: 18%; left: 56%; top: 54%; }
+    .obj-yanzhi { width: 14%; height: 16%; left: 63%; top: 58%; }
+    .obj-di { width: 25%; height: 12%; left: 21%; top: 63%; }
+    .obj-baoxiang { width: 16%; height: 23%; right: 6%; top: 60%; }
+    .obj-tongjing { width: 13%; height: 25%; left: 52%; top: 57%; }
+    .obj-xinyue { width: 14%; height: 18%; left: 56%; top: 10%; }
+    .obj-taoshu { width: 22%; height: 28%; left: 24%; top: 13%; }
+    .obj-ma { width: 13%; height: 21%; left: 43%; top: 38%; }
+    .obj-yanta { width: 12%; height: 30%; right: 17%; top: 28%; }
+    .obj-meizhi { width: 23%; height: 20%; left: 24%; top: 7%; }
 
     @media (max-width: 820px) {
       .two-worlds, .lexicon { grid-template-columns: 1fr; }
       #scatterChart { height: 440px; }
+      .poet-stage { gap: .1rem; min-height: 115px; }
+      .poet-figure img { height: 96px; max-width: 68px; }
     }
   </style>
 </head>
@@ -96,14 +111,16 @@
       <div class="scene-head"><span class="no">壹</span><h2>两个世界</h2></div>
       <p class="scene-desc">八维情志评分（0–10）分作两列对置：左为侠客的世界——壮怀、同袍、义愤、死生；右为诗人的内心——功名、幻灭、孤愤、孤寂。点线为五类侠义主题在各维度上的中位数。</p>
       <div class="two-worlds">
-        <div class="world xia">
+        <div class="world xia" id="worldXia" role="button" tabindex="0" aria-label="展开侠客的世界图表">
           <div class="w-title">侠客的世界 <span class="w-en">THE KNIGHT-ERRANT</span></div>
           <div class="w-dims">壮怀逸兴 · 同袍之谊 · 家国义愤 · 死生超然</div>
+          <img class="world-art" src="image/emotions/worlds/侠客的世界.png" alt="侠客的世界插画" />
           <div class="w-chart" id="chartXia"></div>
         </div>
-        <div class="world shi">
+        <div class="world shi" id="worldShi" role="button" tabindex="0" aria-label="展开诗人的内心图表">
           <div class="w-title">诗人的内心 <span class="w-en">THE POET</span></div>
           <div class="w-dims">功名热望 · 功名幻灭 · 孤愤悲慨 · 苍茫孤寂</div>
+          <img class="world-art" src="image/emotions/worlds/诗人的内心.png" alt="诗人的内心插画" />
           <div class="w-chart" id="chartShi"></div>
         </div>
       </div>
@@ -115,7 +132,13 @@
     <section class="scene" id="projection">
       <div class="scene-head"><span class="no">贰</span><h2>投射图</h2></div>
       <p class="scene-desc">每首诗一个墨点：横轴为侠客侧均分，纵轴为诗人侧均分，全图以百首均值分作四象——右上"剑气箫心"，侠气与孤愤并盛；左上"箫心独抱"；右下"剑气纵横"；左下"剑箫两淡"。朱砂大点为五位诗人的重心——李白漂在最右，高适与杜甫并肩落在左上。点选诗人可单独检视其诗作：墨点与重心之间牵出投射之线，其余四人的重心将淡去。</p>
-      <div class="poet-filter" id="poetFilter"></div>
+      <div class="poet-stage" id="poetStage" aria-label="诗人筛选">
+        <button class="poet-figure" type="button" data-poet="骆宾王" aria-label="筛选骆宾王"><img src="image/emotions/projection/骆宾王.svg" alt="骆宾王" /></button>
+        <button class="poet-figure" type="button" data-poet="王维" aria-label="筛选王维"><img src="image/emotions/projection/王维.svg" alt="王维" /></button>
+        <button class="poet-figure" type="button" data-poet="李白" aria-label="筛选李白"><img src="image/emotions/projection/李白.svg" alt="李白" /></button>
+        <button class="poet-figure" type="button" data-poet="高适" aria-label="筛选高适"><img src="image/emotions/projection/高适.svg" alt="高适" /></button>
+        <button class="poet-figure" type="button" data-poet="杜甫" aria-label="筛选杜甫"><img src="image/emotions/projection/杜甫.svg" alt="杜甫" /></button>
+      </div>
       <div class="scatter-wrap"><div id="scatterChart"></div></div>
       <p class="m-note">双轨得分 · "侠客侧"取八维中壮怀逸兴、同袍之谊、家国义愤、死生超然之均分；"诗人侧"取功名热望、功名幻灭、孤愤悲慨、苍茫孤寂之均分。本图与第三幕人物仪表均由两均分直接计算，无艺术位移。悬停墨点可读出该诗在两个世界上的坐标。</p>
     </section>
@@ -123,16 +146,32 @@
     <!-- 场三 · 词象 -->
     <section class="scene" id="lexicon">
       <div class="scene-head"><span class="no">叁</span><h2>词象</h2></div>
-      <p class="scene-desc">283 个高频词，十三个类别。左侧为各类前八位的准确排布；右侧词林按十三类分圃——面积即词频，"侠客"五十四见，是这片词林的唯一朱砂。</p>
-      <div class="cat-chips" id="catChips"></div>
-      <div class="lexicon">
-        <div id="wordBar"></div>
-        <div class="lex-field-box">
-          <div id="lexField"></div>
-          <p class="lex-caption">词林十三圃 · 283 词各归其类，面积与词频成正比；小圃无字者，悬停可读</p>
-        </div>
+      <p class="scene-desc">十二类高频词以物象为入口；选择物品或类别，可查看该类词频。</p>
+      <div class="cat-chips" id="catChips">
+        <button type="button" data-category="人物形象类">人物形象类</button><button type="button" data-category="情志类">情志类</button><button type="button" data-category="时间类">时间类</button><button type="button" data-category="颜色类">颜色类</button><button type="button" data-category="功名著述类">功名著述类</button><button type="button" data-category="器物类">器物类</button><button type="button" data-category="身体部位类">身体部位类</button><button type="button" data-category="风霜雨雪水云类">风霜雨雪水云类</button><button type="button" data-category="草木类">草木类</button><button type="button" data-category="动物类">动物类</button><button type="button" data-category="地理类">地理类</button><button type="button" data-category="花卉类">花卉类</button>
       </div>
-      <p class="m-note">词频与分类 · 分词后保留实义高频词 283 个，归入人物形象、器物、地理、时间等十三类。旧版"情感类"词表存在个别误分类（如"武威""安知"），已标记待复核；跨版本分类口径以 word_frequency.csv 为准。</p>
+      <div class="lexicon">
+        <div class="lex-scene" id="lexScene" aria-label="词象场景">
+          <img class="lex-layer lex-semi" src="image/emotions/lexicon/背景半圆.svg" alt="" />
+          <img class="lex-layer lex-window" src="image/emotions/lexicon/窗.svg" alt="" />
+          <img class="lex-layer lex-ground" src="image/emotions/lexicon/背景地面.svg" alt="" />
+          <img class="lex-layer lex-desk" src="image/emotions/lexicon/桌子.svg" alt="" />
+          <button class="lex-object obj-jian" type="button" data-category="人物形象类" aria-label="人物形象类：剑"><img src="image/emotions/lexicon/items/剑.svg" alt="剑" /></button>
+          <button class="lex-object obj-hulu" type="button" data-category="情志类" aria-label="情志类：酒葫芦"><img src="image/emotions/lexicon/items/酒葫芦.svg" alt="酒葫芦" /></button>
+          <button class="lex-object obj-zhu" type="button" data-category="时间类" aria-label="时间类：烛台"><img src="image/emotions/lexicon/items/烛台.svg" alt="烛台" /></button>
+          <button class="lex-object obj-yanzhi" type="button" data-category="颜色类" aria-label="颜色类：胭脂盒"><img src="image/emotions/lexicon/items/胭脂盒.svg" alt="胭脂盒" /></button>
+          <button class="lex-object obj-di" type="button" data-category="功名著述类" aria-label="功名著述类：笛"><img src="image/emotions/lexicon/items/笛.svg" alt="笛" /></button>
+          <button class="lex-object obj-baoxiang" type="button" data-category="器物类" aria-label="器物类：宝箱"><img src="image/emotions/lexicon/items/宝箱.svg" alt="宝箱" /></button>
+          <button class="lex-object obj-tongjing" type="button" data-category="身体部位类" aria-label="身体部位类：铜镜"><img src="image/emotions/lexicon/items/铜镜.svg" alt="铜镜" /></button>
+          <button class="lex-object obj-xinyue" type="button" data-category="风霜雨雪水云类" aria-label="风霜雨雪水云类：新月"><img src="image/emotions/lexicon/items/新月.svg" alt="新月" /></button>
+          <button class="lex-object obj-taoshu" type="button" data-category="草木类" aria-label="草木类：桃树"><img src="image/emotions/lexicon/items/桃树.svg" alt="桃树" /></button>
+          <button class="lex-object obj-ma" type="button" data-category="动物类" aria-label="动物类：马"><img src="image/emotions/lexicon/items/马.svg" alt="马" /></button>
+          <button class="lex-object obj-yanta" type="button" data-category="地理类" aria-label="地理类：雁塔"><img src="image/emotions/lexicon/items/雁塔.svg" alt="雁塔" /></button>
+          <button class="lex-object obj-meizhi" type="button" data-category="花卉类" aria-label="花卉类：梅枝"><img src="image/emotions/lexicon/items/梅枝.svg" alt="梅枝" /></button>
+        </div>
+        <div id="wordBar"></div>
+      </div>
+      <p class="m-note">词频与分类 · 分词后保留实义高频词，归入人物形象、器物、地理、时间等十二类；分类口径以 word_frequency.csv 为准。</p>
     </section>
 
   </main>
