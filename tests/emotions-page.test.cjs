@@ -34,3 +34,14 @@ test("projection filters from figures and resets from blank chart space", () => 
   assert.match(html, /classList\.toggle\('is-muted'/);
   assert.match(html, /scatterChart\.addEventListener\('click'/);
 });
+
+test("lexicon uses twelve approved mappings and reversible focus", () => {
+  const html = fs.readFileSync(PAGE, "utf8");
+
+  assert.match(html, /var CATEGORY_OBJECTS = \{/);
+  assert.match(html, /'人物形象类': '剑'/);
+  assert.match(html, /'风霜雨雪水云类': '新月'/);
+  assert.match(html, /function setLexiconCategory\(category\)/);
+  assert.doesNotMatch(html, /词林十三圃/);
+  assert.doesNotMatch(html, /十三个类别/);
+});

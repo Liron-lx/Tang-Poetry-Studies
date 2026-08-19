@@ -78,6 +78,11 @@
     .lex-ground { width: 82%; left: 9%; bottom: 6%; }
     .lex-object { position: absolute; appearance: none; border: 0; background: transparent; padding: 0; cursor: pointer; z-index: 2; }
     .lex-object img { max-width: 100%; max-height: 100%; display: block; }
+    .lex-layer, .lex-object { transition: opacity .42s ease, transform .42s ease, left .42s ease, top .42s ease; }
+    .lex-scene.lexicon-focused .lex-layer, .lex-scene.lexicon-focused .lex-object:not(.is-selected) { opacity: 0; pointer-events: none; }
+    .lex-scene.lexicon-focused .lex-object.is-selected { width: 44%; height: 62%; left: 7%; top: 19%; z-index: 3; }
+    .lex-scene.lexicon-focused::after { content: ''; position: absolute; width: 39%; aspect-ratio: 1; left: 9%; top: 23%; background: url('image/emotions/lexicon/背景圆.png') center / contain no-repeat; z-index: 1; }
+    .lex-scene.lexicon-focused .lex-object.is-selected { z-index: 2; }
     .obj-jian { width: 23%; height: 38%; left: 34%; top: 49%; }
     .obj-hulu { width: 15%; height: 26%; left: 16%; top: 45%; }
     .obj-zhu { width: 9%; height: 18%; left: 56%; top: 54%; }
@@ -99,7 +104,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .world .w-title, .world-art, .world .w-chart { transition-duration: 0s; }
+      .world .w-title, .world-art, .world .w-chart, .lex-layer, .lex-object { transition-duration: 0s; }
     }
   </style>
 </head>
@@ -502,111 +507,35 @@
           }, { replaceMerge: ['series', 'yAxis'] });
         }
 
+        var CATEGORY_OBJECTS = {
+          '人物形象类': '剑', '情志类': '酒葫芦', '时间类': '烛台', '颜色类': '胭脂盒',
+          '功名著述类': '笛', '器物类': '宝箱', '身体部位类': '铜镜',
+          '风霜雨雪水云类': '新月', '草木类': '桃树', '动物类': '马',
+          '地理类': '雁塔', '花卉类': '梅枝'
+        };
+        var selectedCategory = null;
+        var lexScene = document.getElementById('lexScene');
         var chipBox = document.getElementById('catChips');
-
-        /* 词林十三圃 · 矩形树图：位置 = 类别，面积 = 词频 */
-        var field = echarts.init(document.getElementById('lexField'));
-        var catStat = {};
-        words.forEach(function (w) {
-          var c = w['分类'];
-          if (!catStat[c]) catStat[c] = { n: 0, sum: 0 };
-          catStat[c].n++; catStat[c].sum += +w['词频'];
+        function setLexiconCategory(category) {
+          selectedCategory = selectedCategory === category ? null : category;
+          lexScene.classList.toggle('lexicon-focused', Boolean(selectedCategory));
+          lexScene.querySelectorAll('[data-category]').forEach(function (item) {
+            item.classList.toggle('is-selected', item.dataset.category === selectedCategory);
+          });
+          chipBox.querySelectorAll('[data-category]').forEach(function (chip) {
+            chip.classList.toggle('active', chip.dataset.category === selectedCategory);
+          });
+          if (selectedCategory) { renderBar(selectedCategory); window.setTimeout(function () { bar.resize(); }, 20); }
+          else { bar.clear(); }
+        }
+        lexScene.addEventListener('click', function (event) {
+          var item = event.target.closest('[data-category]');
+          if (item) { setLexiconCategory(item.dataset.category); }
+          else { setLexiconCategory(selectedCategory); }
         });
-        var catOrder = cats.slice().sort(function (a, b) { return catStat[b].sum - catStat[a].sum; });
-        /* 白描词格：纸底细线格子，不填实色；词频化入墨色浓淡（墨分五色）。
-           侠客是一枚朱文印——朱线朱字，不铺红块；只在"人物形象"圃选中时现身 */
-        var LINE_ON = '#2B2B28';    // 松烟墨 · 选中圃的格线
-        var LINE_OFF = '#C9C7BC';   // 雾灰 · 未选中圃的格线
-        var BAND = '#E9E4D4';       // 绢本 · 圃额底色
-        function washOn(f) { return 'rgba(61,90,108,' + (0.05 + 0.2 * Math.min(1, f / 16)).toFixed(3) + ')'; }
-
-        function fieldData(sel) {
-          return catOrder.map(function (c) {
-            var on = !sel || c === sel;
-            return {
-              name: c,
-              count: catStat[c].n, sum: catStat[c].sum,
-              itemStyle: { color: BAND },
-              upperLabel: {
-                show: catStat[c].sum >= 15,
-                color: on ? '#2B2B28' : '#B0AA9A'
-              },
-              children: words.filter(function (w) { return w['分类'] === c; })
-                .map(function (w) {
-                  var f = +w['词频'];
-                  var isXiaRed = w['词语'] === '侠客' && on;
-                  return {
-                    name: w['词语'], value: f,
-                    itemStyle: isXiaRed
-                      ? { color: 'rgba(176,74,58,.10)', borderColor: '#B04A3A', borderWidth: 1.5 }
-                      : on
-                        ? { color: washOn(f), borderColor: LINE_ON, borderWidth: 1 }
-                        : { color: 'rgba(201,199,188,.12)', borderColor: LINE_OFF, borderWidth: 1 },
-                    label: isXiaRed
-                      ? { show: true, color: '#B04A3A', fontWeight: 'bold', fontSize: 13 }
-                      : on
-                        ? { show: f >= 8, color: '#2B2B28', fontSize: 11 }
-                        : { show: f >= 8, color: '#A8A293', fontSize: 11 }
-                  };
-                })
-            };
-          });
-        }
-
-        function renderField(sel) {
-          field.setOption({
-            series: [{
-              type: 'treemap',
-              left: 0, right: 0, top: 0, bottom: 0,
-              roam: false, nodeClick: false,
-              breadcrumb: { show: false },
-              label: { show: false },
-              itemStyle: { borderColor: '#F5F2EA' },
-              levels: [
-                { itemStyle: { borderWidth: 0, gapWidth: 4 } },
-                {
-                  upperLabel: {
-                    show: true, height: 22, fontSize: 11, fontFamily: 'Noto Serif SC',
-                    formatter: function (p) { return p.name.replace('类', '') + ' ' + p.data.count + ' 词'; }
-                  },
-                  itemStyle: { borderColor: '#F5F2EA', borderWidth: 2, gapWidth: 2 }
-                },
-                {
-                  itemStyle: { borderWidth: 1, gapWidth: 2 },
-                  label: {
-                    fontFamily: 'Noto Serif SC',
-                    overflow: 'truncate'
-                  },
-                  /* 悬停即"点睛"：格线染朱砂，小格亦显字 */
-                  emphasis: { label: { show: true }, itemStyle: { borderColor: '#B04A3A', borderWidth: 1.5 } }
-                }
-              ],
-              data: fieldData(sel)
-            }],
-            tooltip: {
-              backgroundColor: 'rgba(237,231,217,.96)', borderColor: 'rgba(43,43,40,.35)',
-              textStyle: { color: '#2B2B28', fontSize: 12 },
-              formatter: function (pr) {
-                if (pr.data.children) return '<b>' + pr.name + '</b><br/>' + pr.data.count + ' 词 · 共 ' + pr.data.sum + ' 次';
-                var cat = pr.treeAncestors && pr.treeAncestors[1] ? pr.treeAncestors[1].name : '';
-                return '<b>' + pr.name + '</b> · ' + pr.value + ' 次' + (cat ? '<br/>' + cat : '');
-              }
-            }
-          });
-        }
-        renderField(cats[0]);
-
-        cats.forEach(function (c, i) {
-          var b = document.createElement('button');
-          b.textContent = c;
-          if (i === 0) { b.classList.add('active'); renderBar(c); }
-          b.addEventListener('click', function () {
-            chipBox.querySelectorAll('button').forEach(function (x) { x.classList.remove('active'); });
-            b.classList.add('active');
-            renderBar(c);
-            renderField(c);
-          });
-          chipBox.appendChild(b);
+        chipBox.addEventListener('click', function (event) {
+          var chip = event.target.closest('[data-category]');
+          if (chip) { setLexiconCategory(chip.dataset.category); }
         });
 
         window.addEventListener('resize', function () {
