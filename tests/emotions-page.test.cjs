@@ -25,3 +25,12 @@ test("two worlds keeps art by default and has a reversible one-side chart state"
   assert.match(html, /classList\.toggle\('is-expanded'/);
   assert.match(html, /prefers-reduced-motion/);
 });
+
+test("projection filters from figures and resets from blank chart space", () => {
+  const html = fs.readFileSync(PAGE, "utf8");
+
+  assert.doesNotMatch(html, /id="poetFilter"/);
+  assert.match(html, /function setCurrentPoet\(name\)/);
+  assert.match(html, /classList\.toggle\('is-muted'/);
+  assert.match(html, /scatterChart\.addEventListener\('click'/);
+});

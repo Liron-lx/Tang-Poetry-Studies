@@ -53,7 +53,9 @@
     .poet-stage { min-height: 150px; position: relative; display: flex; justify-content: center; align-items: end; gap: .65rem; overflow: hidden; }
     .poet-stage::after { content: ''; position: absolute; inset: auto 0 0; height: 40px; background: url('image/emotions/projection/地面.png') center bottom / 100% 100% no-repeat; z-index: 0; }
     .poet-figure { appearance: none; border: 0; background: transparent; padding: 0; cursor: pointer; position: relative; z-index: 1; }
-    .poet-figure img { height: 132px; max-width: 100px; display: block; }
+    .poet-figure img { height: 132px; max-width: 100px; display: block; transition: opacity .25s ease, filter .25s ease; }
+    .poet-figure.is-muted img { opacity: .28; filter: grayscale(1); }
+    .poet-figure.is-selected img, .poet-figure:hover img { opacity: 1; filter: none; }
     .scatter-note { font-size: .72rem; color: var(--ink-2); margin-top: .5rem; }
     /* 图注 · 方法说明（小字淡色） */
     .m-note { font-size: .72rem; color: var(--mist); line-height: 1.9; margin: 1rem 0 0; max-width: 56em; }
@@ -323,15 +325,15 @@
         var currentPoet = null;
 
         function scatterData() {
-          return poems.filter(function (p) { return !currentPoet || p.author === currentPoet; })
-            .map(function (p) {
+          return poems.map(function (p) {
+              var selected = !currentPoet || p.author === currentPoet;
               return {
                 name: p.author + '《' + p.title + '》',
                 value: [p.xia, p.shi],
                 poem: p,
                 itemStyle: {
                   color: CLUSTER_COLORS[p.cluster],
-                  opacity: currentPoet ? .9 : .62,
+                  opacity: selected ? .9 : .1,
                   borderColor: '#F5F2EA', borderWidth: .6
                 }
               };
@@ -441,20 +443,27 @@
         }
         renderScatter();
 
-        var filterBox = document.getElementById('poetFilter');
-        var poetCount = {};
-        poems.forEach(function (p) { poetCount[p.author] = (poetCount[p.author] || 0) + 1; });
-        ['全部'].concat(FIVE).forEach(function (name) {
-          var b = document.createElement('button');
-          b.textContent = name === '全部' ? '全部 · ' + poems.length : name + ' · ' + (poetCount[name] || 0);
-          if (name === '全部') b.classList.add('active');
-          b.addEventListener('click', function () {
-            currentPoet = name === '全部' ? null : name;
-            filterBox.querySelectorAll('button').forEach(function (x) { x.classList.remove('active'); });
-            b.classList.add('active');
-            renderScatter();
+        var poetStage = document.getElementById('poetStage');
+        function setCurrentPoet(name) {
+          currentPoet = currentPoet === name ? null : name;
+          poetStage.querySelectorAll('[data-poet]').forEach(function (button) {
+            var selected = currentPoet === button.dataset.poet;
+            button.classList.toggle('is-selected', selected);
+            button.classList.toggle('is-muted', Boolean(currentPoet) && !selected);
           });
-          filterBox.appendChild(b);
+          renderScatter();
+        }
+        poetStage.addEventListener('click', function (event) {
+          var button = event.target.closest('[data-poet]');
+          if (button) { setCurrentPoet(button.dataset.poet); }
+          else { setCurrentPoet(currentPoet); }
+        });
+        var scatterChart = document.getElementById('scatterChart');
+        scatterChart.addEventListener('click', function (event) {
+          if (event.target === event.currentTarget) { setCurrentPoet(currentPoet); }
+        });
+        scatter.getZr().on('click', function (event) {
+          if (!event.target) { setCurrentPoet(currentPoet); }
         });
 
         /* ---------- 场三：词象 ---------- */
