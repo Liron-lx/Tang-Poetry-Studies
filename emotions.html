@@ -32,12 +32,16 @@
     .world.shi { border-top-color: var(--blue); }
     .world .w-title {
       font-family: var(--font-serif); font-size: 1.15rem; letter-spacing: .18em;
-      display: flex; justify-content: space-between; align-items: baseline;
+      display: flex; justify-content: space-between; align-items: baseline; transition: transform .42s ease;
     }
     .world .w-title .w-en { font-family: var(--font-label); font-size: .6rem; letter-spacing: .25em; color: var(--ink-2); }
     .world .w-dims { font-size: .78rem; color: var(--ink-2); margin: .35rem 0 .8rem; letter-spacing: .06em; }
-    .world-art { width: 100%; height: 300px; object-fit: contain; display: block; }
-    .world .w-chart { width: 100%; height: 300px; display: none; }
+    .world-art { width: 100%; height: 300px; object-fit: contain; display: block; opacity: 1; transition: opacity .42s ease; }
+    .world .w-chart { width: 100%; height: 300px; display: none; opacity: 0; transition: opacity .42s ease; }
+    .world:hover .world-art { opacity: .78; }
+    .world.is-expanded .world-art { display: none; }
+    .world.is-expanded .w-chart { display: block; opacity: 1; }
+    .world.is-expanded .w-title { transform: translateY(-.25rem); }
     .world-vs {
       text-align: center; margin: 1.2rem 0 0;
       font-family: var(--font-serif); color: var(--ink-2); font-size: .88rem; letter-spacing: .1em;
@@ -90,6 +94,10 @@
       #scatterChart { height: 440px; }
       .poet-stage { gap: .1rem; min-height: 115px; }
       .poet-figure img { height: 96px; max-width: 68px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .world .w-title, .world-art, .world .w-chart { transition-duration: 0s; }
     }
   </style>
 </head>
@@ -267,8 +275,34 @@
           });
           return chart;
         }
-        worldChart('chartXia', XIA_DIMS);
-        worldChart('chartShi', SHI_DIMS);
+        var worldCharts = {
+          xia: worldChart('chartXia', XIA_DIMS),
+          shi: worldChart('chartShi', SHI_DIMS)
+        };
+        var worldSelection = null;
+        var worlds = document.getElementById('worlds');
+
+        function setWorldSelection(name) {
+          worldSelection = worldSelection === name ? null : name;
+          ['xia', 'shi'].forEach(function (side) {
+            document.getElementById(side === 'xia' ? 'worldXia' : 'worldShi')
+              .classList.toggle('is-expanded', worldSelection === side);
+          });
+          if (worldSelection) {
+            window.setTimeout(function () { worldCharts[worldSelection].resize(); }, 20);
+          }
+        }
+
+        ['xia', 'shi'].forEach(function (side) {
+          var node = document.getElementById(side === 'xia' ? 'worldXia' : 'worldShi');
+          node.addEventListener('click', function () { setWorldSelection(side); });
+          node.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setWorldSelection(side); }
+          });
+        });
+        worlds.addEventListener('click', function (event) {
+          if (event.target === worlds) { setWorldSelection(worldSelection); }
+        });
 
         /* ---------- 场二：投射散点 ---------- */
         var meanX = poems.reduce(function (s, p) { return s + p.xia; }, 0) / poems.length;

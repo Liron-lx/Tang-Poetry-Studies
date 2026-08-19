@@ -16,3 +16,12 @@ test("the emotions page exposes supplied illustration, poet, and lexicon-item co
   assert.equal((html.match(/data-poet="/g) || []).length, 5);
   assert.equal((html.match(/data-category="/g) || []).length, 24);
 });
+
+test("two worlds keeps art by default and has a reversible one-side chart state", () => {
+  const html = fs.readFileSync(PAGE, "utf8");
+
+  assert.match(html, /function setWorldSelection\(name\)/);
+  assert.match(html, /worldSelection === name \? null : name/);
+  assert.match(html, /classList\.toggle\('is-expanded'/);
+  assert.match(html, /prefers-reduced-motion/);
+});
