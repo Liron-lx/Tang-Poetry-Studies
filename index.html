@@ -3,513 +3,238 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="诗风侠影：九十首唐代咏侠诗的信息可视化长卷。侠气从何时起，到何处去。" />
+  <meta name="description" content="诗风侠影：九十首唐代咏侠诗的信息可视化长卷。" />
   <title>诗风侠影 · 序｜何谓侠</title>
   <link rel="stylesheet" href="assets/css/common.css" />
   <style>
-    /* ---------- 序章专用 ---------- */
-    .hero {
-      position: relative;
-      min-height: 92vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
-    /* 层叠远山（路线 B） */
-    .mountains {
-      position: absolute;
-      inset: auto 0 0 0;
-      height: 46vh;
-      pointer-events: none;
-    }
-    .mountains svg { display: block; width: 100%; height: 100%; }
-
-    .hero-inner {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      padding: 2rem 1.5rem 16vh;
-      max-width: 720px;
-      transition: opacity .9s ease, transform .9s ease;
-    }
-    .hero-eyebrow {
-      font-family: var(--font-label);
-      font-size: .68rem;
-      letter-spacing: .5em;
-      color: var(--ochre);
-      text-transform: uppercase;
-      margin-bottom: 1.6rem;
-    }
-    .hero h1 {
-      font-family: var(--font-title);
-      font-weight: 400;
-      font-size: clamp(3.4rem, 9vw, 6.5rem);
-      letter-spacing: .22em;
-      margin: 0 0 1.4rem;
-      text-indent: .22em;
-    }
-    .hero .thesis {
-      font-family: var(--font-serif);
-      font-size: clamp(.98rem, 2vw, 1.15rem);
-      color: var(--ink-2);
-      letter-spacing: .1em;
-      line-height: 2.1;
-      margin: 0 auto 2.6rem;
-      max-width: 30em;
-    }
-
-    /* 雾中诗 · 考据悬念 */
-    .mystery {
-      position: relative;
-      margin: 0 auto;
-      max-width: 560px;
-      padding: 2.2rem 2rem 2rem;
-      background: rgba(237, 231, 217, .55);
-      border: 1px solid rgba(43, 43, 40, .14);
-      border-radius: 3px;
-      backdrop-filter: blur(4px);
-      transition: opacity 1.2s ease, transform 1.2s ease;
-    }
-    .mystery .m-label, .mystery .m-poem, .mystery .m-question {
-      transition: opacity 1.2s ease, transform 1.2s ease, filter 1.2s ease;
-    }
-    .mystery.sinking .m-label,
-    .mystery.sinking .m-poem,
-    .mystery.sinking .m-question { opacity: .3; transform: translateY(6px); filter: blur(1px); }
-    .mystery .m-label {
-      font-size: .68rem;
-      letter-spacing: .3em;
-      color: var(--ink-2);
-      margin-bottom: 1rem;
-    }
-    .mystery .m-poem {
-      font-family: var(--font-serif);
-      font-size: 1.12rem;
-      letter-spacing: .12em;
-      line-height: 2;
-      color: var(--ink);
-    }
-    .mystery .m-poem .m-title { color: var(--ink-2); font-size: .85rem; }
-    .mystery .m-question {
-      margin-top: 1.2rem;
-      font-family: var(--font-serif);
-      font-size: 1.02rem;
-      color: var(--cinnabar);
-      letter-spacing: .14em;
-      line-height: 2.1;
-    }
-    .mystery .m-question strong { color: var(--ink); font-weight: 500; }
-    .mystery .m-action {
-      margin-top: 1.4rem;
-      display: inline-block;
-      font-family: var(--font-serif);
-      font-size: .9rem;
-      letter-spacing: .3em;
-      color: var(--ink);
-      border: 1px solid var(--ink);
-      padding: .55rem 1.6rem .55rem 1.9rem;
-      cursor: pointer;
-      background: transparent;
-      transition: background .3s ease, color .3s ease;
-    }
-    .mystery .m-action:hover { background: var(--ink); color: var(--paper); }
-
-    /* 证据链 */
-    .evidence {
-      display: none;
-      margin-top: 1.6rem;
-      text-align: left;
-    }
-    .evidence.open { display: block; }
-    .ev-step {
-      display: flex;
-      align-items: baseline;
-      gap: .9rem;
-      padding: .65rem 0;
-      border-top: 1px dashed rgba(43, 43, 40, .2);
-      opacity: 0;
-      transform: translateY(8px);
-      transition: opacity .8s ease, transform .8s ease;
-    }
-    .ev-step.show { opacity: 1; transform: none; }
-    .ev-step .ev-name {
-      font-family: var(--font-serif);
-      font-size: .92rem;
-      white-space: nowrap;
-    }
-    .ev-step .ev-result {
-      margin-left: auto;
-      flex: 1;
-      min-width: 0;
-      font-size: .8rem;
-      letter-spacing: .06em;
-      line-height: 1.8;
-      text-align: right;
-      color: var(--ink-2);
-    }
-    .ev-step .ev-result.none { color: var(--cinnabar); }
-    .ev-verdict {
-      margin-top: 1.2rem;
-      font-family: var(--font-serif);
-      font-size: .95rem;
-      line-height: 2;
-      color: var(--ink-2);
-      opacity: 0;
-      transition: opacity 1.2s ease;
-    }
-    .ev-verdict.show { opacity: 1; }
-    .ev-verdict strong { color: var(--ink); font-weight: 500; }
-
-    /* 展卷 · 序章与正文之间的门槛 */
-    .m-unfurl { display: none; margin-top: 1.6rem; }
-    .m-unfurl.show {
-      display: inline-block;
-      opacity: 0;
-      animation: unfurlIn 1.2s ease .2s forwards, unfurlBreathe 3.4s ease-in-out 1.6s infinite;
-    }
-    @keyframes unfurlIn { to { opacity: 1; } }
-    @keyframes unfurlBreathe {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(154, 43, 42, 0); }
-      50% { box-shadow: 0 0 20px 2px rgba(154, 43, 42, .16); }
-    }
-    .scroll-rod {
-      position: fixed;
-      left: 0; right: 0; top: -4px;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--cinnabar) 30%, var(--cinnabar) 70%, transparent);
-      opacity: 0;
-      pointer-events: none;
-      z-index: 60;
-    }
-    body.unfurling .scroll-rod {
-      opacity: 1;
-      top: 100vh;
-      transition: top 1.15s cubic-bezier(.6, .05, .3, 1), opacity .4s ease 1.2s;
-    }
-    body.unfurling .hero-inner {
-      opacity: 0;
-      transform: translateY(-28px);
-      transition: opacity .9s ease, transform .9s ease;
-    }
-    .toc.revealable .toc-item {
-      opacity: 0;
-      transform: translateY(14px);
-      transition: opacity .8s ease, transform .8s ease;
-    }
-    .toc.revealable.in-view .toc-item { opacity: 1; transform: none; }
-    .toc.revealable.in-view .toc-item:nth-child(2) { transition-delay: .1s; }
-    .toc.revealable.in-view .toc-item:nth-child(3) { transition-delay: .2s; }
-    .toc.revealable.in-view .toc-item:nth-child(4) { transition-delay: .3s; }
-    .toc.revealable.in-view .toc-item:nth-child(5) { transition-delay: .4s; }
-
-    .scroll-hint {
-      position: absolute;
-      bottom: 5vh;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 3;
-      font-size: .68rem;
-      letter-spacing: .4em;
-      color: var(--ink-2);
-      writing-mode: vertical-rl;
-      opacity: .7;
-    }
-    .scroll-hint::after {
-      content: "";
-      display: block;
-      width: 1px;
-      height: 3.2rem;
-      margin: .8rem auto 0;
-      background: linear-gradient(var(--ink-2), transparent);
-    }
-
-    /* ---------- 事实带 ---------- */
-    .facts {
-      width: min(1060px, calc(100% - 3rem));
-      margin: 0 auto;
-      padding: 6rem 0 4rem;
-    }
-    .facts .f-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 2.5rem;
-      text-align: center;
-    }
-    .fact .f-num {
-      font-family: var(--font-serif);
-      font-size: clamp(2.6rem, 6vw, 4rem);
-      line-height: 1;
-      color: var(--ink);
-    }
-    .fact .f-num sup { font-size: .35em; color: var(--cinnabar); }
-    .fact .f-label {
-      margin-top: .8rem;
-      font-size: .78rem;
-      letter-spacing: .3em;
-      color: var(--ink-2);
-    }
-    .fact .f-sub {
-      margin-top: .35rem;
-      font-size: .68rem;
-      color: var(--ink-2);
-      opacity: .8;
-      line-height: 1.8;
-    }
-    .facts .f-note {
-      margin-top: 3rem;
-      text-align: center;
-      font-family: var(--font-serif);
-      color: var(--ink-2);
-      font-size: .9rem;
-      letter-spacing: .12em;
-      line-height: 2.1;
-    }
-
-    /* ---------- 回目 ---------- */
-    .toc {
-      width: min(1060px, calc(100% - 3rem));
-      margin: 0 auto;
-      padding: 3rem 0 5rem;
-    }
-    .toc .toc-title {
-      text-align: center;
-      font-family: var(--font-title);
-      font-size: 1.7rem;
-      letter-spacing: .4em;
-      text-indent: .4em;
-      margin-bottom: .8rem;
-    }
-    .toc .toc-sub {
-      text-align: center;
-      font-size: .72rem;
-      letter-spacing: .3em;
-      color: var(--ink-2);
-      margin-bottom: 3rem;
-    }
-    .toc-list { display: flex; flex-direction: column; }
-    .toc-item {
-      display: grid;
-      grid-template-columns: 4.5rem 8.5rem 1fr auto;
-      align-items: baseline;
-      gap: 1.4rem;
-      padding: 1.35rem .8rem;
-      border-top: 1px solid rgba(43, 43, 40, .14);
-      cursor: pointer;
-      transition: background .3s ease;
-      color: var(--ink);
-    }
-    .toc-item:last-child { border-bottom: 1px solid rgba(43, 43, 40, .14); }
-    .toc-item:hover { background: rgba(237, 231, 217, .6); }
-    .toc-item .t-char {
-      font-family: var(--font-title);
-      font-size: 2rem;
-      color: var(--ink-2);
-      transition: color .3s ease;
-    }
-    .toc-item:hover .t-char { color: var(--cinnabar); }
-    .toc-item .t-name {
-      font-family: var(--font-serif);
-      font-size: 1.25rem;
-      letter-spacing: .2em;
-    }
-    .toc-item .t-desc { font-size: .82rem; color: var(--ink-2); line-height: 1.8; }
-    .toc-item .t-data {
-      font-family: var(--font-label);
-      font-size: .62rem;
-      letter-spacing: .22em;
-      color: var(--ochre);
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .colophon-footer {
-      width: min(1060px, calc(100% - 3rem));
-      margin: 0 auto;
-      padding: 2.5rem 0 5rem;
-      border-top: 1px solid rgba(43, 43, 40, .12);
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 2rem;
-      flex-wrap: wrap;
-      font-size: .7rem;
-      color: var(--ink-2);
-      line-height: 2;
-    }
-
-    @media (max-width: 720px) {
-      .toc-item { grid-template-columns: 3rem 1fr; }
-      .toc-item .t-desc, .toc-item .t-data { grid-column: 2; }
+    :root { --intro-red: #B04A3A; --intro-muted: #ACA7A0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--paper); }
+    body.scene-locked { overflow: hidden; height: 100dvh; }
+    .site-nav { position: fixed; width: 100%; opacity: 0; transform: translateY(-10px); pointer-events: none; transition: opacity .8s ease, transform .8s ease; }
+    body.intro-started .site-nav { opacity: 1; transform: none; pointer-events: auto; }
+    .intro-stage { min-height: 100dvh; position: relative; overflow: hidden; }
+    .cover-stage { background: #2B2B2B; color: #fff; display: grid; place-items: center; isolation: isolate; transition: opacity 1s ease, visibility 1s ease; }
+    .cover-stage::before, .cover-stage::after { content: ""; position: absolute; inset: -12%; z-index: -1; pointer-events: none; background: none; }
+    .cover-content { width: min(860px, calc(100% - 3rem)); text-align: center; display: flex; flex-direction: column; align-items: center; }
+    .cover-en { margin: 0; color: #E8CEB3; opacity: .68; font: 400 clamp(2rem, 5.6vw, 5rem)/1 "EB Garamond", serif; letter-spacing: .08em; }
+    .cover-title { margin: -1.05rem 0 .1rem; font: 400 clamp(5rem, 12vw, 10rem)/1.1 var(--font-title); letter-spacing: .04em; }
+    .cover-en-bottom { margin: 0 0 1.4rem; color: #E8CEB3; font: 400 clamp(2rem, 5.6vw, 5rem)/1 "EB Garamond", serif; letter-spacing: .08em; }
+    .cover-subtitle { margin: 0 0 4.2rem; color: #D7D7CF; font: 400 1.12rem/1.9 var(--font-body); letter-spacing: .18em; }
+    .start-button, .unfurl-button { border: 0; border-bottom: 1px solid #E8CEB3; background: transparent; color: #fff; cursor: pointer; font: 500 1.35rem/1.2 var(--font-body); letter-spacing: .35em; padding: .75rem 3rem .7rem; transition: color .25s ease, border-color .25s ease, transform .25s ease; }
+    .start-button:hover, .start-button:focus-visible { color: #E8CEB3; border-color: #fff; transform: translateY(-2px); }
+    .cover-logo { width: 72px; height: auto; margin-top: 5.2rem; filter: brightness(0) invert(1); }
+    .序章-stage { background: #fff; color: var(--ink); display: flex; flex-direction: column; opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(18px); transition: opacity 1s ease, transform 1s ease, visibility 1s ease; }
+    body.intro-started .cover-stage { opacity: 0; visibility: hidden; pointer-events: none; }
+    body.intro-started .序章-stage { opacity: 1; visibility: visible; pointer-events: auto; transform: none; }
+    .title-watermark { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: url('image/title-brush-诗风侠影.png') center / cover no-repeat; opacity: .04; }
+    .序章-stage .title-watermark { z-index: 0; }
+    .序章-content { position: relative; z-index: 1; width: min(1022px, calc(100% - 3rem)); flex: 1; margin: 0 auto; padding: clamp(8rem, 22vh, 13rem) 0 6rem; display: grid; grid-template-columns: minmax(0, 1fr) 388px; gap: clamp(4rem, 8vw, 7.2rem); align-items: start; }
+    .poem-columns { display: flex; justify-content: flex-start; gap: 1rem; direction: rtl; min-height: 320px; padding-top: .4rem; }
+    .poem-line { height: 310px; width: auto; object-fit: contain; opacity: 0; transform: translateX(28px); transition: opacity 1.1s ease, transform 1.1s cubic-bezier(.22,.61,.36,1); }
+    .poem-line.revealed { opacity: 1; transform: none; }
+    .poem-line:nth-child(2), .poem-line:nth-child(4) { margin-top: 3.2rem; }
+    .intro-notes { padding-top: .15rem; }
+    .note-group { opacity: 0; transform: translateY(16px); transition: opacity .8s ease, transform .8s ease; }
+    .note-group.revealed { opacity: 1; transform: none; }
+    .author-note { color: var(--intro-red); font: 400 1.05rem/1.85 "STZhongsong", var(--font-serif); letter-spacing: .12em; }
+    .note-rule { width: 78px; border-top: 2px solid var(--intro-red); margin: .7rem 0 3.25rem; }
+    .intro-question { margin: 0 0 3.2rem; color: var(--ink); font: 400 clamp(1.45rem, 2.2vw, 1.75rem)/1.5 "STZhongsong", var(--font-serif); letter-spacing: .08em; }
+    .metadata { display: flex; align-items: center; gap: 3rem; color: var(--intro-muted); font: 400 1rem/1.7 "STZhongsong", var(--font-serif); letter-spacing: .12em; }
+    .metadata-item { display: flex; flex-direction: column; }
+    .metadata-value { color: #605E5C; white-space: nowrap; }
+    .metadata-divider { height: 3.4rem; border-left: 1px solid var(--intro-muted); }
+    .unfurl-wrap { position: absolute; left: 50%; bottom: 4.3rem; z-index: 4; opacity: 0; pointer-events: none; transform: translate(-50%, 12px); transition: opacity .8s ease, transform .8s ease; }
+    .unfurl-wrap.revealed { opacity: 1; pointer-events: auto; transform: translateX(-50%); }
+    .unfurl-button { color: var(--intro-muted); border-color: var(--intro-muted); letter-spacing: .35em; padding-inline: 2rem; }
+    .unfurl-button:hover, .unfurl-button:focus-visible { color: var(--intro-red); border-color: var(--intro-red); }
+    .footer-logo { width: 48px; height: 35px; }
+    .scene-stage { position: relative; z-index: 5; margin-top: -100dvh; overflow: hidden; background: #fff; color: #2B2B2B; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .9s ease, visibility .9s ease; }
+    body.scene-active .序章-stage .序章-content, body.scene-active .序章-stage .unfurl-wrap { opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .7s ease, visibility .7s ease; }
+    body.scene-active .scene-stage { opacity: 1; visibility: visible; pointer-events: auto; }
+    .scene-design { --design-width: 1440px; position: relative; width: 100%; height: calc(100vw * 1.9673611); min-height: 2833px; overflow: hidden; background: #fff; isolation: isolate; }
+    .scene-design::before { content: ""; position: absolute; inset: 0 0 auto; height: calc(100vw * .552); background: url('image/title-brush-诗风侠影.png') center top / cover no-repeat; opacity: .04; z-index: 0; pointer-events: none; }
+    .scene-viewport, .scene-canvas { position: absolute; inset: 0; overflow: hidden; }
+    .scene-layer { position: absolute; display: block; max-width: none; pointer-events: none; will-change: transform, opacity; }
+    .scene-stage:not(.scene-ready) .scene-layer { opacity: 0; transform: translate3d(0, 100%, 0); }
+    .scene-stage.scene-ready .scene-layer { opacity: 1; transform: translate3d(0, 0, 0); transition: opacity .9s ease, transform 1.15s cubic-bezier(.22,.61,.36,1); }
+    .scene-background { left: 0; top: calc(100vw * .5518); width: 100%; height: calc(100vw * .7292); object-fit: fill; z-index: 1; }
+    .scene-background-band { left: 0; top: calc(100vw * .3828); width: 100%; height: calc(100vw * .1694); z-index: 2; }
+    .scene-hills-back { width: calc(100vw * .4125); left: 0; top: calc(100vw * .476); z-index: 3; }
+    .scene-hills-mid { width: calc(100vw * .3278); left: calc(100vw * .52); top: calc(100vw * .505); z-index: 4; }
+    .scene-hills-front { width: calc(100vw * .5); left: calc(100vw * .34); top: calc(100vw * .535); z-index: 5; }
+    .scene-road { width: calc(100vw * .24234); height: calc(100vw * .6601); left: calc(100vw * .415875); top: calc(100vw * .4913); z-index: 6; }
+    .scene-foreground { width: calc(100vw * 1.00017); height: calc(100vw * .9324); left: 0; top: calc(100vw * 1.0346); z-index: 7; }
+    .scene-building-left { width: calc(100vw * .3708); left: calc(100vw * .0638); top: calc(100vw * .4913); z-index: 8; }
+    .scene-building-right { width: calc(100vw * .1993); left: calc(100vw * .077); top: calc(100vw * .4913); z-index: 8; }
+    .scene-tree { width: calc(100vw * .1618); right: calc(100vw * .037); top: calc(100vw * .94); z-index: 9; }
+    .scene-caravan { width: calc(100vw * .0875); left: calc(100vw * .84); top: calc(100vw * .455); z-index: 9; }
+    .scene-walker { height: calc(100vw * .1); left: calc(100vw * .31); top: calc(100vw * .438); z-index: 10; }
+    .scene-birds { width: calc(100vw * .1486); left: calc(100vw * .09); top: calc(100vw * .33); z-index: 9; }
+    .scene-title { position: absolute; z-index: 12; top: calc(100vw * .154); left: calc(100vw * .276); width: calc(100vw * .48); display: flex; flex-direction: column; align-items: center; text-align: center; color: #2B2B2B; }
+    .scene-title-line { opacity: 0; transform: translateY(18px); transition: opacity .8s ease, transform .8s ease; }
+    .scene-title-ready .scene-title-line { opacity: 1; transform: none; }
+    .scene-title-line:nth-child(1) { color: #E8CEB3; font: 400 calc(100vw * .0417)/1 "EB Garamond", serif; letter-spacing: .08em; transition-delay: .15s; }
+    .scene-title-line:nth-child(2) { margin-top: -.12em; font: 400 calc(100vw * .0833)/1.05 var(--font-title); transition-delay: .42s; }
+    .scene-title-line:nth-child(3) { color: #E8CEB3; font: 400 calc(100vw * .0417)/1 "EB Garamond", serif; letter-spacing: .08em; transition-delay: .7s; }
+    .scene-data { position: absolute; z-index: 13; width: calc(100vw * .1632); color: #F5F2EA; text-align: center; opacity: 0; transform: translateY(18px); transition: opacity .8s ease .95s, transform .8s ease .95s; }
+    .scene-data-90 { left: calc(100vw * .6118); top: calc(100vw * .5705); }
+    .scene-data-56 { left: calc(100vw * .5302); top: calc(100vw * .7958); }
+    .scene-data-76 { left: calc(100vw * .6848); top: calc(100vw * .934); }
+    .scene-ready .scene-data { opacity: 1; transform: none; }
+    .scene-data-number { font: 400 clamp(3rem, 6vw, 5.5rem)/1 "EB Garamond", serif; }
+    .scene-data-label { font: .78rem/1.8 var(--font-body); letter-spacing: .18em; }
+    .scene-scroll-hint { position: absolute; z-index: 14; left: 50%; top: calc(100vw * 1.08); transform: translateX(-50%); opacity: 0; color: #6E6E66; font: .72rem/1.8 var(--font-body); letter-spacing: .25em; transition: opacity .8s ease 1.4s; }
+    .scene-ready .scene-scroll-hint { opacity: .8; }
+    .scene-intro-copy { position: absolute; left: calc(100vw * .3156); top: calc(100vw * 1.103); width: calc(100vw * .5); z-index: 16; color: #6E6E66; text-align: center; font: 400 calc(100vw * .0125)/1.68 var(--font-body); letter-spacing: .12em; }
+    .scene-directory { position: absolute; left: calc(100vw * .1321); top: calc(100vw * 1.326); width: calc(100vw * .7361); z-index: 16; }
+    .scene-directory-title { margin: 0 0 calc(100vw * .022); text-align: center; color: #2B2B28; font: 400 calc(100vw * .0189)/1.7 var(--font-title); letter-spacing: .38em; }
+    .scene-directory-sub { margin: 0 0 calc(100vw * .028); text-align: center; color: #6E6E66; font-size: calc(100vw * .008); letter-spacing: .24em; }
+    .scene-directory-list { display: grid; gap: calc(100vw * .022); }
+    .scene-directory-item { display: flex; align-items: flex-start; gap: .35em; min-height: calc(100vw * .08); border-bottom: 1px solid rgba(0,0,0,.2); color: #6E6E66; text-decoration: none; }
+    .scene-directory-item .t-char { font: 400 calc(100vw * .0556)/1.25 var(--font-title); }
+    .scene-directory-item .t-name { color: #856354; font: 400 calc(100vw * .0222)/1.7 "EB Garamond", serif; }
+    .scene-directory-item .t-desc, .scene-directory-item .t-data { display: none; }
+    @media (prefers-reduced-motion: reduce) { .scene-layer { will-change: auto; } }
+    .facts, .toc, .colophon-footer { position: relative; z-index: 2; }
+    .facts { padding-top: 6rem; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+    @media (max-width: 760px) {
+      .cover-title { margin-top: -.4rem; }
+      .cover-subtitle { margin-bottom: 3rem; font-size: .95rem; }
+      .cover-logo { margin-top: 3.4rem; }
+      .序章-content { grid-template-columns: 1fr; gap: 3.5rem; padding-top: 7rem; padding-bottom: 9rem; }
+      .poem-columns { justify-content: center; min-height: 260px; }
+      .poem-line { height: 240px; }
+      .poem-line:nth-child(2), .poem-line:nth-child(4) { margin-top: 2rem; }
+      .intro-notes { max-width: 388px; margin: 0 auto; }
+      .unfurl-wrap { bottom: 2rem; }
     }
   </style>
 </head>
-<body data-chapter="xu" data-seal="侠">
+<body class="scene-locked" data-chapter="xu" data-seal="">
+  <main>
+    <section class="intro-stage cover-stage" id="cover-stage" aria-label="开始页">
+      <div class="title-watermark" aria-hidden="true"></div>
+      <div class="cover-content">
+        <p class="cover-en">TANG DYNASTY ·</p>
+        <h1 class="cover-title">诗风侠影</h1>
+        <p class="cover-en-bottom">CHIVALRIC POETRY</p>
+        <p class="cover-subtitle">唐代侠义诗信息可视化网页</p>
+        <button class="start-button" id="startExplore" type="button">开始探索</button>
+        <img class="cover-logo" src="assets/img/序/侠logo.svg" alt="侠" />
+      </div>
+    </section>
 
-  <!-- 第一屏 · 雾中诗 -->
-  <section class="hero" id="hero">
-    <div class="mountains" aria-hidden="true">
-      <svg viewBox="0 0 1440 460" preserveAspectRatio="none">
-        <path d="M0,360 C180,300 260,220 420,260 C560,295 640,180 800,215 C960,250 1040,160 1200,200 C1330,232 1400,210 1440,225 L1440,460 L0,460 Z" fill="#6E6E66" opacity=".14"/>
-        <path d="M0,395 C200,350 320,280 480,310 C640,340 720,250 880,280 C1040,310 1120,235 1280,265 C1370,282 1420,270 1440,278 L1440,460 L0,460 Z" fill="#8B6B4F" opacity=".12"/>
-        <path d="M0,425 C220,395 360,340 540,362 C700,382 800,320 960,345 C1120,370 1240,320 1440,352 L1440,460 L0,460 Z" fill="#2B2B28" opacity=".10"/>
-      </svg>
-    </div>
-
-    <div class="hero-inner">
-      <p class="hero-eyebrow">TANG DYNASTY · CHIVALRIC POETRY</p>
-      <h1>诗风侠影</h1>
-      <p class="thesis">九十首唐代咏侠诗，如何在天下、人物、意象与情志之间，<br />塑造"侠"的共同想象？</p>
-
-      <div class="mystery" id="mystery">
-        <p class="m-label">卷外一首 · 问侠</p>
-        <p class="m-poem">
-          侠客重恩光，骢马饰金装。<br />
-          瞥闻传羽檄，驰突救边荒。<br />
-          <span class="m-title">——张易之《横吹曲辞 出塞》</span>
-        </p>
-        <p class="m-question">
-          写它的人，是武周朝的宠臣，<br />
-          一生未曾到过边荒——<br />
-          <strong>他为什么需要想象一个侠客？</strong>
-        </p>
-        <button class="m-action" id="evidenceBtn">展 卷 寻 侠</button>
-
-        <div class="evidence" id="evidence">
-          <div class="ev-step"><span class="ev-name">其 人</span><span class="ev-result">武周宠臣，以姿容音律侍于左右，未履边塞一步</span></div>
-          <div class="ev-step"><span class="ev-name">其 诗</span><span class="ev-result">拟乐府旧题：四句侠客开场，八句思妇收尾，侠是借来的衣冠</span></div>
-          <div class="ev-step"><span class="ev-name">其 年</span><span class="ev-result none">写作年份无考：它在时间里没有锚点，几乎只作为想象存在</span></div>
-          <p class="ev-verdict" id="verdict">
-            侠的想象，强大到<strong>连未曾仗剑的人，也需要借它说话</strong>。<br />
-            这九十首诗，就是这场共同想象的证词。
-          </p>
-          <button class="m-action m-unfurl" id="unfurlBtn">展 卷</button>
+    <section class="intro-stage 序章-stage" id="序章-stage" aria-label="序：何谓侠">
+      <div class="title-watermark" aria-hidden="true"></div>
+      <div class="序章-content">
+        <div class="poem-columns" aria-label="张易之《横吹曲辞·出塞》诗句">
+          <img class="poem-line" data-reveal="poem" src="assets/img/序/第一句.png" alt="侠客重恩光" />
+          <img class="poem-line" data-reveal="poem" src="assets/img/序/第二句.png" alt="骢马饰金装" />
+          <img class="poem-line" data-reveal="poem" src="assets/img/序/第三句.png" alt="瞥闻传羽檄" />
+          <img class="poem-line" data-reveal="poem" src="assets/img/序/第四句.png" alt="驰突救边荒" />
+        </div>
+        <div class="intro-notes">
+          <div class="note-group" data-reveal="author-note"><div class="author-note">写它的人，是武周朝的宠臣，<br />一生未曾到过边荒</div><div class="note-rule" aria-hidden="true"></div></div>
+          <div class="note-group" data-reveal="question"><p class="intro-question">他为什么需要想象一个侠客？</p></div>
+          <div class="note-group metadata" data-reveal="metadata"><div class="metadata-item"><span>朝代</span><span class="metadata-value">唐（武周时期）</span></div><span class="metadata-divider" aria-hidden="true"></span><div class="metadata-item"><span>作者</span><span class="metadata-value">张易之</span></div></div>
         </div>
       </div>
-    </div>
-    <div class="scroll-hint">展卷</div>
-  </section>
+      <div class="unfurl-wrap hidden"><button class="unfurl-button" id="unfurlBtn" type="button">展卷寻侠</button></div>
+    </section>
 
-  <!-- 第二屏 · 事实带 -->
-  <section class="facts">
-    <div class="f-grid">
-      <div class="fact">
-        <div class="f-num">90</div>
-        <div class="f-label">咏侠诗</div>
-        <div class="f-sub">从初唐到唐末<br />五类侠义主题</div>
+    <section class="scene-stage" id="scene-stage" data-scene-state="locked" aria-label="序章场景：诗风侠影">
+      <div class="scene-design" data-reference-coordinates="top: 707.49px; top: 1489.86px; top: 1909.51px">
+      <div class="scene-viewport">
+        <div class="scene-canvas">
+          <img class="scene-layer scene-background" src="assets/img/序/场景/背景1.png" alt="" />
+          <img class="scene-layer scene-background-band" src="assets/img/序/场景/背景3.png" alt="" />
+          <img class="scene-layer scene-hills-back" data-parallax=".06" src="assets/img/序/场景/山1.png" alt="" />
+          <img class="scene-layer scene-hills-mid" data-parallax=".1" src="assets/img/序/场景/山2.png" alt="" />
+          <img class="scene-layer scene-hills-front" data-parallax=".16" src="assets/img/序/场景/山3.png" alt="" />
+          <img class="scene-layer scene-road" data-parallax=".2" src="assets/img/序/场景/路1.png" alt="" />
+          <img class="scene-layer scene-foreground" data-parallax=".28" src="assets/img/序/场景/前景1.png" alt="" />
+          <img class="scene-layer scene-building-left" data-parallax=".33" src="assets/img/序/场景/建筑1.png" alt="" />
+          <img class="scene-layer scene-building-right" data-parallax=".25" src="assets/img/序/场景/建筑2.png" alt="" />
+          <img class="scene-layer scene-tree" data-parallax=".4" src="assets/img/序/场景/松树.png" alt="" />
+          <img class="scene-layer scene-caravan" data-parallax=".38" src="assets/img/序/场景/商队.png" alt="" />
+          <img class="scene-layer scene-walker" data-parallax=".34" src="assets/img/序/场景/走路的人-白色.png" alt="" />
+          <img class="scene-layer scene-birds" data-parallax=".12" src="assets/img/序/场景/背景鸟.png" alt="" />
+          <div class="scene-title" aria-label="诗风侠影">
+            <span class="scene-title-line">TANG DYNASTY ·</span>
+            <span class="scene-title-line">诗风侠影</span>
+            <span class="scene-title-line">CHIVALRIC POETRY</span>
+          </div>
+          <div class="scene-data scene-data-90"><div class="scene-data-number">90</div><div class="scene-data-label">首咏侠诗<br />从初唐到唐末<br />五类侠义主题</div></div>
+          <div class="scene-data scene-data-56"><div class="scene-data-number">56</div><div class="scene-data-label">位诗人<br />五人写了近三分之一<br />骆宾王 · 王维 · 李白 · 高适 · 杜甫</div></div>
+          <div class="scene-data scene-data-76"><div class="scene-data-number">76</div><div class="scene-data-label">个地点<br />长安出现 50 次<br />边塞与关隘 28 处</div></div>
+          <div class="scene-scroll-hint">向下浏览 · SCROLL</div>
+        </div>
       </div>
-      <div class="fact">
-        <div class="f-num">56</div>
-        <div class="f-label">位诗人</div>
-        <div class="f-sub">五人写了近三分之一<br />骆宾王 · 王维 · 李白 · 高适 · 杜甫</div>
+      <p class="scene-intro-copy">侠气从何时起，到何处去；写侠的是谁，心里装的又是什么。<br />六幕长卷，循次展开。</p>
+      <nav class="scene-directory" aria-label="回目">
+        <h2 class="scene-directory-title">回 目</h2>
+        <p class="scene-directory-sub">六幕 · 序 时 地 人 心 存</p>
+        <div class="scene-directory-list">
+          <a class="scene-directory-item" href="xiayi-scroll.html"><span class="t-char">时</span><span class="t-name">Epoch</span></a>
+          <a class="scene-directory-item" href="interactive.html"><span class="t-char">地</span><span class="t-name">Realm</span></a>
+          <a class="scene-directory-item" href="poets.html"><span class="t-char">人</span><span class="t-name">Knight-errant</span></a>
+          <a class="scene-directory-item" href="emotions.html"><span class="t-char">心</span><span class="t-name">Spirit</span></a>
+          <a class="scene-directory-item" href="keyword-river.html"><span class="t-char">存</span><span class="t-name">Legacy</span></a>
+        </div>
+      </nav>
       </div>
-      <div class="fact">
-        <div class="f-num">76</div>
-        <div class="f-label">个地点</div>
-        <div class="f-sub">长安出现 50 次<br />边塞与关隘 28 处</div>
-      </div>
-      <div class="fact">
-        <div class="f-num">30<sup>/90</sup></div>
-        <div class="f-label">首可系年</div>
-        <div class="f-sub">四十首由生平推定<br />二十首散作星辰</div>
-      </div>
-    </div>
-    <p class="f-note">侠气从何时起，到何处去；写侠的是谁，心里装的又是什么。<br />六幕长卷，循次展开。</p>
-  </section>
+    </section>
 
-  <!-- 第三屏 · 回目 -->
-  <section class="toc">
-    <p class="toc-title">回 目</p>
-    <p class="toc-sub">六幕 · 序 时 地 人 心 存</p>
-    <div class="toc-list">
-      <a class="toc-item" href="xiayi-scroll.html">
-        <span class="t-char">时</span>
-        <span class="t-name">侠从何来</span>
-        <span class="t-desc">五脉主题沿时间流淌：初唐的意气、盛唐的豪迈、乱世的悲歌。系年可考者为实，推定者为雾。</span>
-        <span class="t-data">90 首 · 时间长卷</span>
-      </a>
-      <a class="toc-item" href="interactive.html">
-        <span class="t-char">地</span>
-        <span class="t-name">侠行何处</span>
-        <span class="t-desc">长安与边塞之间：76 个地点的分布。京城仕途与塞外关山，是侠义书写的两极。</span>
-        <span class="t-data">76 地点 · 疆域分布</span>
-      </a>
-      <a class="toc-item" href="poets.html">
-        <span class="t-char">人</span>
-        <span class="t-name">侠者何人</span>
-        <span class="t-desc">五位诗人的全身像：一人一境，每首诗一块诗牌，牌背是他们的系年证据。</span>
-        <span class="t-data">5 人 · 27 首代表作</span>
-      </a>
-      <a class="toc-item" href="emotions.html">
-        <span class="t-char">心</span>
-        <span class="t-name">侠心何似</span>
-        <span class="t-desc">侠客是诗人的自我投射：八维情志分作两个世界，九十首诗各归其位。</span>
-        <span class="t-data">8 维情志 · 283 词</span>
-      </a>
-      <a class="toc-item" href="keyword-river.html">
-        <span class="t-char">存</span>
-        <span class="t-name">侠韵长存</span>
-        <span class="t-desc">五十六位诗人与五类主题的全景矩阵。</span>
-        <span class="t-data">56 人 × 5 类</span>
-      </a>
-    </div>
-  </section>
-
-  <footer class="colophon-footer">
-    <div>
-      诗风侠影 · 唐代咏侠诗信息可视化<br />
-      语料：90 首咏侠诗 ｜ 编年：作品级系年 + 作者活动期推定 ｜ 计数方法散见各图附注
-    </div>
-    <div class="seal" aria-hidden="true">侠</div>
-  </footer>
-
-  <div class="scroll-rod" aria-hidden="true"></div>
-
+  </main>
+  <footer class="colophon-footer"><div>诗风侠影 · 唐代咏侠诗信息可视化<br />语料：90 首咏侠诗 ｜ 编年：作品级系年 + 作者活动期推定 ｜ 计数方法散见各图附注</div><img class="footer-logo" src="assets/img/序/侠logo.svg" alt="侠" /></footer>
   <script src="assets/js/site.js"></script>
   <script>
     (function () {
-      var btn = document.getElementById('evidenceBtn');
-      var box = document.getElementById('evidence');
-      var mystery = document.getElementById('mystery');
-      var steps = box.querySelectorAll('.ev-step');
-      var verdict = document.getElementById('verdict');
-      var unfurlBtn = document.getElementById('unfurlBtn');
-      var toc = document.querySelector('.toc');
-      var done = false;
-
-      btn.addEventListener('click', function () {
-        if (done) return;
-        done = true;
-        btn.style.display = 'none';
-        box.classList.add('open');
-        steps.forEach(function (s, i) {
-          setTimeout(function () { s.classList.add('show'); }, 500 + i * 900);
+      var start = document.getElementById('startExplore');
+      var poems = Array.from(document.querySelectorAll('[data-reveal="poem"]'));
+      var authorNote = document.querySelector('[data-reveal="author-note"]');
+      var question = document.querySelector('[data-reveal="question"]');
+      var metadata = document.querySelector('[data-reveal="metadata"]');
+      var unfurlWrap = document.querySelector('.unfurl-wrap');
+      var sceneStage = document.getElementById('scene-stage');
+      var sceneLayers = Array.from(document.querySelectorAll('[data-parallax]'));
+      var stage = document.getElementById('序章-stage');
+      var unfurl = document.getElementById('unfurlBtn');
+      var started = false;
+      function revealIntro() {
+        if (started) return;
+        started = true;
+        document.body.classList.add('intro-started');
+        var poemDelay = 850;
+        poems.forEach(function (poem, index) { setTimeout(function () { poem.classList.add('revealed'); }, poemDelay + index * 680); });
+        var groupDelay = poemDelay + poems.length * 680 + 650;
+        setTimeout(function () { authorNote.classList.add('revealed'); }, groupDelay);
+        setTimeout(function () { question.classList.add('revealed'); }, groupDelay + 850);
+        setTimeout(function () {
+          metadata.classList.add('revealed');
+          setTimeout(function () { unfurlWrap.classList.add('revealed'); }, 550);
+        }, groupDelay + 1700);
+        setTimeout(function () { stage.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+      }
+      start.addEventListener('click', revealIntro);
+      start.addEventListener('keydown', function (event) { if (event.key === 'Enter' || event.key === ' ') revealIntro(); });
+      function updateParallax() {
+        if (!document.body.classList.contains('scene-ready')) return;
+        var rect = sceneStage.getBoundingClientRect();
+        var progress = Math.max(0, Math.min(1, -rect.top / Math.max(1, sceneStage.offsetHeight - window.innerHeight)));
+        sceneLayers.forEach(function (layer) {
+          var amount = Number(layer.dataset.parallax || 0) * progress * -180;
+          layer.style.transform = 'translate3d(0, ' + amount.toFixed(2) + 'px, 0)';
         });
-        setTimeout(function () {
-          verdict.classList.add('show');
-          mystery.classList.add('sinking');
-          unfurlBtn.classList.add('show');
-        }, 500 + steps.length * 900 + 400);
+      }
+      unfurl.addEventListener('click', function () {
+        document.body.classList.add('scene-active');
+        setTimeout(function () { sceneStage.classList.add('scene-title-ready'); }, 450);
+        setTimeout(function () { sceneStage.classList.add('scene-ready'); sceneStage.dataset.sceneState = 'ready'; document.body.classList.add('scene-ready'); document.body.classList.remove('scene-locked'); updateParallax(); }, 2500);
       });
-
-      // 展卷：朱砂卷杆扫过，序章退场，滚至回目
-      unfurlBtn.addEventListener('click', function () {
-        document.body.classList.add('unfurling');
-        setTimeout(function () {
-          toc.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 380);
-        setTimeout(function () {
-          document.body.classList.remove('unfurling');
-        }, 2600);
-      });
-
-      // 回目入视时错落浮现
-      toc.classList.add('revealable');
-      new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          if (e.isIntersecting) toc.classList.add('in-view');
-        });
-      }, { threshold: .2 }).observe(toc);
+      window.addEventListener('scroll', updateParallax, { passive: true });
     }());
   </script>
 </body>
