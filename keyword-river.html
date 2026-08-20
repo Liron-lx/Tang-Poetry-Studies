@@ -90,29 +90,32 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: clamp(4rem, 10vh, 7rem) max(1.5rem, calc((100vw - 1060px) / 2)) 4rem;
+      justify-content: flex-start;
+      padding: clamp(3.8rem, 8vh, 6.5rem) max(1.5rem, calc((100vw - 1060px) / 2)) 3rem;
       overflow: hidden;
       text-align: center;
       color: var(--paper);
       background-color: #303131;
       background-image:
-        linear-gradient(rgba(48, 49, 49, .78), rgba(48, 49, 49, .86)),
-        url("image/title-row-诗风侠影.png");
+        linear-gradient(rgba(34, 34, 33, .78), rgba(34, 34, 33, .88)),
+        url("image/finale-background.png");
       background-position: center, center;
       background-size: cover, cover;
       background-repeat: no-repeat;
       border-top: 0;
     }
     .finale > * { position: relative; z-index: 1; }
+    .finale-copy {
+      width: min(640px, 100%); margin: 0 auto clamp(2rem, 5vh, 4rem);
+      display: flex; flex-direction: column; align-items: flex-start;
+    }
     .finale .f-poem {
       font-family: var(--font-serif); font-size: 1.05rem; letter-spacing: .15em;
-      line-height: 2.4; color: rgba(245, 242, 234, .78); margin-bottom: 1.6rem;
+      align-self: center; line-height: 2.4; color: rgba(245, 242, 234, .78); margin: 0 0 1.6rem;
     }
-    .finale .f-line { font-family: var(--font-serif); font-size: 1.15rem; color: var(--paper); line-height: 2.2; }
-    .finale .f-seal { margin-top: 2.2rem; }
+    .finale .f-line { font-family: var(--font-serif); font-size: 1.15rem; color: var(--paper); line-height: 2.2; margin: 0; text-align: left; }
     .finale .f-back {
-      display: inline-block; margin-top: 2rem;
+      align-self: center; display: inline-block; margin-top: 2rem;
       font-family: var(--font-serif); font-size: .9rem; letter-spacing: .3em;
       color: rgba(245, 242, 234, .78); border-bottom: 1px solid rgba(245, 242, 234, .55); padding-bottom: .2rem;
     }
@@ -180,11 +183,11 @@
     </section>
 
     <div class="finale">
-      <p class="f-poem">侠客重恩光，骢马饰金装。<br />瞥闻传羽檄，驰突救边荒。</p>
-      <p class="f-line">张易之这首《出塞》仍没有年份。<br />九十首里，三十首归于其年，四十首由生平推定，二十首散作星辰。<br />凡时间未能收留的，想象都收留了——<br />它们都归在"侠"的共同想象里。</p>
-      <div class="f-seal"><span class="seal" style="width:56px;height:56px;font-size:1.5rem;">侠</span></div>
-      <br />
-      <a class="f-back" href="index.html">收 卷 · 回 到 卷 首</a>
+      <div class="finale-copy">
+        <p class="f-poem">侠客重恩光，骢马饰金装。<br />瞥闻传羽檄，驰突救边荒。</p>
+        <p class="f-line">张易之这首《出塞》仍没有年份。<br />九十首里，三十首归于其年，四十首由生平推定，二十首散作星辰。<br />凡时间未能收留的，想象都收留了——<br />它们都归在"侠"的共同想象里。</p>
+        <a class="f-back" href="index.html">收 卷 · 回 到 卷 首</a>
+      </div>
 
       <section class="scene method-scene">
         <div class="scene-head"><span class="no">叁</span><h2>数据与方法</h2></div>

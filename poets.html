@@ -7,13 +7,107 @@
   <title>诗风侠影 · 第三幕｜侠者何人</title>
   <link rel="stylesheet" href="assets/css/common.css" />
   <style>
+    body { background: #fff; }
+    /* ---------- 五人群像首屏 ---------- */
+    .poet-stage {
+      position: relative;
+      min-height: clamp(25rem, 34vw, 34rem);
+      overflow: hidden;
+      isolation: isolate;
+      background: #fff;
+      border-top: 1px solid rgba(43, 43, 40, .1);
+      border-bottom: 1px solid rgba(43, 43, 40, .1);
+    }
+    .poet-stage .stage-city {
+      position: absolute;
+      z-index: 0;
+      left: 50%;
+      bottom: 0;
+      width: min(90rem, 100vw);
+      max-width: none;
+      transform: translateX(-50%);
+      opacity: 1;
+      filter: none;
+      pointer-events: none;
+      user-select: none;
+    }
+    .poet-stage .stage-ground {
+      position: absolute;
+      z-index: 1;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 0;
+      background: transparent;
+    }
+    .poet-stage-figure {
+      position: absolute;
+      z-index: 2;
+      bottom: 2.1rem;
+      display: grid;
+      justify-items: center;
+      width: clamp(5.2rem, 9vw, 8.4rem);
+      transform: translateX(-50%);
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      transition: opacity .22s ease, filter .22s ease, transform .22s ease;
+    }
+    .poet-stage-figure > img {
+      display: block;
+      width: 100%;
+      max-height: clamp(10.5rem, 18vw, 17rem);
+      object-fit: contain;
+      object-position: bottom;
+      filter: grayscale(1) contrast(1.4) brightness(.46);
+    }
+    .poet-stage-figure .stage-tag {
+      position: absolute;
+      top: 1.7rem;
+      right: -.1rem;
+      width: 1.45rem;
+      height: auto;
+    }
+    .poet-stage-figure.figure-luo { left: 20%; }
+    .poet-stage-figure.figure-wang { left: 35%; bottom: 1.6rem; }
+    .poet-stage-figure.figure-li { left: 45%; bottom: 1.35rem; width: clamp(5.7rem, 10vw, 9.4rem); }
+    .poet-stage-figure.figure-gao { left: 55%; bottom: 1.65rem; }
+    .poet-stage-figure.figure-du { left: 66%; bottom: 1.1rem; width: clamp(6rem, 10.5vw, 9.8rem); }
+    .poet-stage-figure:hover, .poet-stage-figure:focus-visible { transform: translateX(-50%) translateY(-.35rem); outline: none; }
+    .poet-stage-figure:focus-visible > img { filter: grayscale(1) contrast(1.4) brightness(.46) drop-shadow(0 0 0.35rem rgba(176, 74, 58, .8)); }
+    .poet-stage-figure.is-muted, .lifeline-bar.is-muted { opacity: .2; filter: grayscale(1); }
+    .poet-stage-figure.is-active, .lifeline-bar.is-active { opacity: 1; }
+
     /* ---------- 五人时间带 ---------- */
     .lifeline {
-      width: min(1060px, calc(100% - 3rem));
-      margin: 0 auto 1rem;
-      padding: 1.5rem 0 2.5rem;
+      width: 100%;
+      margin: 0 0 1rem;
+      padding: 3.2rem 0 2.8rem;
+      background: var(--silk);
     }
-    .lifeline svg { display: block; width: 100%; height: auto; }
+    .lifeline svg { display: block; width: min(1060px, calc(100% - 3rem)); height: auto; margin: 0 auto; }
+    .lifeline .colophon { width: min(1060px, calc(100% - 3rem)); margin: .6rem auto 0 !important; }
+    .lifeline-bar { cursor: pointer; transition: opacity .22s ease; }
+    .lifeline-bar:focus { outline: none; }
+
+    /* ---------- 04-2 单诗人详情 ---------- */
+    #poetDetail { background: #fff; min-height: 100vh; }
+    .poet-return {
+      display: block;
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding: 2rem .75rem .6rem;
+      border: 0;
+      border-bottom: 1px solid rgba(43, 43, 40, .14);
+      background: transparent;
+      color: var(--ink-2);
+      font: inherit;
+      text-align: left;
+      letter-spacing: .22em;
+      cursor: pointer;
+    }
+    .poet-return:hover, .poet-return:focus-visible { color: var(--cinnabar); outline: none; }
 
     /* ---------- 诗人段落 ---------- */
     .poet-section {
@@ -46,13 +140,23 @@
       gap: clamp(1.5rem, 4vw, 3.5rem);
       align-items: start;
     }
-    .poet-section.flip .poet-grid { grid-template-columns: 1fr 240px; }
-    .poet-section.flip .portrait-col { order: 2; }
-
     .portrait-col { text-align: center; position: sticky; top: 5.5rem; }
-    .portrait-col img {
-      width: 100%;
-      max-width: 230px;
+    .portrait-art {
+      position: relative;
+      display: grid;
+      place-items: end center;
+      width: min(100%, 230px);
+      height: 270px;
+      margin: 0 auto;
+      background: url('image/poets/portrait-circle.png') center / contain no-repeat;
+    }
+    .portrait-art img {
+      width: auto;
+      height: 96%;
+      max-width: none;
+      max-height: none;
+      object-fit: contain;
+      object-position: bottom;
       filter: drop-shadow(0 18px 24px rgba(43, 43, 40, .12));
     }
     .portrait-col .p-name {
@@ -150,14 +254,20 @@
 
     /* 诗牌 */
     .plaques {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      display: flex;
       gap: 1rem;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scroll-snap-type: x mandatory;
+      padding: .25rem 0 1rem;
+      scrollbar-color: rgba(110, 110, 102, .45) transparent;
     }
     .plaque {
+      flex: 0 0 calc((100% - 3rem) / 4);
       perspective: 900px;
       min-height: 240px;
       cursor: pointer;
+      scroll-snap-align: start;
     }
     .plaque-inner {
       position: relative;
@@ -238,33 +348,54 @@
     .plaque:hover .plaque-inner { box-shadow: 0 14px 34px rgba(43,43,40,.14); }
 
     @media (max-width: 760px) {
-      .poet-grid, .poet-section.flip .poet-grid { grid-template-columns: 1fr; }
-      .poet-section.flip .portrait-col { order: 0; }
+      .poet-stage { min-height: 23rem; }
+      .poet-stage .stage-city { width: 54rem; bottom: 5rem; }
+      .poet-stage-figure.figure-luo { left: 15%; }
+      .poet-stage-figure.figure-wang { left: 31%; }
+      .poet-stage-figure.figure-li { left: 47%; }
+      .poet-stage-figure.figure-gao { left: 62%; }
+      .poet-stage-figure.figure-du { left: 79%; }
+      .poet-stage-figure .stage-tag { display: none; }
+      .poet-grid { grid-template-columns: 1fr; }
       .portrait-col { position: static; }
-      .portrait-col img { max-width: 180px; }
+      .portrait-art { width: 180px; height: 215px; }
+      .plaque { flex-basis: min(15rem, calc(100% - 2rem)); }
     }
   </style>
 </head>
 <body data-chapter="ren" data-seal="人">
 
-  <header class="act-head">
-    <div class="act-no">ACT III</div>
-    <div>
-      <h1>侠者何人</h1>
-      <p class="act-sub">第三幕 · 人 ｜ 五十六位诗人 · 五人写近三分之一</p>
-    </div>
-    <p class="act-question">五十六位诗人写侠，五人写了近三分之一。他们是谁？</p>
-  </header>
+  <section id="poetOverview">
+    <header class="act-head">
+      <div class="act-no">ACT III</div>
+      <div>
+        <h1>侠者何人</h1>
+        <p class="act-sub">第三幕 · 人 ｜ 五十六位诗人 · 五人写近三分之一</p>
+      </div>
+      <p class="act-question">五十六位诗人写侠，五人写了近三分之一。他们是谁？</p>
+    </header>
 
-  <!-- 五人生卒时间带 -->
-  <section class="lifeline">
-    <svg id="lifelineSvg" viewBox="0 0 1000 150" role="img" aria-label="五位诗人生卒年时间带"></svg>
-    <p class="colophon" style="text-align:center; margin-top:.6rem;">初唐的骆宾王收笔那年，王维与李白刚刚出生——侠义之笔在五人间传递了一百三十年。</p>
+    <section class="poet-stage" aria-label="五位诗人与长安城景">
+      <img class="stage-city" src="image/poets/stage-background.png" alt="" aria-hidden="true" />
+      <div class="stage-ground" aria-hidden="true"></div>
+      <a class="poet-stage-figure figure-luo" href="#poet=%E9%AA%86%E5%AE%BE%E7%8E%8B" data-poet="骆宾王" aria-label="查看骆宾王详情"><img src="image/poets/骆宾王.png" alt="" /><img class="stage-tag" src="image/poets/骆宾王-字.png" alt="骆宾王" /></a>
+      <a class="poet-stage-figure figure-wang" href="#poet=%E7%8E%8B%E7%BB%B4" data-poet="王维" aria-label="查看王维详情"><img src="image/poets/王维.png" alt="" /><img class="stage-tag" src="image/poets/王维-字.png" alt="王维" /></a>
+      <a class="poet-stage-figure figure-li" href="#poet=%E6%9D%8E%E7%99%BD" data-poet="李白" aria-label="查看李白详情"><img src="image/poets/李白.png" alt="" /><img class="stage-tag" src="image/poets/李白-字.png" alt="李白" /></a>
+      <a class="poet-stage-figure figure-gao" href="#poet=%E9%AB%98%E9%80%82" data-poet="高适" aria-label="查看高适详情"><img src="image/poets/高适.png" alt="" /><img class="stage-tag" src="image/poets/高适-字.png" alt="高适" /></a>
+      <a class="poet-stage-figure figure-du" href="#poet=%E6%9D%9C%E7%94%AB" data-poet="杜甫" aria-label="查看杜甫详情"><img src="image/poets/杜甫.png" alt="" /><img class="stage-tag" src="image/poets/杜甫-字.png" alt="杜甫" /></a>
+    </section>
+
+    <section class="lifeline">
+      <svg id="lifelineSvg" viewBox="0 0 1000 150" role="img" aria-label="五位诗人生卒年时间带"></svg>
+      <p class="colophon" style="text-align:center; margin-top:.6rem;">初唐的骆宾王收笔那年，王维与李白刚刚出生——侠义之笔在五人间传递了一百三十年。</p>
+    </section>
+    <div class="act-hook" data-hook-line="他们写下这些句子时，心里装的是什么？" data-hook-next="emotions.html" data-hook-label="第四幕 · 侠心何似 →"></div>
   </section>
 
-  <main id="poets"></main>
-
-  <div class="act-hook" data-hook-line="他们写下这些句子时，心里装的是什么？" data-hook-next="emotions.html" data-hook-label="第四幕 · 侠心何似 →"></div>
+  <section id="poetDetail" hidden aria-live="polite">
+    <button class="poet-return" type="button">返回</button>
+    <main id="poets"></main>
+  </section>
 
   <script src="assets/js/site.js"></script>
   <script>
@@ -306,6 +437,11 @@
           var yy = 34 + i * 19;
           var birth = +p.birth || YEAR_MIN, death = +p.death || YEAR_MAX;
           var bar = document.createElementNS(ns, 'rect');
+          bar.setAttribute('class', 'lifeline-bar');
+          bar.setAttribute('data-poet', p.name);
+          bar.setAttribute('tabindex', '0');
+          bar.setAttribute('role', 'button');
+          bar.setAttribute('aria-label', '查看' + p.name + '详情');
           bar.setAttribute('x', x(birth)); bar.setAttribute('y', yy);
           bar.setAttribute('width', Math.max(4, x(death) - x(birth))); bar.setAttribute('height', 7);
           bar.setAttribute('rx', 3.5);
@@ -332,9 +468,9 @@
         return { text: String(poem.year), cls: '' };
       }
 
-      function renderPoet(p, idx) {
+      function renderPoet(p) {
         var sec = document.createElement('section');
-        sec.className = 'poet-section' + (idx % 2 ? ' flip' : '');
+        sec.className = 'poet-section';
 
         var total = p.poems.length;
         var observed = p.poems.filter(function (x) { return x.status === 'observed'; }).length;
@@ -375,10 +511,10 @@
         }).join('');
 
         sec.innerHTML =
-          '<div class="scene-watermark">' + p.scene + '</div>' +
-          '<div class="poet-grid">' +
-            '<div class="portrait-col">' +
-              '<img src="image/poets/' + p.name + '.png" alt="' + p.name + '全身像" />' +
+            '<div class="scene-watermark">' + p.scene + '</div>' +
+            '<div class="poet-grid">' +
+              '<div class="portrait-col">' +
+              '<div class="portrait-art"><img src="image/poets/' + p.name + '.png" alt="' + p.name + '全身像" /></div>' +
               '<div class="p-name">' + p.name + '</div>' +
               '<div class="p-years">' + (p.birth || '？') + ' — ' + (p.death || '？') + '</div>' +
               '<span class="p-epithet">' + p.epithet + '</span>' +
@@ -402,17 +538,78 @@
         return sec;
       }
 
-      fetch('data/poets.json').then(function (r) { return r.json(); }).then(function (data) {
-        drawLifeline(data.poets);
-        var main = document.getElementById('poets');
-        data.poets.forEach(function (p, i) { main.appendChild(renderPoet(p, i)); });
-        document.querySelectorAll('.plaque').forEach(function (el) {
+      function bindPlaqueInteractions(scope) {
+        scope.querySelectorAll('.plaque').forEach(function (el) {
           function toggle() { el.classList.toggle('flipped'); }
           el.addEventListener('click', toggle);
           el.addEventListener('keydown', function (e) {
             if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
           });
         });
+      }
+
+      fetch('data/poets.json').then(function (r) { return r.json(); }).then(function (data) {
+        drawLifeline(data.poets);
+        var overview = document.getElementById('poetOverview');
+        var detail = document.getElementById('poetDetail');
+        var main = document.getElementById('poets');
+        var returnButton = document.querySelector('.poet-return');
+
+        function setOverviewHighlight(name) {
+          overview.querySelectorAll('[data-poet]').forEach(function (el) {
+            var muted = Boolean(name) && el.getAttribute('data-poet') !== name;
+            el.classList.toggle('is-muted', muted);
+            el.classList.toggle('is-active', Boolean(name) && !muted);
+          });
+        }
+
+        function showPoetDetail(name) {
+          var poet = data.poets.find(function (p) { return p.name === name; });
+          if (!poet) return;
+          main.replaceChildren(renderPoet(poet));
+          bindPlaqueInteractions(main);
+          overview.hidden = true;
+          detail.hidden = false;
+          history.pushState({ poet: name }, '', '#poet=' + encodeURIComponent(name));
+          window.scrollTo(0, 0);
+        }
+
+        function showPoetOverview() {
+          detail.hidden = true;
+          overview.hidden = false;
+          setOverviewHighlight('');
+          history.pushState({}, '', location.pathname + location.search);
+          window.scrollTo(0, 0);
+        }
+
+        function openFromHash() {
+          var matched = location.hash.match(/^#poet=(.+)$/);
+          if (!matched) return;
+          var name = decodeURIComponent(matched[1]);
+          var poet = data.poets.find(function (p) { return p.name === name; });
+          if (!poet) return;
+          main.replaceChildren(renderPoet(poet));
+          bindPlaqueInteractions(main);
+          overview.hidden = true;
+          detail.hidden = false;
+        }
+
+        overview.querySelectorAll('[data-poet]').forEach(function (el) {
+          var name = el.getAttribute('data-poet');
+          el.addEventListener('mouseenter', function () { setOverviewHighlight(name); });
+          el.addEventListener('focus', function () { setOverviewHighlight(name); });
+          el.addEventListener('mouseleave', function () { setOverviewHighlight(''); });
+          el.addEventListener('blur', function () { setOverviewHighlight(''); });
+          el.addEventListener('click', function () {
+            if (el.tagName.toLowerCase() !== 'a') showPoetDetail(name);
+          });
+        });
+        returnButton.addEventListener('click', showPoetOverview);
+        window.addEventListener('popstate', function () {
+          if (location.hash) openFromHash(); else showPoetOverview();
+        });
+        window.addEventListener('hashchange', openFromHash);
+        openFromHash();
       });
     }());
   </script>

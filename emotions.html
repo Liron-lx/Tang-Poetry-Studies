@@ -8,9 +8,23 @@
   <link rel="stylesheet" href="assets/css/common.css" />
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
   <style>
+    body[data-chapter="xin"] { background: #fff; }
     .stage { width: min(1060px, calc(100% - 3rem)); margin: 0 auto; }
 
-    .scene { margin-bottom: 4.5rem; }
+    .scene { margin-bottom: 0; }
+    .scene.emotion-screen {
+      box-sizing: border-box;
+      min-height: calc(100svh - 60px);
+      padding-block: clamp(2.4rem, 5vh, 4.5rem);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    #projection {
+      width: 100vw; margin-left: calc(50% - 50vw);
+      background: var(--paper);
+    }
+    #projection.emotion-screen { padding: clamp(2.4rem, 5vh, 4.5rem) max(1.5rem, calc((100vw - 1060px) / 2)); }
     .scene-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: .4rem; }
     .scene-head .no {
       font-family: var(--font-label);
@@ -24,19 +38,25 @@
 
     /* 两个世界 · 对位两栏 */
     .two-worlds { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
-    .world {
-      border-top: 2px solid var(--ink);
-      padding-top: 1rem;
-    }
-    .world.xia { border-top-color: var(--ochre); }
-    .world.shi { border-top-color: var(--blue); }
+    .world { --world-divider: var(--ink); position: relative; display: flex; flex-direction: column; cursor: pointer; overflow: hidden; }
+    .world.xia { --world-divider: var(--ochre); }
+    .world.shi { --world-divider: var(--blue); }
+    .world-divider { order: 2; flex: 0 0 2px; height: 2px; width: 100%; background: var(--world-divider); transition: transform .42s ease; }
+    .world .w-caption { order: 3; padding-top: 1rem; transition: transform .42s ease; }
     .world .w-title {
       font-family: var(--font-serif); font-size: 1.15rem; letter-spacing: .18em;
-      display: flex; justify-content: space-between; align-items: baseline;
+      display: flex; justify-content: space-between; align-items: baseline; transition: transform .42s ease;
     }
     .world .w-title .w-en { font-family: var(--font-label); font-size: .6rem; letter-spacing: .25em; color: var(--ink-2); }
     .world .w-dims { font-size: .78rem; color: var(--ink-2); margin: .35rem 0 .8rem; letter-spacing: .06em; }
-    .world .w-chart { width: 100%; height: 300px; }
+    .world-art { order: 1; width: 100%; height: 300px; object-fit: contain; display: block; opacity: 1; transform: translateY(0); transition: height .42s ease, opacity .32s ease, transform .42s ease; }
+    .world .w-chart { order: 4; width: 100%; height: 0; overflow: hidden; opacity: 0; transform: translateY(-1rem); transition: height .42s ease, opacity .32s ease, transform .42s ease; }
+    .world:hover .world-art { opacity: .78; }
+    .world.is-expanded .world-art { order: 4; height: 0; opacity: 0; transform: translateY(-2rem); pointer-events: none; }
+    .world.is-expanded .world-divider { order: 1; transform: translateY(-.25rem); }
+    .world.is-expanded .w-caption { order: 2; transform: translateY(-.25rem); }
+    .world.is-expanded .w-chart { order: 3; height: 300px; opacity: 1; transform: translateY(0); }
+    .world.is-expanded .w-title { transform: translateY(-.25rem); }
     .world-vs {
       text-align: center; margin: 1.2rem 0 0;
       font-family: var(--font-serif); color: var(--ink-2); font-size: .88rem; letter-spacing: .1em;
@@ -44,23 +64,41 @@
 
     /* 投射散点 */
     .scatter-wrap { position: relative; }
-    #scatterChart { width: 100%; height: 560px; }
-    .poet-filter { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .poet-filter button {
-      font-family: var(--font-serif); font-size: .82rem; letter-spacing: .12em;
-      padding: .3rem .9rem; border: 1px solid rgba(43,43,40,.3); border-radius: 2px;
-      background: transparent; color: var(--ink-2); cursor: pointer;
-      transition: all .25s ease;
+    #scatterChart { width: 100%; height: clamp(300px, 38vh, 390px); }
+    .projection-hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(330px, 1.05fr);
+      align-items: end;
+      gap: clamp(1rem, 3vw, 3rem);
+      padding-bottom: 2rem;
     }
-    .poet-filter button:hover { border-color: var(--ink); color: var(--ink); }
-    .poet-filter button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .projection-hero::after {
+      content: ''; position: absolute; inset: auto 0 0; height: 40px;
+      background: url('image/emotions/projection/地面.png') center bottom / 100% 100% no-repeat;
+      z-index: 0;
+    }
+    .projection-copy, .projection-hero .poet-stage { position: relative; z-index: 1; }
+    .projection-copy .scene-desc { margin-bottom: 0; }
+    .projection-hero .poet-stage { min-height: 160px; justify-content: flex-end; }
+    .projection-hero .poet-stage::after { display: none; }
+    .poet-stage { min-height: 150px; position: relative; display: flex; justify-content: center; align-items: end; gap: .65rem; overflow: hidden; }
+    .poet-stage::after { content: ''; position: absolute; inset: auto 0 0; height: 40px; background: url('image/emotions/projection/地面.png') center bottom / 100% 100% no-repeat; z-index: 0; }
+    .poet-figure { appearance: none; border: 0; background: transparent; padding: 0; cursor: pointer; position: relative; z-index: 1; }
+    .poet-figure img { height: 132px; max-width: 100px; display: block; transition: opacity .25s ease, filter .25s ease; }
+    .poet-figure.is-muted img { opacity: .28; filter: grayscale(1); }
+    .poet-figure.is-selected img, .poet-figure:hover img { opacity: 1; filter: none; }
     .scatter-note { font-size: .72rem; color: var(--ink-2); margin-top: .5rem; }
     /* 图注 · 方法说明（小字淡色） */
     .m-note { font-size: .72rem; color: var(--mist); line-height: 1.9; margin: 1rem 0 0; max-width: 56em; }
 
-    /* 词象 */
-    .lexicon { display: grid; grid-template-columns: 2fr 3fr; gap: 1.6rem; align-items: start; }
-    .cat-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .8rem; }
+    /* 词象 · 默认态保留 Figma 的 1060px 固定画布，避免随页面宽度重排物件 */
+    #lexicon { overflow-x: auto; }
+    .lexicon-layout { width: 1060px; position: relative; min-height: 525px; }
+    .lexicon-layout .lex-focus-panel { display: none; }
+    .lexicon-layout.is-focused { display: grid; grid-template-columns: 430px minmax(0, 1fr); gap: 2.2rem; align-items: center; min-height: 400px; }
+    .lexicon-layout.is-focused .lex-focus-panel { display: block; }
+    .cat-chips { display: flex; gap: .4rem; flex-wrap: wrap; margin: .9rem 0 .8rem; }
     .cat-chips button {
       font-size: .7rem; letter-spacing: .08em; padding: .22rem .6rem;
       border: 1px solid rgba(43,43,40,.25); border-radius: 2px;
@@ -68,13 +106,61 @@
     }
     .cat-chips button.active { background: var(--blue); border-color: var(--blue); color: var(--paper); }
     #wordBar { width: 100%; height: 340px; }
-    .lex-field-box { position: relative; }
-    #lexField { width: 100%; height: 480px; }
-    .lex-caption { font-size: .7rem; color: var(--ink-2); margin-top: .4rem; }
+    .lex-scene { width: 1060px; height: 525px; min-height: 0; position: relative; overflow: hidden; }
+    .lexicon-layout.is-focused .lex-scene { width: 430px; height: 400px; }
+    .lex-layer { position: absolute; pointer-events: none; }
+    .lex-window { width: 709.43px; left: 313.50px; top: 29.44px; z-index: 2; }
+    .lex-desk { width: 900.48px; left: 20.20px; top: 371.70px; z-index: 4; }
+    .lex-semi { width: 299.99px; left: 664.67px; top: 145.53px; z-index: 0; }
+    .lex-ground { width: 402.22px; left: 469.51px; top: 246.76px; z-index: 1; }
+    .lex-object { position: absolute; appearance: none; border: 0; background: transparent; padding: 0; cursor: pointer; z-index: 5; }
+    .lex-object img { width: 100%; height: 100%; display: block; }
+    .lex-layer, .lex-object { transition: opacity .42s ease, transform .42s ease, left .42s ease, top .42s ease, width .42s ease, height .42s ease; }
+    .lex-scene.lexicon-focused .lex-layer, .lex-scene.lexicon-focused .lex-object:not(.is-selected) { opacity: 0; pointer-events: none; }
+    .lex-scene.lexicon-focused::after { content: ''; position: absolute; width: 300px; height: 300px; left: 65px; top: 50px; background: url('image/emotions/lexicon/背景圆.png') center / contain no-repeat; z-index: 1; }
+    .lex-scene.lexicon-focused .lex-object.is-selected { width: var(--focus-width); height: var(--focus-height); left: var(--focus-left); top: var(--focus-top); transform: rotate(var(--focus-rotate, 0deg)); transform-origin: center; z-index: 2; }
+
+    /* 默认场景：坐标、尺寸与前后关系均按图稿原始画布录入 */
+    .obj-jian { width: 43.38px; height: 249.50px; left: 575.28px; top: 351.00px; transform: rotate(84deg); transform-origin: top left; }
+    .obj-hulu { width: 68.19px; height: 137.97px; left: 103.27px; top: 255.13px; }
+    .obj-zhu { width: 34px; height: 69.28px; left: 665.07px; top: 323.41px; }
+    .obj-yanzhi { width: 65.25px; height: 30.72px; left: 746.78px; top: 369.32px; }
+    .obj-di { width: 168.69px; height: 9.84px; left: 177.24px; top: 387.63px; transform: rotate(-7deg); transform-origin: top left; }
+    .obj-baoxiang { width: 126.43px; height: 99.36px; left: 913.37px; top: 375.44px; }
+    .obj-tongjing { width: 52.66px; height: 91.41px; left: 591.89px; top: 305.20px; }
+    .obj-xinyue { width: 77.67px; height: 54.30px; left: 703px; top: 64.29px; z-index: 1; }
+    .obj-taoshu { width: 154.64px; height: 118.75px; left: 448.78px; top: 132.47px; z-index: 1; }
+    .obj-ma { width: 74.95px; height: 64.60px; left: 568.02px; top: 200.72px; z-index: 1; }
+    .obj-yanta { width: 56.77px; height: 125.18px; left: 763.60px; top: 129.62px; z-index: 1; }
+    .obj-meizhi { width: 187.97px; height: 179.32px; left: 473.57px; top: 0; z-index: 1; }
+
+    /* 选中态：每一物件按照对应状态图单独调整位置、比例与角度 */
+    .lex-scene.lexicon-focused .obj-jian { --focus-width: 80px; --focus-height: 455px; --focus-left: 174px; --focus-top: -20px; --focus-rotate: 35deg; }
+    .lex-scene.lexicon-focused .obj-hulu { --focus-width: 145px; --focus-height: 294px; --focus-left: 143px; --focus-top: 42px; }
+    .lex-scene.lexicon-focused .obj-zhu { --focus-width: 145px; --focus-height: 296px; --focus-left: 141px; --focus-top: 38px; }
+    .lex-scene.lexicon-focused .obj-yanzhi { --focus-width: 250px; --focus-height: 118px; --focus-left: 84px; --focus-top: 141px; }
+    .lex-scene.lexicon-focused .obj-di { --focus-width: 320px; --focus-height: 21px; --focus-left: 47px; --focus-top: 186px; --focus-rotate: -24deg; }
+    .lex-scene.lexicon-focused .obj-baoxiang { --focus-width: 250px; --focus-height: 197px; --focus-left: 88px; --focus-top: 100px; }
+    .lex-scene.lexicon-focused .obj-tongjing { --focus-width: 180px; --focus-height: 313px; --focus-left: 124px; --focus-top: 40px; }
+    .lex-scene.lexicon-focused .obj-xinyue { --focus-width: 240px; --focus-height: 168px; --focus-left: 95px; --focus-top: 110px; }
+    .lex-scene.lexicon-focused .obj-taoshu { --focus-width: 330px; --focus-height: 253px; --focus-left: 50px; --focus-top: 68px; }
+    .lex-scene.lexicon-focused .obj-ma { --focus-width: 250px; --focus-height: 216px; --focus-left: 90px; --focus-top: 100px; }
+    .lex-scene.lexicon-focused .obj-yanta { --focus-width: 142px; --focus-height: 313px; --focus-left: 144px; --focus-top: 28px; }
+    .lex-scene.lexicon-focused .obj-meizhi { --focus-width: 314px; --focus-height: 300px; --focus-left: 52px; --focus-top: 48px; }
 
     @media (max-width: 820px) {
-      .two-worlds, .lexicon { grid-template-columns: 1fr; }
+      .scene.emotion-screen { min-height: auto; padding-block: 2.5rem; }
+      #projection.emotion-screen { padding-top: 2.5rem; padding-bottom: 2.5rem; }
+      .two-worlds { grid-template-columns: 1fr; }
+      .projection-hero { grid-template-columns: 1fr; gap: 1.3rem; }
+      .projection-hero .poet-stage { min-height: 115px; justify-content: center; }
       #scatterChart { height: 440px; }
+      .poet-stage { gap: .1rem; min-height: 115px; }
+      .poet-figure img { height: 96px; max-width: 68px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .world .w-title, .world-art, .world .w-chart, .lex-layer, .lex-object { transition-duration: 0s; }
     }
   </style>
 </head>
@@ -92,47 +178,81 @@
   <main class="stage">
 
     <!-- 场一 · 两个世界 -->
-    <section class="scene" id="worlds">
+    <section class="scene emotion-screen" id="worlds">
       <div class="scene-head"><span class="no">壹</span><h2>两个世界</h2></div>
       <p class="scene-desc">八维情志评分（0–10）分作两列对置：左为侠客的世界——壮怀、同袍、义愤、死生；右为诗人的内心——功名、幻灭、孤愤、孤寂。点线为五类侠义主题在各维度上的中位数。</p>
       <div class="two-worlds">
-        <div class="world xia">
-          <div class="w-title">侠客的世界 <span class="w-en">THE KNIGHT-ERRANT</span></div>
-          <div class="w-dims">壮怀逸兴 · 同袍之谊 · 家国义愤 · 死生超然</div>
+        <div class="world xia" id="worldXia" role="button" tabindex="0" aria-label="展开侠客的世界图表">
+          <img class="world-art" src="image/emotions/worlds/侠客的世界.png" alt="侠客的世界插画" />
+          <div class="world-divider" aria-hidden="true"></div>
           <div class="w-chart" id="chartXia"></div>
+          <div class="w-caption">
+            <div class="w-title">侠客的世界 <span class="w-en">THE KNIGHT-ERRANT</span></div>
+            <div class="w-dims">壮怀逸兴 · 同袍之谊 · 家国义愤 · 死生超然</div>
+          </div>
         </div>
-        <div class="world shi">
-          <div class="w-title">诗人的内心 <span class="w-en">THE POET</span></div>
-          <div class="w-dims">功名热望 · 功名幻灭 · 孤愤悲慨 · 苍茫孤寂</div>
+        <div class="world shi" id="worldShi" role="button" tabindex="0" aria-label="展开诗人的内心图表">
+          <img class="world-art" src="image/emotions/worlds/诗人的内心.png" alt="诗人的内心插画" />
+          <div class="world-divider" aria-hidden="true"></div>
           <div class="w-chart" id="chartShi"></div>
+          <div class="w-caption">
+            <div class="w-title">诗人的内心 <span class="w-en">THE POET</span></div>
+            <div class="w-dims">功名热望 · 功名幻灭 · 孤愤悲慨 · 苍茫孤寂</div>
+          </div>
         </div>
       </div>
       <p class="world-vs">同一句"侠客行"，左手是剑，右手是功名。</p>
-      <p class="m-note">评分方法 · 每首诗在壮怀逸兴、同袍之谊、家国义愤、死生超然、功名热望、功名幻灭、孤愤悲慨、苍茫孤寂八个维度上人工评分（0–10）。2026-08-16 审计修正 8 处超出量程的录入错误（如 14→4），剔除 3 条语料外记录与 10 条异文重复记录，变更全量记录于 docs/data-changelog-2026-08-16.md。</p>
+      <p class="m-note">评分方法 · 每首诗在壮怀逸兴、同袍之谊、家国义愤、死生超然、功名热望、功名幻灭、孤愤悲慨、苍茫孤寂八个维度上人工评分（0–10）。</p>
     </section>
 
     <!-- 场二 · 投射散点 -->
-    <section class="scene" id="projection">
-      <div class="scene-head"><span class="no">贰</span><h2>投射图</h2></div>
-      <p class="scene-desc">每首诗一个墨点：横轴为侠客侧均分，纵轴为诗人侧均分，全图以百首均值分作四象——右上"剑气箫心"，侠气与孤愤并盛；左上"箫心独抱"；右下"剑气纵横"；左下"剑箫两淡"。朱砂大点为五位诗人的重心——李白漂在最右，高适与杜甫并肩落在左上。点选诗人可单独检视其诗作：墨点与重心之间牵出投射之线，其余四人的重心将淡去。</p>
-      <div class="poet-filter" id="poetFilter"></div>
+    <section class="scene emotion-screen" id="projection">
+      <div class="projection-hero">
+        <div class="projection-copy">
+          <div class="scene-head"><span class="no">贰</span><h2>投射图</h2></div>
+          <p class="scene-desc">每首诗一个墨点：横轴为侠客侧均分，纵轴为诗人侧均分，全图以百首均值分作四象——右上"剑气箫心"，侠气与孤愤并盛；左上"箫心独抱"；右下"剑气纵横"；左下"剑箫两淡"。朱砂大点为五位诗人的重心——李白漂在最右，高适与杜甫并肩落在左上。点选诗人可单独检视其诗作：墨点与重心之间牵出投射之线，其余四人的重心将淡去。</p>
+        </div>
+        <div class="poet-stage" id="poetStage" aria-label="诗人筛选">
+        <button class="poet-figure" type="button" data-poet="骆宾王" aria-label="筛选骆宾王"><img src="image/emotions/projection/骆宾王.svg" alt="骆宾王" /></button>
+        <button class="poet-figure" type="button" data-poet="王维" aria-label="筛选王维"><img src="image/emotions/projection/王维.svg" alt="王维" /></button>
+        <button class="poet-figure" type="button" data-poet="李白" aria-label="筛选李白"><img src="image/emotions/projection/李白.svg" alt="李白" /></button>
+        <button class="poet-figure" type="button" data-poet="高适" aria-label="筛选高适"><img src="image/emotions/projection/高适.svg" alt="高适" /></button>
+        <button class="poet-figure" type="button" data-poet="杜甫" aria-label="筛选杜甫"><img src="image/emotions/projection/杜甫.svg" alt="杜甫" /></button>
+        </div>
+      </div>
       <div class="scatter-wrap"><div id="scatterChart"></div></div>
       <p class="m-note">双轨得分 · "侠客侧"取八维中壮怀逸兴、同袍之谊、家国义愤、死生超然之均分；"诗人侧"取功名热望、功名幻灭、孤愤悲慨、苍茫孤寂之均分。本图与第三幕人物仪表均由两均分直接计算，无艺术位移。悬停墨点可读出该诗在两个世界上的坐标。</p>
     </section>
 
     <!-- 场三 · 词象 -->
-    <section class="scene" id="lexicon">
+    <section class="scene emotion-screen" id="lexicon">
       <div class="scene-head"><span class="no">叁</span><h2>词象</h2></div>
-      <p class="scene-desc">283 个高频词，十三个类别。左侧为各类前八位的准确排布；右侧词林按十三类分圃——面积即词频，"侠客"五十四见，是这片词林的唯一朱砂。</p>
-      <div class="cat-chips" id="catChips"></div>
-      <div class="lexicon">
-        <div id="wordBar"></div>
-        <div class="lex-field-box">
-          <div id="lexField"></div>
-          <p class="lex-caption">词林十三圃 · 283 词各归其类，面积与词频成正比；小圃无字者，悬停可读</p>
+      <p class="scene-desc">十二类高频词以物象为入口；选择物品或类别，可查看该类词频。</p>
+      <div class="lexicon-layout" id="lexiconLayout">
+        <div class="lex-scene" id="lexScene" aria-label="词象场景">
+          <img class="lex-layer lex-semi" src="image/emotions/lexicon/背景半圆.svg" alt="" />
+          <img class="lex-layer lex-window" src="image/emotions/lexicon/窗.svg" alt="" />
+          <img class="lex-layer lex-ground" src="image/emotions/lexicon/背景地面.svg" alt="" />
+          <img class="lex-layer lex-desk" src="image/emotions/lexicon/桌子.svg" alt="" />
+          <button class="lex-object obj-jian" type="button" data-category="人物形象类" aria-label="人物形象类：剑"><img src="image/emotions/lexicon/items/剑.svg" alt="剑" /></button>
+          <button class="lex-object obj-hulu" type="button" data-category="情志类" aria-label="情志类：酒葫芦"><img src="image/emotions/lexicon/items/酒葫芦.svg" alt="酒葫芦" /></button>
+          <button class="lex-object obj-zhu" type="button" data-category="时间类" aria-label="时间类：烛台"><img src="image/emotions/lexicon/items/烛台.svg" alt="烛台" /></button>
+          <button class="lex-object obj-yanzhi" type="button" data-category="颜色类" aria-label="颜色类：胭脂盒"><img src="image/emotions/lexicon/items/胭脂盒.svg" alt="胭脂盒" /></button>
+          <button class="lex-object obj-di" type="button" data-category="功名著述类" aria-label="功名著述类：笛"><img src="image/emotions/lexicon/items/笛.svg" alt="笛" /></button>
+          <button class="lex-object obj-baoxiang" type="button" data-category="器物类" aria-label="器物类：宝箱"><img src="image/emotions/lexicon/items/宝箱.svg" alt="宝箱" /></button>
+          <button class="lex-object obj-tongjing" type="button" data-category="身体部位类" aria-label="身体部位类：铜镜"><img src="image/emotions/lexicon/items/铜镜.svg" alt="铜镜" /></button>
+          <button class="lex-object obj-xinyue" type="button" data-category="风霜雨雪水云类" aria-label="风霜雨雪水云类：新月"><img src="image/emotions/lexicon/items/新月.svg" alt="新月" /></button>
+          <button class="lex-object obj-taoshu" type="button" data-category="草木类" aria-label="草木类：桃树"><img src="image/emotions/lexicon/items/桃树.svg" alt="桃树" /></button>
+          <button class="lex-object obj-ma" type="button" data-category="动物类" aria-label="动物类：马"><img src="image/emotions/lexicon/items/马.svg" alt="马" /></button>
+          <button class="lex-object obj-yanta" type="button" data-category="地理类" aria-label="地理类：雁塔"><img src="image/emotions/lexicon/items/雁塔.svg" alt="雁塔" /></button>
+          <button class="lex-object obj-meizhi" type="button" data-category="花卉类" aria-label="花卉类：梅枝"><img src="image/emotions/lexicon/items/梅枝.svg" alt="梅枝" /></button>
         </div>
+        <div class="lex-focus-panel" aria-live="polite"><div id="wordBar"></div></div>
       </div>
-      <p class="m-note">词频与分类 · 分词后保留实义高频词 283 个，归入人物形象、器物、地理、时间等十三类。旧版"情感类"词表存在个别误分类（如"武威""安知"），已标记待复核；跨版本分类口径以 word_frequency.csv 为准。</p>
+      <div class="cat-chips" id="catChips">
+        <button type="button" data-category="人物形象类">人物形象类</button><button type="button" data-category="情志类">情志类</button><button type="button" data-category="时间类">时间类</button><button type="button" data-category="颜色类">颜色类</button><button type="button" data-category="功名著述类">功名著述类</button><button type="button" data-category="器物类">器物类</button><button type="button" data-category="身体部位类">身体部位类</button><button type="button" data-category="风霜雨雪水云类">风霜雨雪水云类</button><button type="button" data-category="草木类">草木类</button><button type="button" data-category="动物类">动物类</button><button type="button" data-category="地理类">地理类</button><button type="button" data-category="花卉类">花卉类</button>
+      </div>
+      <p class="m-note">词频与分类 · 分词后保留实义高频词，归入人物形象、器物、地理、时间等十二类。</p>
     </section>
 
   </main>
@@ -191,8 +311,7 @@
         });
 
         /* ---------- 场一：两个世界 ---------- */
-        function worldChart(el, dims) {
-          var chart = echarts.init(document.getElementById(el));
+        function worldChartOption(dims) {
           var series = CLUSTERS.map(function (c) {
             var rows = poems.filter(function (p) { return p.cluster === c; });
             return {
@@ -207,7 +326,10 @@
               emphasis: { focus: 'series' }
             };
           });
-          chart.setOption({
+          return {
+            animation: true,
+            animationDuration: 680,
+            animationEasing: 'cubicOut',
             grid: { left: 8, right: 16, top: 34, bottom: 8, containLabel: true },
             legend: {
               top: 0, icon: 'circle', itemWidth: 8, itemHeight: 8,
@@ -225,11 +347,54 @@
               axisLabel: { color: '#6E6E66', fontSize: 10 }
             },
             series: series
-          });
+          };
+        }
+
+        function worldChart(el, dims) {
+          var chart = echarts.init(document.getElementById(el));
+          chart.setOption(worldChartOption(dims));
           return chart;
         }
-        worldChart('chartXia', XIA_DIMS);
-        worldChart('chartShi', SHI_DIMS);
+        var worldCharts = {
+          xia: worldChart('chartXia', XIA_DIMS),
+          shi: worldChart('chartShi', SHI_DIMS)
+        };
+        var worldSelection = null;
+        var worlds = document.getElementById('worlds');
+
+        function replayWorldChart(side) {
+          var dims = side === 'xia' ? XIA_DIMS : SHI_DIMS;
+          var chart = worldCharts[side];
+          // 折线的入场由裁切路径完成；先让画布取得最终尺寸，避免 resize 中断这段路径动画。
+          chart.resize();
+          chart.clear();
+          chart.setOption(worldChartOption(dims), { notMerge: true, lazyUpdate: false });
+        }
+
+        function setWorldSelection(name) {
+          worldSelection = worldSelection === name ? null : name;
+          ['xia', 'shi'].forEach(function (side) {
+            document.getElementById(side === 'xia' ? 'worldXia' : 'worldShi')
+              .classList.toggle('is-expanded', worldSelection === side);
+              });
+              if (worldSelection) {
+                var expandedSelection = worldSelection;
+                window.setTimeout(function () {
+                  if (worldSelection === expandedSelection) { replayWorldChart(expandedSelection); }
+                }, 460);
+              }
+        }
+
+        ['xia', 'shi'].forEach(function (side) {
+          var node = document.getElementById(side === 'xia' ? 'worldXia' : 'worldShi');
+          node.addEventListener('click', function () { setWorldSelection(side); });
+          node.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); setWorldSelection(side); }
+          });
+        });
+        worlds.addEventListener('click', function (event) {
+          if (event.target === worlds) { setWorldSelection(worldSelection); }
+        });
 
         /* ---------- 场二：投射散点 ---------- */
         var meanX = poems.reduce(function (s, p) { return s + p.xia; }, 0) / poems.length;
@@ -250,15 +415,15 @@
         var currentPoet = null;
 
         function scatterData() {
-          return poems.filter(function (p) { return !currentPoet || p.author === currentPoet; })
-            .map(function (p) {
+          return poems.map(function (p) {
+              var selected = !currentPoet || p.author === currentPoet;
               return {
                 name: p.author + '《' + p.title + '》',
                 value: [p.xia, p.shi],
                 poem: p,
                 itemStyle: {
                   color: CLUSTER_COLORS[p.cluster],
-                  opacity: currentPoet ? .9 : .62,
+                  opacity: selected ? .9 : .1,
                   borderColor: '#F5F2EA', borderWidth: .6
                 }
               };
@@ -368,20 +533,27 @@
         }
         renderScatter();
 
-        var filterBox = document.getElementById('poetFilter');
-        var poetCount = {};
-        poems.forEach(function (p) { poetCount[p.author] = (poetCount[p.author] || 0) + 1; });
-        ['全部'].concat(FIVE).forEach(function (name) {
-          var b = document.createElement('button');
-          b.textContent = name === '全部' ? '全部 · ' + poems.length : name + ' · ' + (poetCount[name] || 0);
-          if (name === '全部') b.classList.add('active');
-          b.addEventListener('click', function () {
-            currentPoet = name === '全部' ? null : name;
-            filterBox.querySelectorAll('button').forEach(function (x) { x.classList.remove('active'); });
-            b.classList.add('active');
-            renderScatter();
+        var poetStage = document.getElementById('poetStage');
+        function setCurrentPoet(name) {
+          currentPoet = currentPoet === name ? null : name;
+          poetStage.querySelectorAll('[data-poet]').forEach(function (button) {
+            var selected = currentPoet === button.dataset.poet;
+            button.classList.toggle('is-selected', selected);
+            button.classList.toggle('is-muted', Boolean(currentPoet) && !selected);
           });
-          filterBox.appendChild(b);
+          renderScatter();
+        }
+        poetStage.addEventListener('click', function (event) {
+          var button = event.target.closest('[data-poet]');
+          if (button) { setCurrentPoet(button.dataset.poet); }
+          else { setCurrentPoet(currentPoet); }
+        });
+        var scatterChart = document.getElementById('scatterChart');
+        scatterChart.addEventListener('click', function (event) {
+          if (event.target === event.currentTarget) { setCurrentPoet(currentPoet); }
+        });
+        scatter.getZr().on('click', function (event) {
+          if (!event.target) { setCurrentPoet(currentPoet); }
         });
 
         /* ---------- 场三：词象 ---------- */
@@ -420,111 +592,37 @@
           }, { replaceMerge: ['series', 'yAxis'] });
         }
 
+        var CATEGORY_OBJECTS = {
+          '人物形象类': '剑', '情志类': '酒葫芦', '时间类': '烛台', '颜色类': '胭脂盒',
+          '功名著述类': '笛', '器物类': '宝箱', '身体部位类': '铜镜',
+          '风霜雨雪水云类': '新月', '草木类': '桃树', '动物类': '马',
+          '地理类': '雁塔', '花卉类': '梅枝'
+        };
+        var selectedCategory = null;
+        var lexScene = document.getElementById('lexScene');
+        var lexiconLayout = document.getElementById('lexiconLayout');
         var chipBox = document.getElementById('catChips');
-
-        /* 词林十三圃 · 矩形树图：位置 = 类别，面积 = 词频 */
-        var field = echarts.init(document.getElementById('lexField'));
-        var catStat = {};
-        words.forEach(function (w) {
-          var c = w['分类'];
-          if (!catStat[c]) catStat[c] = { n: 0, sum: 0 };
-          catStat[c].n++; catStat[c].sum += +w['词频'];
+        function setLexiconCategory(category) {
+          selectedCategory = selectedCategory === category ? null : category;
+          lexScene.classList.toggle('lexicon-focused', Boolean(selectedCategory));
+          lexiconLayout.classList.toggle('is-focused', Boolean(selectedCategory));
+          lexScene.querySelectorAll('[data-category]').forEach(function (item) {
+            item.classList.toggle('is-selected', item.dataset.category === selectedCategory);
+          });
+          chipBox.querySelectorAll('[data-category]').forEach(function (chip) {
+            chip.classList.toggle('active', chip.dataset.category === selectedCategory);
+          });
+          if (selectedCategory) { renderBar(selectedCategory); window.setTimeout(function () { bar.resize(); }, 20); }
+          else { bar.clear(); }
+        }
+        lexScene.addEventListener('click', function (event) {
+          var item = event.target.closest('[data-category]');
+          if (item) { setLexiconCategory(item.dataset.category); }
+          else { setLexiconCategory(selectedCategory); }
         });
-        var catOrder = cats.slice().sort(function (a, b) { return catStat[b].sum - catStat[a].sum; });
-        /* 白描词格：纸底细线格子，不填实色；词频化入墨色浓淡（墨分五色）。
-           侠客是一枚朱文印——朱线朱字，不铺红块；只在"人物形象"圃选中时现身 */
-        var LINE_ON = '#2B2B28';    // 松烟墨 · 选中圃的格线
-        var LINE_OFF = '#C9C7BC';   // 雾灰 · 未选中圃的格线
-        var BAND = '#E9E4D4';       // 绢本 · 圃额底色
-        function washOn(f) { return 'rgba(61,90,108,' + (0.05 + 0.2 * Math.min(1, f / 16)).toFixed(3) + ')'; }
-
-        function fieldData(sel) {
-          return catOrder.map(function (c) {
-            var on = !sel || c === sel;
-            return {
-              name: c,
-              count: catStat[c].n, sum: catStat[c].sum,
-              itemStyle: { color: BAND },
-              upperLabel: {
-                show: catStat[c].sum >= 15,
-                color: on ? '#2B2B28' : '#B0AA9A'
-              },
-              children: words.filter(function (w) { return w['分类'] === c; })
-                .map(function (w) {
-                  var f = +w['词频'];
-                  var isXiaRed = w['词语'] === '侠客' && on;
-                  return {
-                    name: w['词语'], value: f,
-                    itemStyle: isXiaRed
-                      ? { color: 'rgba(176,74,58,.10)', borderColor: '#B04A3A', borderWidth: 1.5 }
-                      : on
-                        ? { color: washOn(f), borderColor: LINE_ON, borderWidth: 1 }
-                        : { color: 'rgba(201,199,188,.12)', borderColor: LINE_OFF, borderWidth: 1 },
-                    label: isXiaRed
-                      ? { show: true, color: '#B04A3A', fontWeight: 'bold', fontSize: 13 }
-                      : on
-                        ? { show: f >= 8, color: '#2B2B28', fontSize: 11 }
-                        : { show: f >= 8, color: '#A8A293', fontSize: 11 }
-                  };
-                })
-            };
-          });
-        }
-
-        function renderField(sel) {
-          field.setOption({
-            series: [{
-              type: 'treemap',
-              left: 0, right: 0, top: 0, bottom: 0,
-              roam: false, nodeClick: false,
-              breadcrumb: { show: false },
-              label: { show: false },
-              itemStyle: { borderColor: '#F5F2EA' },
-              levels: [
-                { itemStyle: { borderWidth: 0, gapWidth: 4 } },
-                {
-                  upperLabel: {
-                    show: true, height: 22, fontSize: 11, fontFamily: 'Noto Serif SC',
-                    formatter: function (p) { return p.name.replace('类', '') + ' ' + p.data.count + ' 词'; }
-                  },
-                  itemStyle: { borderColor: '#F5F2EA', borderWidth: 2, gapWidth: 2 }
-                },
-                {
-                  itemStyle: { borderWidth: 1, gapWidth: 2 },
-                  label: {
-                    fontFamily: 'Noto Serif SC',
-                    overflow: 'truncate'
-                  },
-                  /* 悬停即"点睛"：格线染朱砂，小格亦显字 */
-                  emphasis: { label: { show: true }, itemStyle: { borderColor: '#B04A3A', borderWidth: 1.5 } }
-                }
-              ],
-              data: fieldData(sel)
-            }],
-            tooltip: {
-              backgroundColor: 'rgba(237,231,217,.96)', borderColor: 'rgba(43,43,40,.35)',
-              textStyle: { color: '#2B2B28', fontSize: 12 },
-              formatter: function (pr) {
-                if (pr.data.children) return '<b>' + pr.name + '</b><br/>' + pr.data.count + ' 词 · 共 ' + pr.data.sum + ' 次';
-                var cat = pr.treeAncestors && pr.treeAncestors[1] ? pr.treeAncestors[1].name : '';
-                return '<b>' + pr.name + '</b> · ' + pr.value + ' 次' + (cat ? '<br/>' + cat : '');
-              }
-            }
-          });
-        }
-        renderField(cats[0]);
-
-        cats.forEach(function (c, i) {
-          var b = document.createElement('button');
-          b.textContent = c;
-          if (i === 0) { b.classList.add('active'); renderBar(c); }
-          b.addEventListener('click', function () {
-            chipBox.querySelectorAll('button').forEach(function (x) { x.classList.remove('active'); });
-            b.classList.add('active');
-            renderBar(c);
-            renderField(c);
-          });
-          chipBox.appendChild(b);
+        chipBox.addEventListener('click', function (event) {
+          var chip = event.target.closest('[data-category]');
+          if (chip) { setLexiconCategory(chip.dataset.category); }
         });
 
         window.addEventListener('resize', function () {

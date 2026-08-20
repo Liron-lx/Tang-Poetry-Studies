@@ -12,15 +12,11 @@ from urllib.request import urlopen
 
 PAGES = [
     "index.html",
-    "interactive.html",
-    "geography.html",
-    "poetry-emotion.html",
-    "word-association.html",
-    "keyword-river.html",
-    "circular_sankey.html",
-    "可行情感1.html",
-    "词频可视化.html",
     "xiayi-scroll.html",
+    "interactive.html",
+    "poets.html",
+    "emotions.html",
+    "keyword-river.html",
 ]
 RESOURCES = [
     "assets/css/common.css",

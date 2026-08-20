@@ -30,7 +30,8 @@
     var brand = document.createElement("a");
     brand.className = "brand";
     brand.href = "index.html";
-    brand.innerHTML = '诗风侠影<span class="seal-mini">唐代咏侠诗</span>';
+    brand.setAttribute("aria-label", "返回序章");
+    brand.innerHTML = '<img class="brand-logo" src="image/prologue-logo.svg" alt="诗风侠影" />';
     nav.appendChild(brand);
 
     var chapters = document.createElement("div");
