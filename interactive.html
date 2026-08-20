@@ -10,18 +10,20 @@
   <style>
     /* ============ 第一屏 · 山河地图 ============ */
     .screen-map {
-      height: calc(100vh - 3.4rem); /* 扣除顶部章回导航高度，保证首屏完整 */
+      height: calc(100vh - 60px); /* 扣除统一 60px 顶部导航高度，保证首屏完整 */
       min-height: 600px;
       display: flex;
       flex-direction: column;
       width: min(1240px, calc(100% - 2.5rem));
       margin: 0 auto;
-      padding-top: 1.6rem;
+      padding-top: 0;
     }
-    /* 幕头用全站统一的 .act-head，此处只适配地图屏的宽度与间距 */
+    /* 幕头用全站统一的 1060px 基线，地图画布保持更宽的展示宽度。 */
     .screen-map .act-head {
-      width: 100%;
-      padding: 0 0 1rem;
+      width: min(1060px, calc(100% - 3rem));
+      margin: 0 auto;
+      padding: 3.2rem 0 2.2rem;
+      flex: 0 0 auto;
     }
     .map-stage {
       position: relative;
@@ -154,52 +156,15 @@
       letter-spacing: .08em;
     }
 
-    /* ============ 第二屏 · 十峰榜 ============ */
-    .screen-rank {
-      width: min(960px, calc(100% - 2.5rem));
-      margin: 0 auto;
-      padding: 5rem 0 4.5rem;
+    /* ============ 第二、三屏 · 两极叙事 ============ */
+    .place-stories {
+      width: 100%;
+      margin: 0;
+      padding: 5.8rem 0 2rem;
+      background: #fff;
     }
-    .screen-rank .scene-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: .4rem; }
-    .screen-rank .scene-head .no {
-      font-family: var(--font-label);
-      font-size: .7rem; letter-spacing: .3em; color: var(--ochre);
-    }
-    .screen-rank .scene-head h2 {
-      font-family: var(--font-title); font-weight: 400;
-      font-size: 1.7rem; letter-spacing: .2em; margin: 0;
-    }
-    .rank-desc { color: var(--ink-2); font-size: .85rem; max-width: 46em; margin: .3rem 0 2.2rem; line-height: 1.9; }
-    .rank-list { display: flex; flex-direction: column; gap: .45rem; }
-    .rk-row {
-      display: grid;
-      grid-template-columns: 1.6rem 6.2rem 1fr 2.4rem;
-      align-items: center;
-      gap: .9rem;
-      padding: .18rem .25rem;
-      cursor: pointer;
-      border-radius: 2px;
-    }
-    .rk-row:hover { background: rgba(237, 231, 217, .8); }
-    .rk-row .rk-no { font-family: var(--font-label); font-size: .72rem; color: var(--ink-2); text-align: right; }
-    .rk-row .rk-name { font-family: var(--font-serif); font-size: .95rem; letter-spacing: .1em; white-space: nowrap; }
-    .rk-row .rk-type { font-size: .6rem; color: var(--ink-2); letter-spacing: .12em; margin-left: .55rem; }
-    .rk-row .rk-track { height: 10px; background: rgba(43, 43, 40, .05); border-radius: 5px; overflow: hidden; }
-    .rk-row .rk-fill { display: block; height: 100%; width: 0; border-radius: 5px; transition: width 1s cubic-bezier(.4, 0, .2, 1); }
-    .rk-row .rk-num { font-family: var(--font-label); font-size: .95rem; color: var(--ink); }
-    .rk-row.top .rk-name, .rk-row.top .rk-num { color: var(--cinnabar); }
-    .rank-note { margin-top: 1.4rem; font-size: .68rem; color: var(--ink-2); letter-spacing: .12em; }
-
-    /* ============ 第三屏 · 长安与边塞 ============ */
-    .screen-poles {
-      min-height: 100vh;
-      width: min(1120px, calc(100% - 2.5rem));
-      margin: 0 auto;
-      padding: 4.5rem 0 2rem;
-      display: flex;
-      flex-direction: column;
-    }
-    .poles-head { text-align: center; margin-bottom: 3rem; }
+    .poles-head, .place-scene { width: min(1120px, calc(100% - 2.5rem)); margin-left: auto; margin-right: auto; }
+    .poles-head { text-align: center; margin-bottom: clamp(3.2rem, 8vw, 6.8rem); }
     .poles-head .data-tag { display: block; margin-bottom: .9rem; }
     .poles-head h2 {
       margin: 0;
@@ -208,123 +173,49 @@
       font-size: clamp(1.7rem, 3.2vw, 2.5rem);
       letter-spacing: .3em;
     }
-    .poles-head p {
-      margin: .9rem auto 0;
-      max-width: 34em;
-      color: var(--ink-2);
-      font-size: .88rem;
-      line-height: 1.9;
+    .poles-head p { margin: .9rem auto 0; max-width: 37em; color: var(--ink-2); font-size: .88rem; line-height: 1.9; }
+    .place-scene {
+      display: block;
+      min-height: 0;
+      padding: 0 0 clamp(6rem, 10vw, 8rem);
     }
-    .poles-grid {
-      flex: 1;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-      gap: clamp(1.5rem, 4vw, 3.2rem);
-      align-items: stretch;
-    }
-    .pole-axis {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      padding: .5rem 0;
-    }
-    .pole-axis .axis-line { flex: 1; width: 1px; background: linear-gradient(to bottom, transparent, var(--mist) 18%, var(--mist) 82%, transparent); }
-    .pole-axis .axis-seal {
-      writing-mode: vertical-rl;
-      font-family: var(--font-serif);
-      font-size: .82rem;
-      letter-spacing: .55em;
-      color: var(--ochre);
-    }
-    .pole .p-kicker {
-      font-family: var(--font-label);
-      font-size: .62rem;
-      letter-spacing: .3em;
-      text-transform: uppercase;
-      color: var(--ink-2);
-    }
-    .pole-illus {
-      margin: 0 0 1.5rem;
-      border: 1px solid rgba(43, 43, 40, .18);
-      background: var(--silk);
-    }
-    .pole-illus img { display: block; width: 100%; height: auto; }
-    .pole .p-title {
-      margin: .5rem 0 0;
-      font-family: var(--font-serif);
-      font-size: 2rem;
-      letter-spacing: .3em;
-    }
-    .pole .p-big {
-      display: flex;
-      align-items: baseline;
-      gap: .6rem;
-      margin: 1.2rem 0 .2rem;
-    }
-    .pole .p-big .num {
-      font-family: var(--font-serif);
-      font-size: 3.4rem;
-      line-height: 1;
-    }
-    .pole .p-big .unit { font-size: .74rem; color: var(--ink-2); letter-spacing: .12em; }
-    .pole .p-line { margin: .3rem 0 0; color: var(--ink-2); font-size: .8rem; line-height: 1.9; }
-    .pole .p-old {
-      margin: .9rem 0 0;
-      font-family: var(--font-serif);
-      font-size: .82rem;
-      color: var(--ink);
-      letter-spacing: .05em;
-    }
-    .pole.frontier { text-align: right; }
-    .pole.frontier .p-big { justify-content: flex-end; }
-    .pole.frontier .p-title, .pole.frontier .p-big .num { color: var(--cinnabar); }
-    .pole.capital .p-title, .pole.capital .p-big .num { color: var(--blue); }
+    .scene-top, .scene-bottom { display: grid; align-items: center; gap: clamp(2rem, 7vw, 7rem); }
+    .scene-top { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); min-height: clamp(27rem, 40vw, 39rem); }
+    .scene-bottom { grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); margin-top: clamp(2rem, 4vw, 4.5rem); }
+    .changan-scene .scene-top { grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr); }
+    .changan-scene .scene-bottom { grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr); }
+    .scene-copy { position: relative; z-index: 1; }
+    .scene-illustration { margin: 0; min-width: 0; }
+    .scene-illustration img { display: block; width: 100%; height: auto; object-fit: contain; }
+    .scene-copy .scene-kicker { margin: 0 0 .45rem; font-size: .64rem; letter-spacing: .24em; color: var(--ochre); }
+    .scene-copy h3 { margin: 0; font-family: var(--font-title); font-size: clamp(2.2rem, 5vw, 4.4rem); font-weight: 400; letter-spacing: .26em; line-height: 1; }
+    .scene-copy .scene-meaning { margin: .8rem 0 0; font-size: .72rem; color: var(--ink-2); letter-spacing: .14em; }
+    .scene-copy .scene-stat { display: flex; align-items: baseline; gap: .8rem; margin: 1.5rem 0 .5rem; }
+    .scene-copy .scene-stat strong { font-family: var(--font-serif); font-weight: 400; font-size: clamp(2.5rem, 5vw, 4rem); line-height: 1; }
+    .scene-copy .scene-stat span { color: var(--ink-2); font-size: .78rem; letter-spacing: .1em; }
+    .scene-copy .scene-text { max-width: 30em; margin: 1.1rem 0 0; color: var(--ink-2); font-size: .83rem; line-height: 2; }
+    .frontier-scene .scene-copy h3, .frontier-scene .scene-stat strong { color: var(--cinnabar); }
+    .changan-scene .scene-copy h3, .changan-scene .scene-stat strong { color: var(--blue); }
+    .scene-bars { display: grid; gap: .48rem; min-height: 10rem; align-content: center; }
+    .scene-bars .pb-row { display: grid; width: 100%; grid-template-columns: 4.8rem minmax(6rem, 1fr) 2.2rem; gap: .65rem; align-items: center; padding: .16rem .2rem; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .scene-bars .pb-row:hover { background: rgba(237, 231, 217, .72); }
+    .scene-bars .pb-name { font-family: var(--font-serif); font-size: .76rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .scene-bars .pb-track { height: 6px; overflow: hidden; background: rgba(43, 43, 40, .08); }
+    .scene-bars .pb-fill { display: block; width: 0; height: 100%; transition: width .85s cubic-bezier(.4, 0, .2, 1); }
+    .scene-bars .pb-num { font-family: var(--font-label); font-size: .7rem; color: var(--ink-2); text-align: right; }
+    .scene-verse { margin: 0; padding: 1.35rem 1.5rem; background: var(--silk); color: var(--ink-2); font-family: var(--font-serif); font-size: .82rem; line-height: 1.9; }
+    .scene-verse span { display: block; margin-bottom: .28rem; color: var(--ochre); font-family: var(--font-label); font-size: .56rem; letter-spacing: .18em; }
+    .scene-fold { display: flex; align-items: center; justify-content: center; gap: .6rem; margin-top: -5rem; padding-bottom: 5rem; color: var(--ink-2); font-size: .66rem; letter-spacing: .2em; }
+    .scene-fold::after { content: "⌄"; font-size: 1.2rem; line-height: .5; }
 
-    .pole-bars { margin-top: 1.6rem; display: flex; flex-direction: column; gap: .5rem; }
-    .pole-bars .pb-title {
-      font-size: .64rem;
-      letter-spacing: .2em;
-      color: var(--ink-2);
-      margin-bottom: .3rem;
-    }
-    .pb-row {
-      display: grid;
-      grid-template-columns: 5.6rem 1fr 2rem;
-      align-items: center;
-      gap: .7rem;
-      cursor: pointer;
-      padding: .12rem .2rem;
-      border-radius: 2px;
-    }
-    .pole.frontier .pb-row { grid-template-columns: 2rem 1fr 5.6rem; direction: rtl; }
-    .pb-row:hover { background: rgba(237, 231, 217, .8); }
-    .pb-row .pb-name { font-family: var(--font-serif); font-size: .85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .pb-row .pb-track { height: 8px; background: rgba(43, 43, 40, .06); border-radius: 4px; overflow: hidden; }
-    .pb-row .pb-fill { display: block; height: 100%; width: 0; border-radius: 4px; transition: width .9s cubic-bezier(.4, 0, .2, 1); }
-    .pb-row .pb-num { font-family: var(--font-label); font-size: .78rem; color: var(--ink-2); text-align: right; }
-    .pole.frontier .pb-row .pb-num { text-align: left; }
-    .pb-hint { margin-top: .9rem; font-size: .64rem; color: var(--ink-2); letter-spacing: .1em; }
-
-    .poles-verse {
-      margin: 3.2rem auto 0;
-      text-align: center;
-      font-family: var(--font-serif);
-      font-size: 1rem;
-      letter-spacing: .18em;
-      color: var(--ink);
-    }
-    .poles-verse span { color: var(--ink-2); font-size: .76rem; letter-spacing: .1em; display: block; margin-top: .6rem; }
-
-    @media (max-width: 860px) {
-      .poles-grid { grid-template-columns: 1fr; }
-      .pole-axis { flex-direction: row; justify-content: center; }
-      .pole-axis .axis-line { width: 40%; height: 1px; }
-      .pole-axis .axis-seal { writing-mode: horizontal-tb; letter-spacing: .4em; }
-      .pole.frontier { text-align: left; }
-      .pole.frontier .p-big { justify-content: flex-start; }
-      .pole.frontier .pb-row { grid-template-columns: 5.6rem 1fr 2rem; direction: ltr; }
-      .pole.frontier .pb-row .pb-num { text-align: right; }
+    @media (max-width: 760px) {
+      .screen-map { min-height: 540px; width: min(100% - 1.5rem, 1240px); }
+      .place-stories { padding-top: 4.5rem; }
+      .poles-head, .place-scene { width: min(100% - 2rem, 1120px); }
+      .scene-top, .scene-bottom, .changan-scene .scene-top, .changan-scene .scene-bottom { grid-template-columns: 1fr; gap: 2rem; min-height: 0; }
+      .changan-scene .scene-illustration { order: -1; }
+      .scene-copy h3 { font-size: 2.7rem; }
+      .scene-fold { margin-top: -2.5rem; padding-bottom: 3.2rem; }
       .place-detail { right: 1rem; }
     }
   </style>
@@ -349,7 +240,7 @@
       <svg id="mapSvg" role="img" aria-label="盛唐疆域上，七十六处咏侠诗地点以山形峰值呈现"></svg>
       <div class="map-foot">
         <div class="map-legend" id="mapLegend" aria-label="地点类型图例"></div>
-        <a class="scroll-cue float-hint" href="#screenRank">下卷 · 十峰榜 <i class="cue-line"></i> ↓</a>
+        <a class="scroll-cue float-hint" href="#frontierScene">下卷 · 长安与边塞 <i class="cue-line"></i> ↓</a>
       </div>
     </div>
   </section>
@@ -360,63 +251,53 @@
     <p class="pd-meta">峰高即诗中提及频次；此处展开其历史地名与归属。</p>
   </aside>
 
-  <!-- ============ 第二屏 · 十峰榜 ============ -->
-  <section class="screen-rank" id="screenRank">
-    <div class="scene-head"><span class="no">榜</span><h2>十峰榜</h2></div>
-    <p class="rank-desc">七十六处地点，一百八十八次提及。前十位占去半数有余；长安一城五十次，几抵榜上其余九处之和。条长即次数，差距不修饰。</p>
-    <div class="rank-list" id="rankList" role="list"></div>
-    <p class="rank-note float-hint-delay">点击任一条目，回到山河图上指认那座峰。</p>
-  </section>
-
-  <!-- ============ 第三屏 · 长安与边塞 ============ -->
-  <section class="screen-poles" id="screenPoles">
+  <!-- ============ 第二、三屏 · 长安与边塞 ============ -->
+  <section class="place-stories" id="screenPoles">
     <header class="poles-head">
       <span class="data-tag">TWO POLES · 侠义书写的两极</span>
       <h2>长安与边塞</h2>
       <p>一边是功名的现实世界，一边是义气的想象空间。诗人在长安求仕、交游、写少年意气；把剑与功名未竟的孤愤，寄往塞外关山。</p>
     </header>
 
-    <div class="poles-grid">
-      <div class="pole capital" id="poleCapital">
-        <figure class="pole-illus">
-          <img src="image/act2-changan.png" alt="长安插画：暖色城楼、城墙与雁塔，街上有负剑行人" loading="lazy" />
+    <article class="place-scene frontier-scene" id="frontierScene">
+      <div class="scene-top">
+        <div class="scene-copy">
+          <p class="scene-kicker">侠客的想象空间</p>
+          <h3>边塞</h3>
+          <p class="scene-meaning">从边地拔出的一种侠义想象</p>
+          <p class="scene-stat"><strong id="frontierPlaceCount">—</strong><span>处边塞关隘 · 提及 <b id="frontierMentionCount">—</b> 次</span></p>
+          <p class="scene-text">幽州、渔阳、玉门、楼兰——多数诗人未必亲至，却反复把侠义安放在这片想象的边疆：功名若不可得，便当死于边野。</p>
+        </div>
+        <figure class="scene-illustration">
+          <img src="image/act2-frontier-figma.png" alt="边塞插画：长城盘绕关山，骑兵与边关相望" loading="lazy" />
         </figure>
-        <div class="p-kicker">诗人的现实世界</div>
-        <h3 class="p-title">长 安</h3>
-        <div class="p-big"><span class="num" id="capNum">—</span><span class="unit">次提及 · 居众地之首</span></div>
-        <p class="p-old" id="capOld">—</p>
-        <p class="p-line">功名、交游、少年意气。九十首咏侠诗，半数绕不开这座城——侠客在这里是仕子、是少年、是市井里的快意人。</p>
-        <div class="pole-bars">
-          <div class="pb-title">京城与内地 · 提及前列</div>
-          <div id="capBars"></div>
-          <div class="pb-hint" id="capCount">—</div>
+      </div>
+      <div class="scene-bottom">
+        <div class="scene-bars" id="frontierBars" aria-label="边塞与关隘提及前列"></div>
+        <blockquote class="scene-verse"><span>边塞诗句 · 节选</span>黄云白草无前后，朝雁晚鸦夕有无。长安不可望，远塞在诗中成为另一种抵达。</blockquote>
+      </div>
+    </article>
+    <div class="scene-fold" aria-hidden="true">收起</div>
+
+    <article class="place-scene changan-scene" id="changanScene">
+      <div class="scene-top">
+        <figure class="scene-illustration">
+          <img src="image/act2-changan-figma.png" alt="长安插画：城楼、雁塔与城中行人" loading="lazy" />
+        </figure>
+        <div class="scene-copy">
+          <p class="scene-kicker">诗人的现实世界</p>
+          <h3>长安</h3>
+          <p class="scene-meaning" id="changanOld">历史地名：长安</p>
+          <p class="scene-stat"><strong id="changanMentionCount">—</strong><span>次提及 · 居众地之首</span></p>
+          <p class="scene-text">功名、交游、少年意气。九十首咏侠诗，半数绕不开这座城——侠客在这里是仕子、是少年、是市井里的快意人。</p>
         </div>
       </div>
-
-      <div class="pole-axis" aria-hidden="true">
-        <div class="axis-line"></div>
-        <div class="axis-seal">京 · 塞</div>
-        <div class="axis-line"></div>
+      <div class="scene-bottom">
+        <div class="scene-bars" id="changanBars" aria-label="京城与内地提及前列"></div>
+        <blockquote class="scene-verse"><span>长安古意 · 节选</span>长安古意，侠客在城门、酒肆与游宴之间往来；写剑与名，也写未竟的快意。</blockquote>
       </div>
-
-      <div class="pole frontier" id="poleFrontier">
-        <figure class="pole-illus">
-          <img src="image/act2-frontier.png" alt="边塞插画：蓝色关山间蜿蜒的长城与敌楼，山脚下有持旗骑卒与边关战士" loading="lazy" />
-        </figure>
-        <div class="p-kicker">侠客的想象空间</div>
-        <h3 class="p-title">边 塞</h3>
-        <div class="p-big"><span class="num" id="frNum">—</span><span class="unit">处边塞关隘 · 提及 <b id="frSum">—</b> 次</span></div>
-        <p class="p-old" id="frOld">—</p>
-        <p class="p-line">幽州、渔阳、玉门、楼兰——多数诗人未必亲至，却反复把侠义安放在这片想象的边疆：功名若不可得，便当死于边野。</p>
-        <div class="pole-bars">
-          <div class="pb-title">边塞与关隘 · 提及前列</div>
-          <div id="frBars"></div>
-          <div class="pb-hint" id="frCount">—</div>
-        </div>
-      </div>
-    </div>
-
-    <p class="poles-verse">功名在长安，义气在边塞。<span>点击任一条目，回到山河图上指认那座峰。</span></p>
+    </article>
+    <div class="scene-fold" aria-hidden="true">收起</div>
   </section>
 
   <div class="act-hook" data-hook-line="长安与边塞之间，写诗的是谁？" data-hook-next="poets.html" data-hook-label="第三幕 · 侠者何人 →"></div>
@@ -495,8 +376,7 @@
         });
 
         drawMap(tang, places);
-        buildRank(places);
-        buildPoles(places);
+        buildPlaceStories(places);
 
         /* 点地图空白处收起浮卡；Esc 亦可 */
         d3.select("#mapSvg").on("click", function (event) {
@@ -571,20 +451,6 @@
         } else if (selected) {
           detailEl.classList.remove("is-hidden");
         }
-      }, { threshold: .1 }).observe(document.getElementById("screenMap"));
-
-      function drawMap(tang, places) {
-      new IntersectionObserver(function (entries) {
-        var inView = entries[0].isIntersecting;
-        if (!inView) {
-          detailEl.classList.add("is-hidden");
-          hintEl.classList.add("is-hidden");
-        } else if (selected) {
-          detailEl.classList.remove("is-hidden");
-        }
-      }, { threshold: .1 }).observe(document.getElementById("screenMap"));
-      new IntersectionObserver(function (entries) {
-        detailEl.classList.toggle("is-hidden", !entries[0].isIntersecting);
       }, { threshold: .1 }).observe(document.getElementById("screenMap"));
 
       function drawMap(tang, places) {
@@ -758,75 +624,33 @@
           poemsHtml;
       }
 
-      /* ============ 第二屏 · 十峰榜 ============ */
-      function buildRank(places) {
-        var box = document.getElementById("rankList");
-        var top10 = places.slice(0, 10);
-        var max = top10[0] ? top10[0].freq : 1;
-        top10.forEach(function (p, i) {
-          var row = document.createElement("div");
-          row.className = "rk-row" + (i === 0 ? " top" : "");
-          row.setAttribute("role", "listitem");
-          row.setAttribute("tabindex", "0");
-          row.setAttribute("aria-label", p.oldNames.split("(")[0] + "，" + p.type + "，提及" + p.freq + "次，点击回到地图");
-          row.innerHTML =
-            '<span class="rk-no">' + (i + 1) + "</span>" +
-            '<span class="rk-name">' + p.oldNames.split("(")[0] + '<span class="rk-type">' + p.type + "</span></span>" +
-            '<span class="rk-track"><span class="rk-fill" style="background:' + TYPE[p.type].solid + ';opacity:.85"></span></span>' +
-            '<span class="rk-num">' + p.freq + "</span>";
-          function go() {
-            document.getElementById("screenMap").scrollIntoView({ behavior: "smooth" });
-            selectPlace(p);
-          }
-          row.addEventListener("click", go);
-          row.addEventListener("keydown", function (e) {
-            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
-          });
-          box.appendChild(row);
-          requestAnimationFrame(function () {
-            requestAnimationFrame(function () {
-              row.querySelector(".rk-fill").style.width = (p.freq / max * 100) + "%";
-            });
-          });
-        });
-      }
-
-      /* ============ 第三屏 · 长安与边塞 ============ */
-      function buildPoles(places) {
+      /* ============ 第二、三屏 · 长安与边塞 ============ */
+      function buildPlaceStories(places) {
         var frontier = places.filter(isFrontier);
         var inland = places.filter(function (p) { return !isFrontier(p); });
         var changan = places.find(function (p) { return p.name.indexOf("西安") >= 0; });
-        var frSum = frontier.reduce(function (s, p) { return s + p.freq; }, 0);
+        var frontierMentions = frontier.reduce(function (sum, p) { return sum + p.freq; }, 0);
 
-        document.getElementById("capNum").textContent = changan ? changan.freq : "—";
-        document.getElementById("capOld").textContent = changan ? "历史地名：" + changan.oldNames : "";
-        document.getElementById("capCount").textContent =
-          "京城与内地共 " + inland.length + " 处 · 点击回到地图指认";
-        document.getElementById("frNum").textContent = frontier.length;
-        document.getElementById("frSum").textContent = frSum;
-        document.getElementById("frOld").textContent =
-          "幽州 · 渔阳 · 玉门 · 蓟州 · 楼兰 · 龙城 ……";
-        document.getElementById("frCount").textContent =
-          "边塞与关隘共 " + frontier.length + " 处 · 点击回到地图指认";
+        document.getElementById("frontierPlaceCount").textContent = frontier.length;
+        document.getElementById("frontierMentionCount").textContent = frontierMentions;
+        document.getElementById("changanMentionCount").textContent = changan ? changan.freq : "—";
+        document.getElementById("changanOld").textContent = changan ? "历史地名：" + changan.oldNames : "历史地名：长安";
 
-        function bars(el, list, color) {
-          var box = document.getElementById(el);
+        function addBars(id, list, color) {
+          var box = document.getElementById(id);
           var max = list[0] ? list[0].freq : 1;
-          list.forEach(function (p) {
-            var row = document.createElement("div");
+          list.slice(0, 5).forEach(function (p) {
+            var row = document.createElement("button");
             row.className = "pb-row";
-            row.setAttribute("tabindex", "0");
+            row.type = "button";
+            row.setAttribute("aria-label", p.oldNames.split("(")[0] + "，" + p.type + "，提及" + p.freq + "次；回到地图指认");
             row.innerHTML =
               '<span class="pb-name">' + p.oldNames.split("(")[0] + "</span>" +
-              '<span class="pb-track"><span class="pb-fill" style="background:' + color + ';opacity:.8"></span></span>' +
+              '<span class="pb-track"><span class="pb-fill" style="background:' + color + ';opacity:.85"></span></span>' +
               '<span class="pb-num">' + p.freq + "</span>";
-            function go() {
+            row.addEventListener("click", function () {
               document.getElementById("screenMap").scrollIntoView({ behavior: "smooth" });
               selectPlace(p);
-            }
-            row.addEventListener("click", go);
-            row.addEventListener("keydown", function (e) {
-              if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); }
             });
             box.appendChild(row);
             requestAnimationFrame(function () {
@@ -836,8 +660,8 @@
             });
           });
         }
-        bars("capBars", inland.slice(0, 5), "#2B2B28");
-        bars("frBars", frontier.slice(0, 5), "#6B4A3A");
+        addBars("frontierBars", frontier, "#A14B3D");
+        addBars("changanBars", inland, "#426275");
       }
     }());
   </script>

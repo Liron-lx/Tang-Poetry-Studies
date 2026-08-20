@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="assets/css/common.css" />
   <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
   <style>
+    body { background: #fff; }
     .stage { width: min(1060px, calc(100% - 3rem)); margin: 0 auto; }
     .scene { margin-bottom: 4.5rem; }
     .scene-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: .4rem; }
@@ -78,20 +79,60 @@
     }
     .method p b { color: var(--ink); font-weight: 500; }
 
-    /* ---------- 尾声 ---------- */
-    .finale { text-align: center; padding: 4rem 0 5rem; border-top: 1px solid rgba(43, 43, 40, .15); }
+    /* ---------- 尾声：独立收卷屏 ---------- */
+    .finale {
+      position: relative;
+      isolation: isolate;
+      box-sizing: border-box;
+      width: 100vw;
+      min-height: 100svh;
+      margin-left: calc(50% - 50vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: clamp(3.8rem, 8vh, 6.5rem) max(1.5rem, calc((100vw - 1060px) / 2)) 3rem;
+      overflow: hidden;
+      text-align: center;
+      color: var(--paper);
+      background-color: #303131;
+      background-image:
+        linear-gradient(rgba(34, 34, 33, .78), rgba(34, 34, 33, .88)),
+        url("image/finale-background.png");
+      background-position: center, center;
+      background-size: cover, cover;
+      background-repeat: no-repeat;
+      border-top: 0;
+    }
+    .finale > * { position: relative; z-index: 1; }
+    .finale-copy {
+      width: min(640px, 100%); margin: 0 auto clamp(2rem, 5vh, 4rem);
+      display: flex; flex-direction: column; align-items: flex-start;
+    }
     .finale .f-poem {
       font-family: var(--font-serif); font-size: 1.05rem; letter-spacing: .15em;
-      line-height: 2.4; color: var(--ink-2); margin-bottom: 1.6rem;
+      align-self: center; line-height: 2.4; color: rgba(245, 242, 234, .78); margin: 0 0 1.6rem;
     }
-    .finale .f-line { font-family: var(--font-serif); font-size: 1.15rem; color: var(--ink); line-height: 2.2; }
-    .finale .f-seal { margin-top: 2.2rem; }
+    .finale .f-line { font-family: var(--font-serif); font-size: 1.15rem; color: var(--paper); line-height: 2.2; margin: 0; text-align: left; }
     .finale .f-back {
-      display: inline-block; margin-top: 2rem;
+      align-self: center; display: inline-block; margin-top: 2rem;
       font-family: var(--font-serif); font-size: .9rem; letter-spacing: .3em;
-      color: var(--ink-2); border-bottom: 1px solid var(--mist); padding-bottom: .2rem;
+      color: rgba(245, 242, 234, .78); border-bottom: 1px solid rgba(245, 242, 234, .55); padding-bottom: .2rem;
     }
-    .finale .f-back:hover { color: var(--cinnabar); border-color: var(--cinnabar); }
+    .finale .f-back:hover { color: #e8ceb3; border-color: #e8ceb3; }
+    .finale .method-scene {
+      width: 100%;
+      margin: auto 0 0;
+      padding-top: 2.2rem;
+      border-top: 1px solid rgba(245, 242, 234, .24);
+    }
+    .finale .method-scene .scene-head { margin-bottom: .8rem; }
+    .finale .method-scene .scene-head h2 { color: var(--paper); }
+    .finale .method-grid {
+      border-top-color: rgba(245, 242, 234, .22);
+    }
+    .finale .method p { color: rgba(245, 242, 234, .72); }
+    .finale .method p b { color: var(--paper); }
 
     @media (max-width: 900px) {
       .method-grid { grid-template-columns: repeat(2, 1fr); }
@@ -141,34 +182,34 @@
       <p class="m-note">语料 · 以《全唐诗》系统收录的咏侠/侠义题材作品为样本，共 90 首主记录。另有 10 条异文重复收录已在审计中标记（duplicate），弦宽只计主记录。</p>
     </section>
 
-    <section class="scene">
-      <div class="scene-head"><span class="no">叁</span><h2>数据与方法</h2></div>
-      <div class="method-grid">
-        <div class="method">
-          <h4>语 料</h4>
-          <p>《全唐诗》系统所收咏侠、侠义题材作品，主记录 <b>90 首</b>，出自 <b>56 位</b>诗人。</p>
-        </div>
-        <div class="method">
-          <h4>去 重</h4>
-          <p>异文重复收录 <b>10 条</b>，已在审计中标记；全站统计只计主记录，不重复计数。</p>
-        </div>
-        <div class="method">
-          <h4>系 年</h4>
-          <p><b>30 首</b>为作品级系年，<b>40 首</b>依作者行年推定，<b>20 首</b>待考——不虚构年份。</p>
-        </div>
-        <div class="method">
-          <h4>归 类</h4>
-          <p>五脉主题按题材语义聚类归并；一诗一脉，取其主要气息，边界篇目人工复核。</p>
-        </div>
-      </div>
-    </section>
-
     <div class="finale">
-      <p class="f-poem">侠客重恩光，骢马饰金装。<br />瞥闻传羽檄，驰突救边荒。</p>
-      <p class="f-line">张易之这首《出塞》仍没有年份。<br />九十首里，三十首归于其年，四十首由生平推定，二十首散作星辰。<br />凡时间未能收留的，想象都收留了——<br />它们都归在"侠"的共同想象里。</p>
-      <div class="f-seal"><span class="seal" style="width:56px;height:56px;font-size:1.5rem;">侠</span></div>
-      <br />
-      <a class="f-back" href="index.html">收 卷 · 回 到 卷 首</a>
+      <div class="finale-copy">
+        <p class="f-poem">侠客重恩光，骢马饰金装。<br />瞥闻传羽檄，驰突救边荒。</p>
+        <p class="f-line">张易之这首《出塞》仍没有年份。<br />九十首里，三十首归于其年，四十首由生平推定，二十首散作星辰。<br />凡时间未能收留的，想象都收留了——<br />它们都归在"侠"的共同想象里。</p>
+        <a class="f-back" href="index.html">收 卷 · 回 到 卷 首</a>
+      </div>
+
+      <section class="scene method-scene">
+        <div class="scene-head"><span class="no">叁</span><h2>数据与方法</h2></div>
+        <div class="method-grid">
+          <div class="method">
+            <h4>语 料</h4>
+            <p>《全唐诗》系统所收咏侠、侠义题材作品，主记录 <b>90 首</b>，出自 <b>56 位</b>诗人。</p>
+          </div>
+          <div class="method">
+            <h4>去 重</h4>
+            <p>异文重复收录 <b>10 条</b>，已在审计中标记；全站统计只计主记录，不重复计数。</p>
+          </div>
+          <div class="method">
+            <h4>系 年</h4>
+            <p><b>30 首</b>为作品级系年，<b>40 首</b>依作者行年推定，<b>20 首</b>待考——不虚构年份。</p>
+          </div>
+          <div class="method">
+            <h4>归 类</h4>
+            <p>五脉主题按题材语义聚类归并；一诗一脉，取其主要气息，边界篇目人工复核。</p>
+          </div>
+        </div>
+      </section>
     </div>
 
   </main>

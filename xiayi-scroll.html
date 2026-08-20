@@ -18,8 +18,7 @@
       }
 
       .page { overflow-x: auto; }
-      /* 幕头用全站统一的 .act-head，此处只保留长卷页的横向滚动适配 */
-      .act-head { min-width: 780px; }
+      /* 长卷的横向宽度只作用于图表和图例，幕题沿用全站 1060px 基线。 */
       .legend, .detail-label, .year-label, .footer {
         font-family: ui-sans-serif, system-ui, -apple-system, "PingFang SC", sans-serif;
         letter-spacing: .12em;
@@ -156,6 +155,7 @@
         min-height: 96vh;
         display: flex;
         align-items: center;
+        background: var(--silk);
         border-top: 1px solid rgba(43, 43, 40, .15);
       }
       .reading-inner {
@@ -183,10 +183,11 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 2.2rem;
       }
-      .r-block { border-top: 2px solid var(--ink); padding-top: 1.1rem; }
-      .r-block.peak   { border-top-color: var(--gold-2); }
-      .r-block.divide { border-top-color: var(--cinnabar); }
-      .r-block.stars  { border-top-color: var(--mist); }
+      .r-block { padding-top: 0; }
+      .reading-copy { border-top: 2px solid var(--ink); padding-top: 1.1rem; }
+      .r-block.peak .reading-copy   { border-top-color: var(--gold-2); }
+      .r-block.divide .reading-copy { border-top-color: var(--cinnabar); }
+      .r-block.stars .reading-copy  { border-top-color: var(--mist); }
       .r-block .r-no {
         font-family: var(--font-label);
         font-size: .66rem; letter-spacing: .3em; color: var(--ochre);
@@ -195,6 +196,15 @@
         font-family: var(--font-serif); font-weight: 400;
         font-size: 1.18rem; letter-spacing: .14em;
         margin: .3rem 0 .9rem;
+      }
+      .reading-figure {
+        margin: 0 0 1rem;
+      }
+      .reading-figure__image {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: contain;
       }
       .r-stat { display: flex; align-items: baseline; gap: .7rem; margin-bottom: .8rem; }
       .r-stat b {
@@ -258,22 +268,37 @@
           <p class="reading-lede">九十首诗，三条时间线：河面最宽处在盛唐，一道朱砂线把诗坛截成两半，二十首无年之作化作星辰。以下三段，各说一处。</p>
           <div class="reading-grid">
             <article class="r-block peak">
-              <span class="r-no">壹</span>
-              <h3>河面最宽处 · 开元</h3>
-              <div class="r-stat"><b>720s</b><span>九首 · 全卷最密的十年</span></div>
-              <p>720 年代九首、750 年代八首，全卷诗密度最高的两个十年都落在盛唐。前半程是王维、王昌龄、孟浩然的少年游侠与边塞壮游，后半程是李白、杜甫、高适的猎猎风尘。侠义诗的盛世，几乎与诗的盛世完全重合。</p>
+              <figure class="reading-figure">
+                <img class="reading-figure__image" src="image/shi-reading/peak-ka-yuan.png" alt="开元时期河面最宽处的长安建筑配图" loading="lazy" decoding="async" />
+              </figure>
+              <div class="reading-copy">
+                <span class="r-no">壹</span>
+                <h3>河面最宽处 · 开元</h3>
+                <div class="r-stat"><b>720s</b><span>九首 · 全卷最密的十年</span></div>
+                <p>720 年代九首、750 年代八首，全卷诗密度最高的两个十年都落在盛唐。前半程是王维、王昌龄、孟浩然的少年游侠与边塞壮游，后半程是李白、杜甫、高适的猎猎风尘。侠义诗的盛世，几乎与诗的盛世完全重合。</p>
+              </div>
             </article>
             <article class="r-block divide">
-              <span class="r-no">贰</span>
-              <h3>755 · 分水岭</h3>
-              <div class="r-stat"><b>43｜27</b><span>乱前有年之作 ｜ 乱后</span></div>
-              <p>安史之乱前，有年之作四十三首；之后，二十七首。河面收窄了，水色却变了——交游宴饮的侠渐渐退去，<em>侠义抒怀一脉反而在乱后涨到全脉最密</em>：李白《猛虎行》、杜甫《后出塞》《鹿头山》皆写于烽火之中。盛世之侠是游出来的，乱世之侠是逼出来的。</p>
+              <figure class="reading-figure">
+                <img class="reading-figure__image" src="image/shi-reading/divide-755.png" alt="755 年安史之乱分水岭配图" loading="lazy" decoding="async" />
+              </figure>
+              <div class="reading-copy">
+                <span class="r-no">贰</span>
+                <h3>755 · 分水岭</h3>
+                <div class="r-stat"><b>43｜27</b><span>乱前有年之作 ｜ 乱后</span></div>
+                <p>安史之乱前，有年之作四十三首；之后，二十七首。河面收窄了，水色却变了——交游宴饮的侠渐渐退去，<em>侠义抒怀一脉反而在乱后涨到全脉最密</em>：李白《猛虎行》、杜甫《后出塞》《鹿头山》皆写于烽火之中。盛世之侠是游出来的，乱世之侠是逼出来的。</p>
+              </div>
             </article>
             <article class="r-block stars">
-              <span class="r-no">叁</span>
-              <h3>二十首 · 散于天汉</h3>
-              <div class="r-stat"><b>20</b><span>无年待考 · 不入河川</span></div>
-              <p>九十首里，二十首至今无法系年——不虚构一个年份，于是散作星辰，悬在河川之上。入河的七十首中，也仅三十首有据可考的作品级系年，其余四十首依作者行年推定。这份不确定，本就是唐代侠义书写的一部分。</p>
+              <figure class="reading-figure">
+                <img class="reading-figure__image" src="image/shi-reading/stars-in-heaven.png" alt="无年诗作散于天汉的星辰配图" loading="lazy" decoding="async" />
+              </figure>
+              <div class="reading-copy">
+                <span class="r-no">叁</span>
+                <h3>二十首 · 散于天汉</h3>
+                <div class="r-stat"><b>20</b><span>无年待考 · 不入河川</span></div>
+                <p>九十首里，二十首至今无法系年——不虚构一个年份，于是散作星辰，悬在河川之上。入河的七十首中，也仅三十首有据可考的作品级系年，其余四十首依作者行年推定。这份不确定，本就是唐代侠义书写的一部分。</p>
+              </div>
             </article>
           </div>
         </div>
